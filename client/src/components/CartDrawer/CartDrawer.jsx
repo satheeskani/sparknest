@@ -1,7 +1,41 @@
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { removeFromCart, updateQty, clearCart } from "../../redux/slices/cartSlice";
 import { ShoppingBag, X, Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
+
+
+function CartQtyInput({ item }) {
+  const dispatch = useDispatch();
+  const [focused, setFocused] = useState(false);
+  const [val, setVal] = useState(String(item.quantity));
+  const max = Math.min(99, item.stock || 99);
+
+  // Keep val in sync when not focused
+  if (!focused && val !== String(item.quantity)) {
+    setVal(String(item.quantity));
+  }
+
+  const commit = () => {
+    const v = parseInt(val);
+    if (!isNaN(v) && v >= 1) dispatch(updateQty({ id: item._id, quantity: Math.min(max, v) }));
+    else if (!isNaN(v) && v < 1) dispatch(removeFromCart(item._id));
+    else setVal(String(item.quantity));
+    setFocused(false);
+  };
+
+  return (
+    <input
+      type="number" min="1" max={max}
+      value={val}
+      onChange={e => setVal(e.target.value)}
+      onFocus={e => { setFocused(true); e.target.select(); }}
+      onBlur={commit}
+      onKeyDown={e => { if (e.key === "Enter") { commit(); e.target.blur(); } }}
+      style={{ minWidth:22, width:32, textAlign:"center", color:"#FFF5E6", fontWeight:700, fontSize:"0.82rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
+    />
+  );
+}
 
 export default function CartDrawer({ open, onClose }) {
   const dispatch = useDispatch();
@@ -18,6 +52,11 @@ export default function CartDrawer({ open, onClose }) {
 
   return (
     <>
+      <style>{`
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+        input[type=number] { -moz-appearance:textfield; }
+      `}</style>
       {/* Overlay */}
       <div
         onClick={onClose}
@@ -121,10 +160,11 @@ export default function CartDrawer({ open, onClose }) {
                           onClick={() => item.quantity > 1 ? dispatch(updateQty({ id: item._id, quantity: item.quantity - 1 })) : dispatch(removeFromCart(item._id))}
                           style={{ width: 28, height: 28, border: "none", background: "transparent", color: "#FF6B00", fontWeight: 800, fontSize: "1rem", cursor: "pointer" }}
                         >−</button>
-                        <span style={{ minWidth: 22, textAlign: "center", color: "#FFF5E6", fontWeight: 700, fontSize: "0.82rem" }}>{item.quantity}</span>
+                        <CartQtyInput item={item} />
                         <button
-                          onClick={() => dispatch(updateQty({ id: item._id, quantity: item.quantity + 1 }))}
-                          style={{ width: 28, height: 28, border: "none", background: "transparent", color: "#FF6B00", fontWeight: 800, fontSize: "1rem", cursor: "pointer" }}
+                          onClick={() => { const max = Math.min(99, item.stock || 99); if (item.quantity < max) dispatch(updateQty({ id: item._id, quantity: item.quantity + 1 })); }}
+                          disabled={item.quantity >= Math.min(99, item.stock || 99)}
+                          style={{ width: 28, height: 28, border: "none", background: "transparent", color: item.quantity >= Math.min(99, item.stock || 99) ? "rgba(255,107,0,0.25)" : "#FF6B00", fontWeight: 800, fontSize: "1rem", cursor: item.quantity >= Math.min(99, item.stock || 99) ? "not-allowed" : "pointer" }}
                         >+</button>
                       </div>
                       <span style={{ fontWeight: 800, color: "#FFD700", fontSize: "0.9rem" }}>

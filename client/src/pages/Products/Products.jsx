@@ -16,18 +16,18 @@ const SORT_OPTIONS = [
 ];
 
 const DEMO_PRODUCTS = [
-  { _id:"1",  name:"Golden Sparklers Pack",      category:"Sparklers",   price:299,  originalPrice:399,  rating:4.8, numReviews:124, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80" },
-  { _id:"2",  name:"Sky Rocket 10-in-1",         category:"Rockets",     price:549,  originalPrice:699,  rating:4.6, numReviews:89,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80" },
-  { _id:"3",  name:"Rainbow Flower Pot Set",     category:"Flower Pots", price:399,  originalPrice:499,  rating:4.9, numReviews:201, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80" },
-  { _id:"4",  name:"Thunder Bomb Pack (20pcs)",  category:"Bombs",       price:199,  originalPrice:249,  rating:4.3, numReviews:56,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
-  { _id:"5",  name:"Sky Shot Premium Bundle",    category:"Sky Shots",   price:899,  originalPrice:1199, rating:4.7, numReviews:143, isSafeForKids:false, image:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=400&q=80" },
-  { _id:"6",  name:"Kids Fun Cracker Set",       category:"Kids Special",price:349,  originalPrice:449,  rating:4.9, numReviews:312, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400&q=80" },
-  { _id:"7",  name:"Diwali Mega Combo Pack",     category:"Combo Packs", price:1499, originalPrice:1999, rating:4.8, numReviews:267, isSafeForKids:false, image:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400&q=80" },
-  { _id:"8",  name:"Premium Gift Box Deluxe",    category:"Gift Boxes",  price:799,  originalPrice:999,  rating:4.6, numReviews:98,  isSafeForKids:true,  image:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80" },
-  { _id:"9",  name:"Silver Sparklers (50pcs)",   category:"Sparklers",   price:179,  originalPrice:199,  rating:4.5, numReviews:445, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80" },
-  { _id:"10", name:"Colour Rain Rockets",        category:"Rockets",     price:649,  originalPrice:799,  rating:4.4, numReviews:72,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80" },
-  { _id:"11", name:"Mini Flower Pot (12pcs)",    category:"Flower Pots", price:249,  originalPrice:299,  rating:4.7, numReviews:189, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80" },
-  { _id:"12", name:"Atom Bomb Special (10pcs)",  category:"Bombs",       price:149,  originalPrice:199,  rating:4.2, numReviews:33,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
+  { _id:"1",  name:"Golden Sparklers Pack", stock:45,      category:"Sparklers",   price:299,  originalPrice:399,  rating:4.8, numReviews:124, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80" },
+  { _id:"2",  name:"Sky Rocket 10-in-1", stock:28,         category:"Rockets",     price:549,  originalPrice:699,  rating:4.6, numReviews:89,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80" },
+  { _id:"3",  name:"Rainbow Flower Pot Set", stock:60,     category:"Flower Pots", price:399,  originalPrice:499,  rating:4.9, numReviews:201, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80" },
+  { _id:"4",  name:"Thunder Bomb Pack (20pcs)", stock:100,  category:"Bombs",       price:199,  originalPrice:249,  rating:4.3, numReviews:56,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
+  { _id:"5",  name:"Sky Shot Premium Bundle", stock:15,    category:"Sky Shots",   price:899,  originalPrice:1199, rating:4.7, numReviews:143, isSafeForKids:false, image:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=400&q=80" },
+  { _id:"6",  name:"Kids Fun Cracker Set", stock:80,       category:"Kids Special",price:349,  originalPrice:449,  rating:4.9, numReviews:312, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400&q=80" },
+  { _id:"7",  name:"Diwali Mega Combo Pack", stock:20,     category:"Combo Packs", price:1499, originalPrice:1999, rating:4.8, numReviews:267, isSafeForKids:false, image:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400&q=80" },
+  { _id:"8",  name:"Premium Gift Box Deluxe", stock:35,    category:"Gift Boxes",  price:799,  originalPrice:999,  rating:4.6, numReviews:98,  isSafeForKids:true,  image:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80" },
+  { _id:"9",  name:"Silver Sparklers (50pcs)", stock:120,   category:"Sparklers",   price:179,  originalPrice:199,  rating:4.5, numReviews:445, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80" },
+  { _id:"10", name:"Colour Rain Rockets", stock:40,        category:"Rockets",     price:649,  originalPrice:799,  rating:4.4, numReviews:72,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80" },
+  { _id:"11", name:"Mini Flower Pot (12pcs)", stock:75,    category:"Flower Pots", price:249,  originalPrice:299,  rating:4.7, numReviews:189, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80" },
+  { _id:"12", name:"Atom Bomb Special (10pcs)", stock:90,  category:"Bombs",       price:149,  originalPrice:199,  rating:4.2, numReviews:33,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
 ];
 
 function StarRating({ rating }) {
@@ -52,8 +52,22 @@ function ProductCard({ product, wishlist, onWishlist }) {
   const [imgErr, setImgErr] = useState(false);
   const isWished  = wishlist.includes(product._id);
 
+  const [qtyFocused, setQtyFocused] = useState(false);
+  const [qtyVal, setQtyVal]         = useState(String(qty));
+  if (!qtyFocused && qtyVal !== String(qty)) setQtyVal(String(qty));
+
+  const max = Math.min(99, product.stock || 99);
+
+  const commitQty = () => {
+    const v = parseInt(qtyVal);
+    if (!isNaN(v) && v >= 1) dispatch(updateQty({ id: product._id, quantity: Math.min(max, v) }));
+    else if (!isNaN(v) && v < 1) dispatch(removeFromCart(product._id));
+    else setQtyVal(String(qty));
+    setQtyFocused(false);
+  };
+
   const handleAdd  = (e) => { e.preventDefault(); dispatch(addToCart(product)); toast.success("Added to cart! 🎆", { duration:1500 }); };
-  const handleInc  = (e) => { e.preventDefault(); dispatch(updateQty({ id: product._id, quantity: qty + 1 })); };
+  const handleInc  = (e) => { e.preventDefault(); if (qty < max) dispatch(updateQty({ id: product._id, quantity: qty + 1 })); };
   const handleDec  = (e) => { e.preventDefault(); qty > 1 ? dispatch(updateQty({ id: product._id, quantity: qty - 1 })) : dispatch(removeFromCart(product._id)); };
   const handleWish = (e) => { e.preventDefault(); onWishlist(product._id); toast(isWished ? "Removed from wishlist" : "Added to wishlist ❤️", { duration:1200 }); };
 
@@ -95,9 +109,13 @@ function ProductCard({ product, wishlist, onWishlist }) {
 
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.3rem", marginTop:"0.4rem" }}>
           <div>
-            <div style={{ display:"flex", alignItems:"center", gap:"0.25rem", marginBottom:"0.18rem" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:"0.25rem", marginBottom:"0.18rem", flexWrap:"wrap" }}>
               <StarRating rating={product.rating} />
               <span style={{ fontSize:"0.58rem", color:"rgba(255,245,230,0.5)" }}>({product.numReviews})</span>
+              {product.stock <= 20
+                ? <span style={{ fontSize:"0.65rem", fontWeight:800, padding:"0.18rem 0.5rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 {product.stock} left</span>
+                : <span style={{ fontSize:"0.65rem", fontWeight:800, padding:"0.18rem 0.5rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
+              }
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.3rem" }}>
               <span style={{ fontSize:"0.92rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
@@ -113,8 +131,17 @@ function ProductCard({ product, wishlist, onWishlist }) {
           ) : (
             <div style={{ display:"flex", alignItems:"center", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:8, overflow:"hidden", boxShadow:"0 2px 8px rgba(255,107,0,0.4)", flexShrink:0 }}>
               <button onClick={handleDec} style={{ width:24, height:28, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"0.95rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
-              <span style={{ minWidth:18, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"0.75rem" }}>{qty}</span>
-              <button onClick={handleInc} style={{ width:24, height:28, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"0.95rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
+              <input
+                type="number" min="1" max="99"
+                value={qtyVal}
+                onChange={e => setQtyVal(e.target.value)}
+                onFocus={e => { setQtyFocused(true); e.target.select(); }}
+                onBlur={commitQty}
+                onKeyDown={e => { if (e.key === "Enter") { commitQty(); e.target.blur(); } }}
+                onClick={e => e.preventDefault()}
+                style={{ width:28, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"0.75rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
+              />
+              <button onClick={handleInc} disabled={qty >= max} style={{ width:24, height:28, border:"none", background:"transparent", color: qty >= max ? "rgba(255,255,255,0.3)" : "#fff", fontWeight:800, fontSize:"0.95rem", cursor: qty >= max ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
             </div>
           )}
         </div>
@@ -260,6 +287,11 @@ export default function Products() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
 
+        
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+        input[type=number] { -moz-appearance:textfield; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin   { to{transform:rotate(360deg)} }
 
@@ -339,13 +371,13 @@ export default function Products() {
         }
 
         .filter-overlay {
-          display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+          display:none; position:fixed; top:80px; left:0; right:0; bottom:0;
           background:rgba(0,0,0,0.65); z-index:40; backdrop-filter:blur(4px);
         }
         .filter-overlay.open { display:block; }
 
         .filter-drawer {
-          position:fixed; top:0; left:-100%; bottom:0;
+          position:fixed; top:80px; left:-100%; bottom:0;
           width:min(290px, 85vw);
           background:linear-gradient(160deg,#FFF8F0,#FFF3E0);
           z-index:50; overflow-y:auto;
