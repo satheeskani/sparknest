@@ -37,26 +37,24 @@ function StarRating({ rating }) {
         <Star key={s} size={10}
           fill={s <= Math.round(rating) ? "#FFD700" : "none"}
           color={s <= Math.round(rating) ? "#FFD700" : "rgba(255,245,230,0.2)"}
-          strokeWidth={1.5}
-        />
+          strokeWidth={1.5} />
       ))}
     </div>
   );
 }
 
 function ProductCard({ product, wishlist, onWishlist }) {
-  const dispatch = useDispatch();
+  const dispatch  = useDispatch();
   const cartItems = useSelector(s => s.cart.items);
   const cartItem  = cartItems.find(i => i._id === product._id);
   const qty       = cartItem ? cartItem.quantity : 0;
-  const discount  = product.originalPrice
-    ? Math.round(100 - (product.price / product.originalPrice) * 100) : 0;
+  const discount  = product.originalPrice ? Math.round(100 - (product.price / product.originalPrice) * 100) : 0;
   const [imgErr, setImgErr] = useState(false);
   const isWished  = wishlist.includes(product._id);
 
-  const handleAdd = (e) => { e.preventDefault(); dispatch(addToCart(product)); toast.success("Added to cart! 🎆", { duration:1500 }); };
-  const handleInc = (e) => { e.preventDefault(); dispatch(updateQty({ id: product._id, quantity: qty + 1 })); };
-  const handleDec = (e) => { e.preventDefault(); qty > 1 ? dispatch(updateQty({ id: product._id, quantity: qty - 1 })) : dispatch(removeFromCart(product._id)); };
+  const handleAdd  = (e) => { e.preventDefault(); dispatch(addToCart(product)); toast.success("Added to cart! 🎆", { duration:1500 }); };
+  const handleInc  = (e) => { e.preventDefault(); dispatch(updateQty({ id: product._id, quantity: qty + 1 })); };
+  const handleDec  = (e) => { e.preventDefault(); qty > 1 ? dispatch(updateQty({ id: product._id, quantity: qty - 1 })) : dispatch(removeFromCart(product._id)); };
   const handleWish = (e) => { e.preventDefault(); onWishlist(product._id); toast(isWished ? "Removed from wishlist" : "Added to wishlist ❤️", { duration:1200 }); };
 
   return (
@@ -89,7 +87,7 @@ function ProductCard({ product, wishlist, onWishlist }) {
               </div>
             </Link>
           </div>
-          <button onClick={handleWish} title={isWished ? "Remove from wishlist" : "Add to wishlist"}
+          <button onClick={handleWish}
             style={{ flexShrink:0, width:27, height:27, borderRadius:"50%", border:`1.5px solid ${isWished ? "rgba(255,61,0,0.5)" : "rgba(255,245,230,0.12)"}`, background: isWished ? "rgba(255,61,0,0.1)" : "rgba(255,255,255,0.04)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"all .2s", marginLeft:"0.25rem" }}>
             <Heart size={12} fill={isWished ? "#FF3D00" : "none"} color={isWished ? "#FF3D00" : "rgba(255,245,230,0.35)"} strokeWidth={2} />
           </button>
@@ -144,9 +142,7 @@ function WishlistView({ wishlist, onWishlist }) {
       ) : (
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:"0.85rem" }}>
           {wishedProducts.map(p => (
-            <div key={p._id} style={{ position:"relative" }}>
-              <ProductCard product={p} wishlist={wishlist} onWishlist={onWishlist} />
-            </div>
+            <ProductCard key={p._id} product={p} wishlist={wishlist} onWishlist={onWishlist} />
           ))}
         </div>
       )}
@@ -158,8 +154,8 @@ export default function Products() {
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
 
-  const [products]      = useState(DEMO_PRODUCTS);
-  const [loading]       = useState(false);
+  const [products]  = useState(DEMO_PRODUCTS);
+  const [loading]   = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch]           = useState("");
   const [activeTab, setActiveTab]     = useState("all");
@@ -175,36 +171,21 @@ export default function Products() {
     });
   };
 
-  const [selectedCats, setSelectedCats] = useState(() => {
-    const cat = searchParams.get("category");
-    return cat ? [cat] : [];
-  });
-  const [priceRange, setPriceRange] = useState([0, 2000]);
-  const [kidsOnly, setKidsOnly]     = useState(searchParams.get("isSafeForKids") === "true");
-  const [sortBy, setSortBy]         = useState("newest");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pendingCats, setPendingCats]       = useState(selectedCats);
-  const [pendingPrice, setPendingPrice]     = useState(priceRange);
-  const [pendingKids, setPendingKids]       = useState(kidsOnly);
-  const ITEMS_PER_PAGE = 12;
+  const [selectedCats, setSelectedCats] = useState(() => { const cat = searchParams.get("category"); return cat ? [cat] : []; });
+  const [priceRange, setPriceRange]     = useState([0, 2000]);
+  const [kidsOnly, setKidsOnly]         = useState(searchParams.get("isSafeForKids") === "true");
+  const [sortBy, setSortBy]             = useState("newest");
+  const [currentPage, setCurrentPage]   = useState(1);
+  const [pendingCats, setPendingCats]   = useState(selectedCats);
+  const [pendingPrice, setPendingPrice] = useState(priceRange);
+  const [pendingKids, setPendingKids]   = useState(kidsOnly);
+  const ITEMS_PER_PAGE = 9;
 
-  const toggleCat = (cat) => setSelectedCats(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
+  const toggleCat        = (cat) => setSelectedCats(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
   const togglePendingCat = (cat) => setPendingCats(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
 
-  const applyMobileFilters = () => {
-    setSelectedCats(pendingCats);
-    setPriceRange(pendingPrice);
-    setKidsOnly(pendingKids);
-    setSidebarOpen(false);
-  };
-
-  const openSidebar = () => {
-    setPendingCats(selectedCats);
-    setPendingPrice(priceRange);
-    setPendingKids(kidsOnly);
-    setSidebarOpen(true);
-  };
-
+  const applyMobileFilters = () => { setSelectedCats(pendingCats); setPriceRange(pendingPrice); setKidsOnly(pendingKids); setSidebarOpen(false); };
+  const openSidebar = () => { setPendingCats(selectedCats); setPendingPrice(priceRange); setPendingKids(kidsOnly); setSidebarOpen(true); };
   const clearFilters = () => {
     setSelectedCats([]); setPendingCats([]);
     setPriceRange([0,2000]); setPendingPrice([0,2000]);
@@ -226,30 +207,27 @@ export default function Products() {
 
   useEffect(() => { setCurrentPage(1); }, [selectedCats, priceRange, kidsOnly, sortBy, search]);
 
-  const hasFilters  = selectedCats.length > 0 || priceRange[0] > 0 || priceRange[1] < 2000 || kidsOnly;
-  const totalPages  = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated   = filtered.slice((currentPage-1)*ITEMS_PER_PAGE, currentPage*ITEMS_PER_PAGE);
+  const hasFilters = selectedCats.length > 0 || priceRange[0] > 0 || priceRange[1] < 2000 || kidsOnly;
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginated  = filtered.slice((currentPage-1)*ITEMS_PER_PAGE, currentPage*ITEMS_PER_PAGE);
 
   const FilterContent = ({ pending = false }) => {
-    const cats   = pending ? pendingCats   : selectedCats;
-    const toggle = pending ? togglePendingCat : toggleCat;
-    const price  = pending ? pendingPrice  : priceRange;
+    const cats     = pending ? pendingCats   : selectedCats;
+    const toggle   = pending ? togglePendingCat : toggleCat;
+    const price    = pending ? pendingPrice  : priceRange;
     const setPrice = pending ? setPendingPrice : setPriceRange;
-    const kids   = pending ? pendingKids   : kidsOnly;
-    const setKids = pending ? setPendingKids  : setKidsOnly;
-
+    const kids     = pending ? pendingKids   : kidsOnly;
+    const setKids  = pending ? setPendingKids : setKidsOnly;
     return (
       <>
         <div style={{ marginBottom:"1.5rem" }}>
           <p style={{ fontSize:"0.65rem", letterSpacing:"0.15em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Category</p>
           {CATEGORIES.map(cat => (
             <label key={cat} className={`filter-check${cats.includes(cat) ? " active" : ""}`}>
-              <input type="checkbox" checked={cats.includes(cat)} onChange={() => toggle(cat)} />
-              {cat}
+              <input type="checkbox" checked={cats.includes(cat)} onChange={() => toggle(cat)} />{cat}
             </label>
           ))}
         </div>
-
         <div style={{ marginBottom:"1.5rem" }}>
           <p style={{ fontSize:"0.65rem", letterSpacing:"0.15em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Price Range</p>
           <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"0.5rem" }}>
@@ -264,13 +242,11 @@ export default function Products() {
             <span style={{ fontSize:"0.62rem", color:"rgba(26,8,0,0.55)" }}>₹2000</span>
           </div>
         </div>
-
         <div style={{ marginBottom:"1.2rem" }}>
           <p style={{ fontSize:"0.65rem", letterSpacing:"0.15em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Kids Safe Only</p>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background: kids ? "rgba(46,204,113,0.1)" : "rgba(0,0,0,0.04)", border:`1.5px solid ${kids ? "rgba(46,204,113,0.35)" : "rgba(26,8,0,0.1)"}`, borderRadius:12, padding:"0.6rem 0.85rem", cursor:"pointer", transition:"all .3s" }} onClick={() => setKids(k => !k)}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background: kids ? "rgba(46,204,113,0.1)" : "rgba(0,0,0,0.04)", border:`1.5px solid ${kids ? "rgba(46,204,113,0.35)" : "rgba(26,8,0,0.1)"}`, borderRadius:12, padding:"0.6rem 0.85rem", cursor:"pointer" }} onClick={() => setKids(k => !k)}>
             <span style={{ fontSize:"0.8rem", color: kids ? "#1a7a4a" : "rgba(26,8,0,0.6)", fontWeight:700, display:"flex", alignItems:"center", gap:"0.35rem" }}>
-              <Baby size={14} strokeWidth={2} color={kids ? "#1ABC9C" : "rgba(26,8,0,0.4)"} />
-              {kids ? "Kids Safe ON" : "Kids Safe OFF"}
+              <Baby size={14} strokeWidth={2} color={kids ? "#1ABC9C" : "rgba(26,8,0,0.4)"} />{kids ? "Kids Safe ON" : "Kids Safe OFF"}
             </span>
             <div className={`kids-toggle${kids ? " on" : ""}`} style={{ pointerEvents:"none" }} />
           </div>
@@ -294,11 +270,7 @@ export default function Products() {
           transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s, border-color .3s;
           animation: fadeUp .3s ease both;
         }
-        .prod-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 12px 36px rgba(0,0,0,0.35);
-          border-color: rgba(255,107,0,0.22);
-        }
+        .prod-card:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,0.35); border-color: rgba(255,107,0,0.22); }
         .prod-card:hover .prod-img { transform: scale(1.06); }
 
         .filter-check {
@@ -317,7 +289,7 @@ export default function Products() {
           color: #FFF5E6; font-family: 'DM Sans',sans-serif;
           font-size: 0.82rem; font-weight: 600; outline: none; cursor: pointer;
           appearance: none; -webkit-appearance: none; transition: border-color .2s;
-          min-width: 150px; width: 100%; box-sizing: border-box;
+          width: 100%; box-sizing: border-box;
         }
         .sort-select:hover { border-color: rgba(255,107,0,0.35); }
         .sort-select:focus { border-color: rgba(255,107,0,0.55); box-shadow: 0 0 0 3px rgba(255,107,0,0.1); }
@@ -327,7 +299,8 @@ export default function Products() {
           background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,245,230,0.1);
           border-radius: 12px; padding: 0.58rem 1rem 0.58rem 2.5rem;
           color: #FFF5E6; font-family: 'DM Sans',sans-serif;
-          font-size: 0.85rem; outline: none; width: 100%; transition: border-color .2s, box-shadow .2s;
+          font-size: 0.85rem; outline: none; width: 100%;
+          transition: border-color .2s, box-shadow .2s; box-sizing: border-box;
         }
         .search-bar::placeholder { color: rgba(255,245,230,0.4); }
         .search-bar:focus { border-color: rgba(255,107,0,0.5); box-shadow: 0 0 0 3px rgba(255,107,0,0.08); }
@@ -344,7 +317,7 @@ export default function Products() {
 
         .kids-toggle {
           position:relative; width:42px; height:23px;
-          background:rgba(26,8,0,0.15); border-radius:100px; cursor:pointer;
+          background:rgba(26,8,0,0.15); border-radius:100px;
           transition:background .3s; flex-shrink:0;
           border:1.5px solid rgba(26,8,0,0.15); display:inline-block;
         }
@@ -365,13 +338,13 @@ export default function Products() {
           box-shadow: 0 4px 24px rgba(0,0,0,0.08);
         }
 
-        .sidebar-overlay {
+        .filter-overlay {
           display:none; position:fixed; top:0; left:0; right:0; bottom:0;
           background:rgba(0,0,0,0.65); z-index:40; backdrop-filter:blur(4px);
         }
-        .sidebar-overlay.open { display:block; }
+        .filter-overlay.open { display:block; }
 
-        .mobile-drawer {
+        .filter-drawer {
           position:fixed; top:0; left:-100%; bottom:0;
           width:min(290px, 85vw);
           background:linear-gradient(160deg,#FFF8F0,#FFF3E0);
@@ -381,10 +354,10 @@ export default function Products() {
           border-right:1px solid rgba(255,107,0,0.15);
           box-sizing: border-box;
         }
-        .mobile-drawer.open { left:0; }
-        .mobile-filter-btn { display:none !important; }
+        .filter-drawer.open { left:0; }
+        .prod-filter-btn { display:none !important; }
 
-        .tab-bar { display:flex; gap:0; border-bottom:1px solid rgba(255,245,230,0.08); margin-bottom:1.5rem; }
+        .tab-bar { display:flex; border-bottom:1px solid rgba(255,245,230,0.08); margin-bottom:1.5rem; }
         .tab-btn {
           padding:0.55rem 1.2rem; border:none; background:none; cursor:pointer;
           font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600;
@@ -393,25 +366,29 @@ export default function Products() {
         }
         .tab-btn.active { color:#FF6B00; border-bottom-color:#FF6B00; }
 
+        /* ── Navbar fix: solid background on this dark page ── */
+        nav { background: rgba(8,4,0,0.95) !important; backdrop-filter: blur(20px) saturate(180%) !important; -webkit-backdrop-filter: blur(20px) saturate(180%) !important; border-bottom: 1px solid rgba(255,215,0,0.15) !important; }
+
         @media(max-width:900px) {
           .filter-sidebar  { display:none !important; }
-          .mobile-filter-btn { display:flex !important; }
+          .prod-filter-btn { display:flex !important; }
           .prod-grid { grid-template-columns:1fr !important; }
         }
+
+        /* Mobile toolbar: search full width on top, filters+sort below */
         @media(max-width:480px) {
           .prod-grid { gap:0.65rem !important; }
-          .toolbar-wrap { flex-direction:column !important; }
-          .toolbar-search { order:1; width:100% !important; flex:unset !important; min-width:unset !important; }
-          .toolbar-row2 { order:2; display:flex !important; gap:0.65rem; width:100%; }
-          .toolbar-sort { flex:1 !important; min-width:unset !important; }
-          .toolbar-sort .sort-select { width:100% !important; min-width:unset !important; box-sizing:border-box; }
+          .toolbar-wrap { flex-wrap:wrap !important; }
+          .toolbar-search { order:0; flex: 0 0 100% !important; min-width:100% !important; }
+          .toolbar-row2 { order:1; display:flex !important; width:100%; gap:0.65rem; }
+          .toolbar-sort { flex:1 !important; }
         }
       `}</style>
 
-      <div className={`sidebar-overlay${sidebarOpen ? " open" : ""}`} onClick={() => setSidebarOpen(false)} />
+      <div className={`filter-overlay${sidebarOpen ? " open" : ""}`} onClick={() => setSidebarOpen(false)} />
 
       {/* Mobile filter drawer */}
-      <div className={`mobile-drawer${sidebarOpen ? " open" : ""}`}>
+      <div className={`filter-drawer${sidebarOpen ? " open" : ""}`}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1.3rem" }}>
           <span style={{ fontWeight:800, color:"#1a0800", fontSize:"0.95rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
             <SlidersHorizontal size={15} color="#FF6B00" /> Filters
@@ -420,10 +397,7 @@ export default function Products() {
             <X size={18} />
           </button>
         </div>
-
         <FilterContent pending={true} />
-
-        {/* ── Apply button — flows naturally inside the drawer ── */}
         <div style={{ marginTop:"1.5rem", paddingTop:"1rem", borderTop:"1px solid rgba(255,107,0,0.12)" }}>
           <button onClick={applyMobileFilters}
             style={{ width:"100%", boxSizing:"border-box", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:12, color:"#fff", fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:"0.92rem", padding:"0.82rem", cursor:"pointer", boxShadow:"0 4px 16px rgba(255,107,0,0.4)" }}>
@@ -469,9 +443,7 @@ export default function Products() {
           <div style={{ flex:1, minWidth:0 }}>
 
             <div className="tab-bar">
-              <button className={`tab-btn${activeTab==="all" ? " active" : ""}`} onClick={() => setActiveTab("all")}>
-                All Products
-              </button>
+              <button className={`tab-btn${activeTab==="all" ? " active" : ""}`} onClick={() => setActiveTab("all")}>All Products</button>
               <button className={`tab-btn${activeTab==="wishlist" ? " active" : ""}`} onClick={() => setActiveTab("wishlist")}>
                 <Heart size={13} fill={activeTab==="wishlist" ? "#FF3D00" : "none"} color={activeTab==="wishlist" ? "#FF3D00" : "rgba(255,245,230,0.45)"} />
                 Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{wishlist.length}</span>}
@@ -482,20 +454,19 @@ export default function Products() {
               <WishlistView wishlist={wishlist} onWishlist={toggleWishlist} />
             ) : (
               <>
+                {/* Toolbar */}
                 <div className="toolbar-wrap" style={{ display:"flex", gap:"0.65rem", marginBottom:"1.2rem", alignItems:"center" }}>
-
                   <div className="toolbar-search" style={{ position:"relative", flex:1, minWidth:160 }}>
                     <Search size={14} color="rgba(255,245,230,0.3)" style={{ position:"absolute", left:"0.85rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }} />
                     <input className="search-bar" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
                   </div>
 
                   <div className="toolbar-row2" style={{ display:"contents" }}>
-                    <button onClick={openSidebar} className="mobile-filter-btn"
+                    <button onClick={openSidebar} className="prod-filter-btn"
                       style={{ alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:12, padding:"0.58rem 1rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"0.82rem", fontWeight:600, cursor:"pointer", flexShrink:0 }}>
                       <SlidersHorizontal size={14}/> Filters
                       {hasFilters && <span style={{ background:"#FF6B00", color:"#fff", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{selectedCats.length + (kidsOnly?1:0)}</span>}
                     </button>
-
                     <div className="toolbar-sort" style={{ position:"relative", flexShrink:0 }}>
                       <select className="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
                         {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -505,6 +476,7 @@ export default function Products() {
                   </div>
                 </div>
 
+                {/* Active chips */}
                 {(selectedCats.length > 0 || kidsOnly) && (
                   <div style={{ display:"flex", gap:"0.45rem", flexWrap:"wrap", marginBottom:"1rem" }}>
                     {selectedCats.map(c => (
@@ -520,6 +492,7 @@ export default function Products() {
                   </div>
                 )}
 
+                {/* Grid */}
                 {loading ? (
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:280, gap:"0.8rem", color:"rgba(255,245,230,0.4)" }}>
                     <span style={{ width:26, height:26, border:"3px solid rgba(255,107,0,0.2)", borderTopColor:"#FF6B00", borderRadius:"50%", display:"inline-block", animation:"spin 0.8s linear infinite" }}/>
@@ -530,9 +503,7 @@ export default function Products() {
                     <div style={{ fontSize:"3.5rem", marginBottom:"1rem" }}>🎆</div>
                     <p style={{ fontSize:"0.95rem", fontWeight:600, color:"rgba(255,245,230,0.55)", marginBottom:"0.4rem" }}>No products found</p>
                     <p style={{ fontSize:"0.82rem" }}>Try adjusting your filters</p>
-                    <button onClick={clearFilters} style={{ marginTop:"1rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.55rem 1.4rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"0.82rem", fontWeight:700, cursor:"pointer" }}>
-                      Clear Filters
-                    </button>
+                    <button onClick={clearFilters} style={{ marginTop:"1rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.55rem 1.4rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"0.82rem", fontWeight:700, cursor:"pointer" }}>Clear Filters</button>
                   </div>
                 ) : (
                   <>
@@ -547,7 +518,7 @@ export default function Products() {
                     {totalPages > 1 && (
                       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.45rem", marginTop:"2rem", flexWrap:"wrap" }}>
                         <button onClick={() => { setCurrentPage(p => Math.max(1,p-1)); window.scrollTo({top:0,behavior:"smooth"}); }} disabled={currentPage===1}
-                          style={{ width:36, height:36, borderRadius:9, border:"1.5px solid rgba(255,245,230,0.12)", background: currentPage===1 ? "rgba(255,255,255,0.03)" : "rgba(255,107,0,0.1)", color: currentPage===1 ? "rgba(255,245,230,0.2)" : "#FF6B00", cursor: currentPage===1 ? "not-allowed" : "pointer", transition:"all .2s", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          style={{ width:36, height:36, borderRadius:9, border:"1.5px solid rgba(255,245,230,0.12)", background: currentPage===1 ? "rgba(255,255,255,0.03)" : "rgba(255,107,0,0.1)", color: currentPage===1 ? "rgba(255,245,230,0.2)" : "#FF6B00", cursor: currentPage===1 ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
                           <ChevronLeft size={16} strokeWidth={2.5}/>
                         </button>
                         {Array.from({ length:totalPages },(_,i)=>i+1)
@@ -557,13 +528,13 @@ export default function Products() {
                             <span key={`d${idx}`} style={{ color:"rgba(255,245,230,0.3)", padding:"0 0.1rem" }}>…</span>
                           ) : (
                             <button key={item} onClick={() => { setCurrentPage(item); window.scrollTo({top:0,behavior:"smooth"}); }}
-                              style={{ width:36, height:36, borderRadius:9, border: item===currentPage ? "none" : "1.5px solid rgba(255,245,230,0.12)", background: item===currentPage ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.04)", color: item===currentPage ? "#fff" : "rgba(255,245,230,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:"0.85rem", fontWeight: item===currentPage?800:500, cursor:"pointer", transition:"all .2s", boxShadow: item===currentPage ? "0 4px 14px rgba(255,107,0,0.4)" : "none" }}>
+                              style={{ width:36, height:36, borderRadius:9, border: item===currentPage ? "none" : "1.5px solid rgba(255,245,230,0.12)", background: item===currentPage ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.04)", color: item===currentPage ? "#fff" : "rgba(255,245,230,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:"0.85rem", fontWeight: item===currentPage?800:500, cursor:"pointer", boxShadow: item===currentPage ? "0 4px 14px rgba(255,107,0,0.4)" : "none" }}>
                               {item}
                             </button>
                           ))
                         }
                         <button onClick={() => { setCurrentPage(p => Math.min(totalPages,p+1)); window.scrollTo({top:0,behavior:"smooth"}); }} disabled={currentPage===totalPages}
-                          style={{ width:36, height:36, borderRadius:9, border:"1.5px solid rgba(255,245,230,0.12)", background: currentPage===totalPages ? "rgba(255,255,255,0.03)" : "rgba(255,107,0,0.1)", color: currentPage===totalPages ? "rgba(255,245,230,0.2)" : "#FF6B00", cursor: currentPage===totalPages ? "not-allowed" : "pointer", transition:"all .2s", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          style={{ width:36, height:36, borderRadius:9, border:"1.5px solid rgba(255,245,230,0.12)", background: currentPage===totalPages ? "rgba(255,255,255,0.03)" : "rgba(255,107,0,0.1)", color: currentPage===totalPages ? "rgba(255,245,230,0.2)" : "#FF6B00", cursor: currentPage===totalPages ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
                           <ChevronRight size={16} strokeWidth={2.5}/>
                         </button>
                       </div>
