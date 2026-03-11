@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import CartDrawer from "../CartDrawer/CartDrawer";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { ShoppingCart, LogOut, Menu, X } from "lucide-react";
-import { logout } from "../../redux/slices/authSlice";
+import { useSelector } from "react-redux";
+import { ShoppingCart, Menu, X } from "lucide-react";
 
 const navLinks = [
   { label: "Home",       path: "/" },
@@ -13,9 +12,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const { user }  = useSelector((s) => s.auth);
   const { items } = useSelector((s) => s.cart);
-  const dispatch  = useDispatch();
   const location  = useLocation();
 
   const [scrolled,  setScrolled]  = useState(false);
@@ -30,8 +27,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  useEffect(() => setMenuOpen(false), [location.pathname]);
+  // Close menu + restore scroll on route change
+  useEffect(() => {
+    setMenuOpen(false);
+    document.body.style.overflow = "";
+  }, [location.pathname]);
 
+  // Lock/unlock body scroll when menu opens/closes
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -39,9 +41,6 @@ export default function Navbar() {
 
   const isActive = (path) =>
     path === "/" ? location.pathname === "/" : location.pathname + location.search === path || location.pathname === path;
-
-  // Pages with dark backgrounds need a solid navbar always
-  const darkPage = ["/products", "/cart", "/checkout", "/login"].some(p => location.pathname.startsWith(p));
 
   return (
     <>
@@ -170,14 +169,6 @@ export default function Navbar() {
           border-left:3px solid #FFD700;
         }
 
-        .logout-btn {
-          background:none; border:none;
-          color:rgba(255,107,0,.8); cursor:pointer;
-          font-size:0.85rem; font-weight:600;
-          display:flex; align-items:center; gap:0.4rem;
-          padding:0.4rem 0; transition:color .2s;
-        }
-        .logout-btn:hover { color:#FF6B00; }
 
         @media(max-width:768px) {
           .desktop-links { display:none !important; }
@@ -222,18 +213,7 @@ export default function Navbar() {
             {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </button>
 
-          {user ? (
-            <div style={{ display:"flex", alignItems:"center", gap:"0.8rem" }}>
-              <span style={{ fontSize:"0.85rem", color:"rgba(255,245,230,.6)", whiteSpace:"nowrap" }}>
-                Hi, {user.name.split(" ")[0]}! 👋
-              </span>
-              <button className="logout-btn" onClick={() => dispatch(logout())}>
-                <LogOut size={16} />
-              </button>
-            </div>
-          ) : (
-            <Link to="/login" className="login-btn">Login</Link>
-          )}
+
         </div>
 
         {/* Mobile: cart + hamburger */}
@@ -280,7 +260,7 @@ export default function Navbar() {
             borderBottom:"1px solid rgba(255,255,255,.04)",
           }}>
             <p style={{ margin:0, fontSize:"0.75rem", color:"rgba(255,215,0,.7)", fontWeight:600 }}>
-              🪔 Happy Diwali 2026! &nbsp;✨
+              🪔 Happy Diwali 2025! &nbsp;✨
             </p>
           </div>
 
@@ -296,28 +276,7 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {/* Auth — right below Contact Us, same row style */}
-            <div style={{ borderTop:"1px solid rgba(255,215,0,.12)", padding:"1rem 1.6rem" }}>
-              {user ? (
-                <div style={{ display:"flex", flexDirection:"column", gap:"0.8rem" }}>
-                  <p style={{ margin:0, fontSize:"0.88rem", color:"rgba(255,245,230,.65)", fontWeight:600 }}>
-                    👋 Hi, {user.name.split(" ")[0]}!
-                  </p>
-                  <button className="logout-btn" onClick={() => { dispatch(logout()); setMenuOpen(false); }}>
-                    <LogOut size={16} /> Logout
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  to="/login"
-                  className="login-btn"
-                  style={{ display:"block", textAlign:"center" }}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  Login / Register
-                </Link>
-              )}
-            </div>
+
           </div>
         </div>
       )}

@@ -5,7 +5,7 @@ import { clearCart } from "../../redux/slices/cartSlice";
 import { MapPin, Truck, ShieldCheck, ChevronRight, Copy, CheckCircle2, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
-const ADMIN_WHATSAPP = "8015850365";
+const ADMIN_WHATSAPP = "6385812382";
 
 const BANK_ACCOUNTS = [
   {
