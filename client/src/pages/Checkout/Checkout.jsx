@@ -5,7 +5,7 @@ import { clearCart } from "../../redux/slices/cartSlice";
 import { MapPin, Truck, ShieldCheck, ChevronRight, Copy, CheckCircle2, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
-const ADMIN_WHATSAPP = "6385812382";
+const ADMIN_WHATSAPP = "8015850365";
 
 const BANK_ACCOUNTS = [
   {
@@ -73,7 +73,15 @@ export default function Checkout() {
     if (!name || !phone || !address || !city || !pincode) { toast.error("Please fill all required fields"); return; }
     if (phone.length < 10) { toast.error("Enter valid phone number"); return; }
     setStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // On mobile scroll to order section, on desktop scroll to top
+    setTimeout(() => {
+      const el = document.getElementById("order-section");
+      if (el && window.innerWidth < 680) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }, 50);
   };
 
   const buildOrderMessage = (recipient) => {
@@ -257,6 +265,8 @@ Please verify payment screenshot from customer and confirm dispatch.`
           .co-grid { grid-template-columns:1fr !important; }
           .co-sticky { position:static !important; top:unset !important; }
           .price-card { order: -1; }
+          .co-addr-pill { display:none !important; }
+          .price-card { display:none !important; }
         }
       `}</style>
 
@@ -323,10 +333,10 @@ Please verify payment screenshot from customer and confirm dispatch.`
 
           {/* ── STEP 2: SUMMARY + PAYMENT ── */}
           {step === 2 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+            <div id="order-section" style={{ display: "flex", flexDirection: "column", gap: "1.1rem" }}>
 
-              {/* Address pill */}
-              <div style={{ background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.12)", borderRadius: 12, padding: "0.85rem 1rem", display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
+              {/* Address pill — hidden on mobile */}
+              <div className="co-addr-pill" style={{ background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.12)", borderRadius: 12, padding: "0.85rem 1rem", display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
                 <MapPin size={16} color="#FF6B00" style={{ flexShrink: 0, marginTop: 2 }} />
                 <div style={{ flex: 1 }}>
                   <p style={{ color: "#FFF5E6", fontWeight: 700, fontSize: "0.82rem", margin: 0 }}>{form.name} · {form.phone}</p>

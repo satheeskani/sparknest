@@ -206,6 +206,16 @@ export default function Products() {
   const [pendingCats, setPendingCats]   = useState(selectedCats);
   const [pendingPrice, setPendingPrice] = useState(priceRange);
   const [pendingKids, setPendingKids]   = useState(kidsOnly);
+
+  // Sync filters when URL params change (e.g. footer/navbar category links)
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    const kids = searchParams.get("isSafeForKids") === "true";
+    if (cat) { setSelectedCats([cat]); setPendingCats([cat]); }
+    else { setSelectedCats([]); setPendingCats([]); }
+    setKidsOnly(kids); setPendingKids(kids);
+    setCurrentPage(1);
+  }, [searchParams]);
   const ITEMS_PER_PAGE = 9;
 
   const toggleCat        = (cat) => setSelectedCats(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
@@ -392,7 +402,7 @@ export default function Products() {
         .tab-bar { display:flex; border-bottom:1px solid rgba(255,245,230,0.08); margin-bottom:1.5rem; }
         .tab-btn {
           padding:0.55rem 1.2rem; border:none; background:none; cursor:pointer;
-          font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:600;
+          font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600;
           color:rgba(255,245,230,0.45); border-bottom:2px solid transparent;
           transition:all .2s; display:flex; align-items:center; gap:0.4rem;
         }
@@ -478,7 +488,7 @@ export default function Products() {
               <button className={`tab-btn${activeTab==="all" ? " active" : ""}`} onClick={() => setActiveTab("all")}>All Products</button>
               <button className={`tab-btn${activeTab==="wishlist" ? " active" : ""}`} onClick={() => setActiveTab("wishlist")}>
                 <Heart size={13} fill={activeTab==="wishlist" ? "#FF3D00" : "none"} color={activeTab==="wishlist" ? "#FF3D00" : "rgba(255,245,230,0.45)"} />
-                Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:20, height:20, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.8rem", fontWeight:800 }}>{wishlist.length}</span>}
+                Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{wishlist.length}</span>}
               </button>
             </div>
 

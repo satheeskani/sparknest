@@ -10,7 +10,7 @@ const festivalLinks = [
   { label: "Weddings 💒",   href: "#" },
   { label: "Pongal 🎉",     href: "#" },
 ];
-const helpLinks = ["Track Order", "Returns", "Safety Guide", "Contact Us", "FAQ"];
+const helpLinks = ["Safety Guide", "Contact Us"];
 
 // ── Accordion section for mobile ──
 function AccordionCol({ title, titleColor, gradientBar, children }) {
@@ -220,7 +220,7 @@ export default function Footer() {
                   </span>
                 ))}
               </div>
-              <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.8)" }}>Made with ❤️ in Sivakasi, India</p>
+              <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.6)" }}>Made with ❤️ in Sivakasi, India</p>
             </div>
 
             {/* Shop — desktop only */}
@@ -231,7 +231,7 @@ export default function Footer() {
                   background:"linear-gradient(90deg,#FFD700,#FF6B00)", borderRadius:2 }} />
               </div>
               {shopLinks.map(l=>(
-                <Link key={l} to={`/products?category=${encodeURIComponent(l)}`} className="footer-link">{l}</Link>
+                <Link key={l} to={`/products?category=${encodeURIComponent(l)}`} className="footer-link" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>{l}</Link>
               ))}
             </div>
 
@@ -277,7 +277,7 @@ export default function Footer() {
           <div className="footer-col-mobile">
             <AccordionCol title="Shop" titleColor="#FFD700">
               {shopLinks.map(l=>(
-                <Link key={l} to={`/products?category=${encodeURIComponent(l)}`} className="footer-link">{l}</Link>
+                <Link key={l} to={`/products?category=${encodeURIComponent(l)}`} className="footer-link" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>{l}</Link>
               ))}
             </AccordionCol>
 
@@ -310,6 +310,7 @@ export default function Footer() {
             <p style={{ fontSize:"0.8rem", color:"rgba(255,245,230,.8)" }}>
               © {new Date().getFullYear()} SparkNest. All rights reserved.
             </p>
+
             <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.8)" }}>
               🔒 Secure &amp; Encrypted Payments
             </p>
