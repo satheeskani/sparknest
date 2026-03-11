@@ -10,6 +10,7 @@ import Products from "./pages/Products/Products";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import Cart from "./pages/Cart/Cart";
 import Login from "./pages/Login/Login";
+import Checkout from "./pages/Checkout/Checkout";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 
 function ScrollToTopButton() {
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/products/:slug" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
               <Route path="/login" element={<Login />} />
             </Routes>
           </main>

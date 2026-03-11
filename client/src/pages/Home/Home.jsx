@@ -3,19 +3,19 @@ import { useState, useEffect, useRef } from "react";
 import {
   Factory, ShieldCheck, Truck,
   Users, Package, Star,
-  Baby, Gift, Flame, Tag, MapPin
+  Baby, Flame, Tag, MapPin
 } from "lucide-react";
 import AISearch from "../../components/AISearch/AISearch";
 
 const categories = [
-  { name:"Sparklers",   img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", count:24, color:"#FFD700", stripe:"linear-gradient(90deg,#FFD700,#FF8C00)" },
-  { name:"Rockets",     img:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=600&q=80", count:18, color:"#FF6B9D", stripe:"linear-gradient(90deg,#FF6B9D,#C0392B)" },
-  { name:"Bombs",       img:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=600&q=80", count:15, color:"#FF4500", stripe:"linear-gradient(90deg,#FF4500,#FF6B00)" },
-  { name:"Flower Pots", img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:21, color:"#FF1493", stripe:"linear-gradient(90deg,#FF1493,#FF69B4)" },
-  { name:"Sky Shots",   img:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=600&q=80", count:12, color:"#00BFFF", stripe:"linear-gradient(90deg,#00BFFF,#7B2FBE)" },
-  { name:"Kids Special",img:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=600&q=80", count:32, color:"#2ECC71", stripe:"linear-gradient(90deg,#2ECC71,#1ABC9C)" },
-  { name:"Combo Packs", img:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80", count:15, color:"#F39C12", stripe:"linear-gradient(90deg,#F39C12,#E67E22)" },
-  { name:"Gift Boxes",  img:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", count: 9, color:"#9B59B6", stripe:"linear-gradient(90deg,#9B59B6,#6C3483)" },
+  { name:"Sparklers",   img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", count:24, color:"#B34500", bg:"#FDDBB4" },
+  { name:"Rockets",     img:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=600&q=80", count:18, color:"#8B1A1A", bg:"#F5BFBF" },
+  { name:"Bombs",       img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
+  { name:"Flower Pots", img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:21, color:"#004F80", bg:"#B3D9F5" },
+  { name:"Sky Shots",   img:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=600&q=80", count:12, color:"#0D5C30", bg:"#B3E8CC" },
+  { name:"Kids Special",img:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=600&q=80", count:32, color:"#7A3000", bg:"#FECFA0" },
+  { name:"Combo Packs", img:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
+  { name:"Gift Boxes",  img:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", count: 9, color:"#004F80", bg:"#B3D9F5" },
 ];
 
 const marqueeItems = [
@@ -260,60 +260,76 @@ export default function Home() {
           100% { background-position: 300% center; }
         }
 
-        /* ── Category section — cream masonry ── */
+        /* ── Category section — Bento Grid ── */
         .cat-section-outer {
           position: relative; z-index: 2;
           background: linear-gradient(160deg, #FFF8F0 0%, #FFF3E0 40%, #FEF9F0 100%);
-          padding: 5rem clamp(1.2rem, 5vw, 4rem) 5.5rem;
+          padding: 4rem clamp(1.2rem, 5vw, 4rem) 4.5rem;
           overflow: hidden;
         }
-
         .cat-section-inner { max-width: 1240px; margin: 0 auto; }
 
-        /* masonry columns */
-        .masonry-grid { columns: 4; column-gap: 1rem; }
-        .masonry-item {
-          break-inside: avoid; margin-bottom: 1rem;
-          border-radius: 18px; overflow: hidden;
-          position: relative; cursor: pointer;
-          text-decoration: none; display: block;
-          transition: transform .38s cubic-bezier(.22,1,.36,1), box-shadow .38s;
-          box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-          background: #fff;
+        /* Bento grid */
+        .bento-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.85rem;
         }
-        .masonry-item:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 20px 55px rgba(0,0,0,0.18);
-        }
-        .masonry-item:hover .cat-img { transform: scale(1.07); }
+        .bento-featured { grid-column: span 2; }
+        @media(max-width:560px) { .bento-card, .bento-featured { grid-column: 1 / -1 !important; } }
 
-
-        .masonry-info {
-          background: #fff; padding: 0.9rem 1rem 1rem;
+        .bento-card {
+          background: var(--cat-bg);
+          border-radius: 20px;
+          padding: 1.3rem 1.1rem 0;
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          overflow: hidden;
+          text-decoration: none;
           position: relative;
-          border-top: 3px solid transparent;
-          border-image: var(--cat-stripe) 1;
+          min-height: 170px;
+          border: 2px solid rgba(0,0,0,0.06);
+          transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s;
+          box-shadow: 0 3px 14px rgba(0,0,0,0.1);
         }
-        .masonry-info::before {
-          content: ''; position: absolute;
-          top: 0; left: 0; right: 0; height: 3px;
-          background: var(--cat-stripe);
+        .bento-card:hover {
+          transform: translateY(-5px) scale(1.012);
+          box-shadow: 0 14px 36px rgba(0,0,0,0.15);
+          border-color: rgba(0,0,0,0.1);
         }
-        .masonry-cat-name {
-          font-size: 0.92rem; font-weight: 800;
-          color: #1a0800; letter-spacing: 0.01em; margin-bottom: 0.15rem;
+        .bento-featured { min-height: 195px; padding: 1.6rem 1.4rem 0; }
+
+        .bento-text { flex: 1; padding-bottom: 1.4rem; z-index: 1; }
+        .bento-label {
+          font-size: 0.6rem; font-weight: 800; letter-spacing: 0.12em;
+          text-transform: uppercase; color: var(--cat-color);
+          display: block; margin-bottom: 0.3rem;
         }
-        .masonry-cat-count {
-          font-size: 0.62rem; font-weight: 600;
-          color: #aaa; letter-spacing: 0.08em; text-transform: uppercase;
-          margin-bottom: 0.55rem;
+        .bento-name {
+          font-size: clamp(0.95rem, 1.8vw, 1.35rem); font-weight: 900;
+          color: #150800; line-height: 1.1; margin: 0 0 0.35rem;
+          letter-spacing: -0.01em;
         }
-        .masonry-pill {
-          display: inline-flex; align-items: center; gap: 0.25rem;
-          border-radius: 100px; padding: 0.24rem 0.8rem;
-          font-size: 0.65rem; font-weight: 800; letter-spacing: 0.04em;
-          border: 1.5px solid; cursor: pointer;
+        .bento-featured .bento-name { font-size: clamp(1.2rem, 2.2vw, 1.75rem); }
+        .bento-count {
+          font-size: 0.62rem; color: rgba(0,0,0,0.45); font-weight: 600;
+          letter-spacing: 0.05em;
         }
+
+        .bento-img-wrap {
+          flex-shrink: 0; width: 100px; height: 115px;
+          display: flex; align-items: flex-end; justify-content: center;
+          margin-left: 0.4rem;
+        }
+        .bento-featured .bento-img-wrap { width: 150px; height: 155px; }
+        .bento-img {
+          width: 100%; height: 100%; object-fit: cover;
+          border-radius: 12px 12px 0 0;
+          transition: transform .4s ease;
+          box-shadow: 0 -4px 14px rgba(0,0,0,0.12);
+        }
+        .bento-card:hover .bento-img { transform: scale(1.05) translateY(-5px); }
 
         /* ── Trust card ── */
         .trust-card {
@@ -328,28 +344,28 @@ export default function Home() {
         .desktop-ai-search { display: block; width: 100%; }
 
         @media(max-width:900px) {
-          .masonry-grid { columns: 2; }
-          .trust-grid   { grid-template-columns:repeat(3,1fr) !important; }
+          .bento-grid         { grid-template-columns: repeat(2,1fr); }
+          .trust-grid         { grid-template-columns:repeat(3,1fr) !important; }
+          .testimonials-grid  { grid-template-columns:repeat(2,1fr) !important; }
+          .about-grid         { grid-template-columns:1fr !important; gap:2rem !important; }
         }
         @media(max-width:560px) {
-          .hero-section   { padding:6rem 1.2rem 3rem !important; }
+          .hero-section   { padding:5rem 1.2rem 3rem !important; }
           .hero-lamps     { font-size:1.5rem !important; gap:0.7rem !important; }
           .hero-badge-wrap{ margin-bottom:1.4rem !important; font-size:0.68rem !important; }
           .cta-row        { flex-direction:column; align-items:center; gap:0.8rem !important; }
           .shop-btn, .kids-btn { width:100%; text-align:center; padding:0.9rem 1.5rem; justify-content:center; }
           .stats-row { display:grid !important; grid-template-columns:1fr 1fr !important; gap:1.2rem !important; margin-top:2.5rem !important; }
-          .cat-section-outer { padding:3rem 1rem 4rem; }
-          .masonry-grid   { columns: 2; column-gap: 0.6rem; }
-          .masonry-item   { margin-bottom: 0.6rem; border-radius: 12px; }
-          .masonry-canvas-wrap { height: 130px !important; }
-          .masonry-info   { padding: 0.65rem 0.75rem 0.75rem; }
-          .masonry-cat-name { font-size: 0.78rem; }
-          .banner-section { padding:0 0 3rem !important; }
-          .banner-inner   { padding:2.5rem 1.2rem !important; }
-          .banner-emojis  { font-size:1.6rem !important; letter-spacing:0.3rem !important; }
-          .banner-title   { font-size:1.2rem !important; }
-          .banner-sub     { font-size:0.88rem !important; }
-          .trust-section  { padding:1rem 1.2rem 4rem !important; }
+          .cat-section-outer { padding:2.5rem 1rem 3rem !important; }
+          .bento-grid     { grid-template-columns: repeat(2,1fr); gap: 0.6rem; }
+          .bento-featured { grid-column: span 2; }
+        @media(max-width:560px) { .bento-card, .bento-featured { grid-column: 1 / -1 !important; } }
+          .bento-name     { font-size: 0.95rem !important; }
+          .bento-img-wrap { width: 80px !important; height: 90px !important; }
+          .bento-card     { min-height: 140px !important; border-radius: 14px; }
+          .about-grid     { grid-template-columns:1fr !important; gap:2rem !important; }
+          .testimonials-grid { grid-template-columns:1fr !important; }
+          .trust-section  { padding:2.5rem 1.2rem 3rem !important; }
           .trust-grid     { grid-template-columns:1fr !important; gap:1rem !important; }
           .trust-card     { padding:1.5rem 1.2rem !important; }
         }
@@ -366,7 +382,7 @@ export default function Home() {
       <section className="hero-section" style={{
         minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center",
         position:"relative", zIndex:2,
-        padding:"6rem clamp(1.2rem,5vw,3rem) 2rem",
+        padding:"5rem clamp(1.2rem,5vw,3rem) 3rem",
         textAlign:"center",
         background:"radial-gradient(ellipse 100% 80% at 50% -10%,rgba(255,107,0,.2) 0%,rgba(155,89,182,.12) 45%,transparent 70%)",
         overflow:"hidden",
@@ -437,7 +453,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ════════════ CATEGORIES — cream masonry ════════════ */}
+      {/* ════════════ CATEGORIES — Bento Grid ════════════ */}
       <div className="cat-section-outer">
         <div className="cat-section-inner">
           <div style={{ textAlign:"center", marginBottom:"2.8rem" }}>
@@ -445,9 +461,9 @@ export default function Home() {
               <Tag size={11} color="#FF6B00" strokeWidth={2.5} /> Browse Categories
             </p>
             <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.4rem,3vw,2.6rem)", color:"#1a0a00", fontWeight:900, lineHeight:1.2 }}>
-              Shop by{" "}
+              Product{" "}
               <span style={{ background:"linear-gradient(135deg,#FF6B00,#FF1493,#9B59B6,#00BFFF)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-                Category
+                Categories
               </span>
             </h2>
             <p style={{ marginTop:"0.6rem", color:"#999", fontSize:"0.82rem" }}>
@@ -455,82 +471,155 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="masonry-grid">
-            {categories.map((cat, i) => (
-              <Link key={cat.name}
-                to={`/products?category=${encodeURIComponent(cat.name)}`}
-                className="masonry-item"
-                style={{ "--cat-stripe": cat.stripe }}
-              >
-                {/* Real photo panel */}
-                <div style={{ height:160, position:"relative", overflow:"hidden", background:"#111" }}>
-                  <img
-                    src={cat.img}
-                    alt={cat.name}
-                    style={{
-                      width:"100%", height:"100%", objectFit:"cover",
-                      display:"block", transition:"transform .45s ease",
-                    }}
-                    onError={e => { e.target.style.display="none"; e.target.parentNode.style.background=`radial-gradient(ellipse at 40% 50%,${cat.color}55,#050200)`; }}
-                  />
-                  {/* dark overlay for text legibility */}
-                  <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.38) 100%)", pointerEvents:"none" }} />
-                  {/* category colour tint overlay */}
-                  <div style={{ position:"absolute", inset:0, background:`${cat.color}18`, mixBlendMode:"multiply", pointerEvents:"none" }} />
-                  {/* number badge */}
-                  <div style={{ position:"absolute", top:9, left:9, width:26, height:26, borderRadius:7, background:"rgba(0,0,0,0.52)", backdropFilter:"blur(6px)", border:"1px solid rgba(255,255,255,0.18)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"0.58rem", fontWeight:900, color:"#fff", letterSpacing:"0.04em" }}>
-                    {String(i+1).padStart(2,"0")}
+          {/* Bento Grid */}
+          <div className="bento-grid">
+            {categories.map((cat, i) => {
+              const isFeatured = i === 0 || i === 4;
+              return (
+                <Link
+                  key={cat.name}
+                  to={`/products?category=${encodeURIComponent(cat.name)}`}
+                  className={`bento-card ${isFeatured ? "bento-featured" : ""}`}
+                  style={{ "--cat-color": cat.color, "--cat-bg": cat.bg }}
+                >
+                  {/* Text side */}
+                  <div className="bento-text">
+                    <span className="bento-label">{cat.name}</span>
+                    <h3 className="bento-name">{cat.name.toUpperCase()}</h3>
+                    <div className="bento-count">{cat.count} products</div>
+
                   </div>
-                </div>
-                {/* Info */}
-                <div className="masonry-info">
-                  <div className="masonry-cat-name">{cat.name}</div>
-                  <div className="masonry-cat-count">{cat.count} products</div>
-                  <div className="masonry-pill" style={{ background:`${cat.color}18`, borderColor: cat.color, color: cat.color }}>
-                    ⚡ Shop Now
+                  {/* Image side */}
+                  <div className="bento-img-wrap">
+                    <img
+                      src={cat.img}
+                      alt={cat.name}
+                      className="bento-img"
+                      onError={e => { e.target.style.display="none"; }}
+                    />
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* ════════════ DIWALI BANNER ════════════ */}
-      <section className="banner-section" style={{ position:"relative", zIndex:2, padding:"0 0 4rem" }}>
-        <div className="banner-inner" style={{ position:"relative", borderRadius:0, overflow:"hidden", background:"rgba(10,5,0,0.6)", backdropFilter:"blur(20px)", border:"none", borderTop:"1px solid rgba(255,215,0,0.15)", borderBottom:"1px solid rgba(255,215,0,0.15)", boxShadow:"0 30px 80px rgba(0,0,0,0.5)", padding:"4rem clamp(1.2rem,5vw,4rem)", textAlign:"center" }}>
-          <div style={{ position:"absolute", inset:0, pointerEvents:"none", overflow:"hidden" }}>
-            <div style={{ position:"absolute", top:"-30%", left:"-10%", width:"55%", height:"160%", background:"radial-gradient(ellipse,rgba(255,107,0,0.18) 0%,transparent 65%)" }} />
-            <div style={{ position:"absolute", top:"-30%", right:"-10%", width:"55%", height:"160%", background:"radial-gradient(ellipse,rgba(155,89,182,0.18) 0%,transparent 65%)" }} />
-            <div style={{ position:"absolute", bottom:"-20%", left:"30%", width:"40%", height:"100%", background:"radial-gradient(ellipse,rgba(255,215,0,0.1) 0%,transparent 65%)" }} />
+      {/* ════════════ ABOUT US — dark theme ════════════ */}
+      <section style={{ position:"relative", zIndex:2, background:"linear-gradient(160deg,#0D0600 0%,#1A0800 50%,#0D0600 100%)", padding:"4rem clamp(1.2rem,5vw,4rem) 4.5rem" }}>
+        <div style={{ position:"absolute", top:"10%", left:"-5%", width:"40%", height:"60%", background:"radial-gradient(ellipse,rgba(255,107,0,0.08) 0%,transparent 65%)", pointerEvents:"none" }} />
+        <div style={{ position:"absolute", bottom:"10%", right:"-5%", width:"40%", height:"60%", background:"radial-gradient(ellipse,rgba(155,89,182,0.07) 0%,transparent 65%)", pointerEvents:"none" }} />
+        <div style={{ maxWidth:1240, margin:"0 auto", position:"relative" }}>
+
+          {/* ── About Us ── */}
+          <div className="about-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4rem", alignItems:"center" }}>
+            {/* Left — text */}
+            <div>
+              <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
+                <MapPin size={11} color="#FF6B00" strokeWidth={2.5} /> About SparkNest
+              </p>
+              <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#FFF5E6", fontWeight:900, lineHeight:1.25, marginBottom:"1.2rem" }}>
+                Born in{" "}
+                <span style={{ background:"linear-gradient(135deg,#FF6B00,#FFD700)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+                  Sivakasi
+                </span>
+                , Delivered Across India
+              </h2>
+              <p style={{ color:"rgba(255,245,230,0.65)", fontSize:"0.92rem", lineHeight:1.85, marginBottom:"1rem" }}>
+                SparkNest was founded with one mission — to bring the finest crackers straight from Sivakasi's legendary factories to your doorstep. Every product is handpicked, safety-certified, and packed with care.
+              </p>
+              <p style={{ color:"rgba(255,245,230,0.5)", fontSize:"0.88rem", lineHeight:1.85, marginBottom:"1.8rem" }}>
+                Sivakasi, Tamil Nadu has been India's fireworks capital since 1923. We partner directly with trusted manufacturers to bring you the best quality at the best prices — cutting out the middlemen.
+              </p>
+              <div className="about-stats" style={{ display:"flex", gap:"2rem", flexWrap:"wrap" }}>
+                {[
+                  { num:"1923", label:"Since" },
+                  { num:"500+", label:"Products" },
+                  { num:"10K+", label:"Happy Customers" },
+                  { num:"28",   label:"States Delivered" },
+                ].map(s => (
+                  <div key={s.label}>
+                    <div style={{ fontSize:"1.6rem", fontWeight:900, background:"linear-gradient(135deg,#FFD700,#FF6B00)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>{s.num}</div>
+                    <div style={{ fontSize:"0.65rem", color:"rgba(255,245,230,0.4)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.1em", marginTop:"0.15rem" }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Right — image collage */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem" }}>
+              {[
+                "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80",
+                "https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=400&q=80",
+                "https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80",
+                "https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80",
+              ].map((img, i) => (
+                <div key={i} style={{ borderRadius:16, overflow:"hidden", aspectRatio:"1", boxShadow:"0 4px 18px rgba(0,0,0,0.12)", border:"2px solid rgba(255,107,0,0.1)" }}>
+                  <img src={img} alt="SparkNest" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block", transition:"transform .4s ease" }}
+                    onMouseEnter={e => e.target.style.transform="scale(1.06)"}
+                    onMouseLeave={e => e.target.style.transform="scale(1)"}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ position:"absolute", top:0, left:0, right:0, height:3, background:"linear-gradient(90deg,#FFD700,#FF6B00,#FF1493,#9B59B6,#00BFFF,#2ECC71,#FFD700)", backgroundSize:"200% auto", animation:"shimmer 3s linear infinite" }} />
-          <div style={{ position:"absolute", bottom:0, left:0, right:0, height:3, background:"linear-gradient(90deg,#2ECC71,#00BFFF,#9B59B6,#FF1493,#FF6B00,#FFD700,#2ECC71)", backgroundSize:"200% auto", animation:"shimmer 3s linear infinite" }} />
-          <div style={{ position:"relative", zIndex:1 }}>
-            <div className="banner-emojis" style={{ fontSize:"2.2rem", marginBottom:"1.2rem", letterSpacing:"0.5rem", display:"flex", justifyContent:"center", gap:"1rem", flexWrap:"wrap" }}>
-              {["🪔","🎆","🎇","🧨","🎆","🪔"].map((e,i)=>( <span key={i} className="diwali-lamp" style={{ animationDelay:`${i*0.25}s` }}>{e}</span> ))}
+        </div>
+      </section>
+
+      {/* ════════════ TESTIMONIALS — cream ════════════ */}
+      <section style={{ position:"relative", zIndex:2, background:"linear-gradient(160deg,#FFF8F0 0%,#FFF3E0 40%,#FEF9F0 100%)", padding:"4rem clamp(1.2rem,5vw,4rem) 4.5rem" }}>
+        <div style={{ maxWidth:1240, margin:"0 auto" }}>
+          {/* ── Testimonials ── */}
+          <div>
+            <div style={{ textAlign:"center", marginBottom:"2.8rem" }}>
+              <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
+                <Star size={11} color="#FF6B00" strokeWidth={2.5} fill="#FF6B00" /> Customer Reviews
+              </p>
+              <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#1a0a00", fontWeight:900 }}>
+                What Our{" "}
+                <span style={{ background:"linear-gradient(135deg,#FF6B00,#C0392B)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+                  Customers Say
+                </span>
+              </h2>
             </div>
-            <div style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", background:"linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,107,0,0.1))", border:"1px solid rgba(255,215,0,0.4)", borderRadius:100, padding:"0.4rem 1.2rem", fontSize:"0.7rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FFD700", marginBottom:"1.2rem", fontWeight:700, WebkitFontSmoothing:"antialiased" }}>
-              <Flame size={13} color="#FFD700" strokeWidth={2} /> Limited Time Offer
+<div className="testimonials-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1.2rem" }}>
+              {[
+                { name:"Priya Ramesh",    city:"Chennai",   avatar:"P", color:"#FF6B00", rating:5, text:"Best crackers I've ordered online! Delivered 2 days before Diwali, everything was fresh and well-packed. The sparklers lasted so long. Will definitely order again this year! 🎆" },
+                { name:"Karthik Sundar",  city:"Bangalore", avatar:"K", color:"#C0392B", rating:5, text:"Amazing quality and the combo pack was worth every rupee. My kids loved the kids-safe section. Great customer service too — replied instantly on WhatsApp." },
+                { name:"Meenakshi Iyer",  city:"Coimbatore",avatar:"M", color:"#7B2FBE", rating:5, text:"Ordered the Diwali Mega Combo and it exceeded expectations. Sivakasi quality is unmatched. The gift box packaging was so beautiful, perfect for gifting relatives!" },
+                { name:"Rajesh Thiyagu", city:"Madurai",   avatar:"R", color:"#0077B6", rating:5, text:"Quick delivery to Madurai, no damage at all. The flower pots were brilliant — burnt beautifully with minimal smoke. SparkNest is now my go-to every Diwali." },
+                { name:"Anitha Krishnan", city:"Hyderabad", avatar:"A", color:"#0D5C30", rating:5, text:"Really impressed by the safety certifications shown on each product. Felt confident buying for my little ones. The kids special pack was a huge hit at our colony!" },
+                { name:"Suresh Pandian",  city:"Sivakasi",  avatar:"S", color:"#B34500", rating:5, text:"Even as a Sivakasi local I trust SparkNest for online orders. The curation is excellent and prices are very competitive. Fast and reliable every single time." },
+              ].map((t, i) => (
+                <div key={i} style={{ background:"#fff", borderRadius:20, padding:"1.5rem", boxShadow:"0 3px 16px rgba(0,0,0,0.08)", border:"1px solid rgba(255,107,0,0.08)", transition:"transform .3s, box-shadow .3s" }}
+                  onMouseEnter={e => { e.currentTarget.style.transform="translateY(-4px)"; e.currentTarget.style.boxShadow="0 12px 32px rgba(0,0,0,0.12)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 3px 16px rgba(0,0,0,0.08)"; }}
+                >
+                  {/* Stars */}
+                  <div style={{ display:"flex", gap:"0.2rem", marginBottom:"0.85rem" }}>
+                    {[...Array(t.rating)].map((_,j) => <Star key={j} size={13} fill="#FF6B00" color="#FF6B00" />)}
+                  </div>
+                  {/* Review text */}
+                  <p style={{ fontSize:"0.83rem", color:"rgba(26,8,0,0.7)", lineHeight:1.75, marginBottom:"1.1rem" }}>"{t.text}"</p>
+                  {/* Author */}
+                  <div style={{ display:"flex", alignItems:"center", gap:"0.7rem" }}>
+                    <div style={{ width:38, height:38, borderRadius:"50%", background:`linear-gradient(135deg,${t.color}33,${t.color}22)`, border:`2px solid ${t.color}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"0.85rem", fontWeight:800, color:t.color }}>
+                      {t.avatar}
+                    </div>
+                    <div>
+                      <div style={{ fontSize:"0.82rem", fontWeight:800, color:"#1a0800" }}>{t.name}</div>
+                      <div style={{ fontSize:"0.68rem", color:"rgba(26,8,0,0.45)", fontWeight:500 }}>📍 {t.city}</div>
+                    </div>
+                    <div style={{ marginLeft:"auto", fontSize:"0.65rem", color:"rgba(26,8,0,0.3)", fontWeight:600 }}>✓ Verified</div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="banner-title" style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.2rem,3vw,2.4rem)", fontWeight:900, marginBottom:"0.8rem", background:"linear-gradient(135deg,#FFD700,#FF6B00,#FF1493)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-              Diwali Special Sale — Up to 40% Off!
-            </h3>
-            <p className="banner-sub" style={{ color:"rgba(255,245,230,0.7)", fontSize:"clamp(0.85rem,2vw,1rem)", marginBottom:"2rem", fontWeight:300, WebkitFontSmoothing:"antialiased" }}>
-              Limited time offers on premium combo packs &amp; gift boxes 🎁
-            </p>
-            <Link to="/products?category=Combo%20Packs" style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", background:"linear-gradient(135deg,#FFD700,#FF6B00)", borderRadius:100, padding:"0.9rem 2.4rem", color:"#1A0500", fontSize:"0.95rem", fontWeight:800, textDecoration:"none", letterSpacing:"0.02em", boxShadow:"0 8px 30px rgba(255,107,0,0.4), 0 0 0 1px rgba(255,215,0,0.3)", transition:"transform .2s, box-shadow .2s", WebkitFontSmoothing:"antialiased" }}
-              onMouseEnter={e=>{ e.currentTarget.style.transform="scale(1.06)"; e.currentTarget.style.boxShadow="0 12px 40px rgba(255,107,0,0.6), 0 0 0 1px rgba(255,215,0,0.5)"; }}
-              onMouseLeave={e=>{ e.currentTarget.style.transform="scale(1)"; e.currentTarget.style.boxShadow="0 8px 30px rgba(255,107,0,0.4), 0 0 0 1px rgba(255,215,0,0.3)"; }}
-            >
-              Grab Diwali Deals <Gift size={18} strokeWidth={2} />
-            </Link>
           </div>
         </div>
       </section>
 
       {/* ════════════ TRUST ════════════ */}
-      <section className="trust-section" style={{ position:"relative", zIndex:2, padding:"1rem clamp(1.2rem,4vw,2rem) 5rem" }}>
+      <section className="trust-section" style={{ position:"relative", zIndex:2, padding:"4rem clamp(1.2rem,4vw,4rem) 4.5rem" }}>
         <div style={{ textAlign:"center", marginBottom:"2rem" }}>
           <p style={{ fontSize:"0.72rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FFD700", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
             <MapPin size={12} color="#FFD700" strokeWidth={2} /> Why SparkNest?

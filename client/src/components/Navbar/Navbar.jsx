@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
+import CartDrawer from "../CartDrawer/CartDrawer";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { ShoppingCart, LogOut, Menu, X } from "lucide-react";
 import { logout } from "../../redux/slices/authSlice";
 
 const navLinks = [
-  { label: "Home",      path: "/" },
-  { label: "Shop",      path: "/products" },
-  { label: "Combos 🎁", path: "/products?category=Combo+Packs" },
-  { label: "Kids Safe 🧒", path: "/products?isSafeForKids=true" },
+  { label: "Home",       path: "/" },
+  { label: "Products",   path: "/products" },
+  { label: "Blog",       path: "/blog" },
+  { label: "Contact Us", path: "/contact" },
 ];
 
 export default function Navbar() {
@@ -19,6 +20,7 @@ export default function Navbar() {
 
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
+  const [cartOpen,  setCartOpen]  = useState(false);
 
   const cartCount = items.reduce((acc, i) => acc + i.quantity, 0);
 
@@ -243,10 +245,10 @@ export default function Navbar() {
 
         {/* Desktop Auth + Cart */}
         <div className="desktop-auth" style={{ display:"flex", alignItems:"center", gap:"1.2rem" }}>
-          <Link to="/cart" className="cart-icon">
+          <button onClick={() => setCartOpen(true)} className="cart-icon" style={{ background:"none", border:"none", cursor:"pointer", position:"relative", padding:0 }}>
             <ShoppingCart size={22} />
             {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
-          </Link>
+          </button>
 
           {user ? (
             <div style={{ display:"flex", alignItems:"center", gap:"0.8rem" }}>
@@ -264,10 +266,10 @@ export default function Navbar() {
 
         {/* Mobile: cart + hamburger */}
         <div className="hamburger-wrap" style={{ display:"flex", alignItems:"center", gap:"1rem" }}>
-          <Link to="/cart" className="cart-icon">
+          <button onClick={() => setCartOpen(true)} className="cart-icon" style={{ background:"none", border:"none", cursor:"pointer", position:"relative", padding:0 }}>
             <ShoppingCart size={22} />
             {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
-          </Link>
+          </button>
           <button className="hamburger" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
           </button>
@@ -347,6 +349,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }

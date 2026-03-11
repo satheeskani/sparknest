@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { addToCart } from "../../redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, removeFromCart, updateQty } from "../../redux/slices/cartSlice";
 import { fetchProducts } from "../../utils/api";
 import { ShoppingCart, Star, SlidersHorizontal, X, Baby, Flame, ChevronDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import toast from "react-hot-toast";
@@ -46,11 +46,19 @@ function StarRating({ rating }) {
   );
 }
 
-function ProductCard({ product, onAddToCart }) {
+function ProductCard({ product }) {
+  const dispatch = useDispatch();
+  const cartItems = useSelector(s => s.cart.items);
+  const cartItem = cartItems.find(i => i._id === product._id);
+  const qty = cartItem ? cartItem.quantity : 0;
   const discount = product.originalPrice
     ? Math.round(100 - (product.price / product.originalPrice) * 100)
     : 0;
   const [imgErr, setImgErr] = useState(false);
+
+  const handleAdd = (e) => { e.preventDefault(); dispatch(addToCart(product)); toast.success("Added to cart! 🎆", { duration:1500 }); };
+  const handleInc = (e) => { e.preventDefault(); dispatch(updateQty({ id: product._id, quantity: qty + 1 })); };
+  const handleDec = (e) => { e.preventDefault(); qty > 1 ? dispatch(updateQty({ id: product._id, quantity: qty - 1 })) : dispatch(removeFromCart(product._id)); };
 
   return (
     <div className="prod-card">
@@ -68,17 +76,12 @@ function ProductCard({ product, onAddToCart }) {
               🎆
             </div>
           )}
-          {/* Overlays */}
           <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,transparent 55%,rgba(0,0,0,0.55) 100%)", pointerEvents:"none" }} />
-
-          {/* Discount badge */}
           {discount > 0 && (
             <div style={{ position:"absolute", top:10, left:10, background:"linear-gradient(135deg,#FF3D00,#FF6B00)", color:"#fff", fontSize:"0.65rem", fontWeight:800, padding:"0.22rem 0.55rem", borderRadius:100, letterSpacing:"0.04em", boxShadow:"0 2px 8px rgba(255,61,0,0.5)" }}>
               -{discount}%
             </div>
           )}
-
-          {/* Kids Safe badge */}
           {product.isSafeForKids && (
             <div style={{ position:"absolute", top:10, right:10, background:"linear-gradient(135deg,#1ABC9C,#2ECC71)", color:"#fff", fontSize:"0.6rem", fontWeight:800, padding:"0.22rem 0.5rem", borderRadius:100, display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(46,204,113,0.5)" }}>
               <Baby size={9} strokeWidth={2.5} /> Kids Safe
@@ -89,7 +92,7 @@ function ProductCard({ product, onAddToCart }) {
 
       {/* Info */}
       <div style={{ padding:"0.85rem 0.9rem 0.9rem" }}>
-        <div style={{ fontSize:"0.65rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.25rem", opacity:1 }}>
+        <div style={{ fontSize:"0.65rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.25rem" }}>
           {product.category}
         </div>
         <Link to={`/products/${toSlug(product.name)}`} style={{ textDecoration:"none" }}>
@@ -97,30 +100,33 @@ function ProductCard({ product, onAddToCart }) {
             {product.name}
           </div>
         </Link>
-
-        {/* Rating */}
         <div style={{ display:"flex", alignItems:"center", gap:"0.35rem", marginBottom:"0.55rem" }}>
           <StarRating rating={product.rating} />
           <span style={{ fontSize:"0.7rem", color:"rgba(255,245,230,0.8)", fontWeight:500 }}>
             {product.rating} ({product.numReviews})
           </span>
         </div>
-
-        {/* Price */}
-        <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.7rem" }}>
-          <span style={{ fontSize:"1.05rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span style={{ fontSize:"0.75rem", color:"rgba(255,245,230,0.55)", textDecoration:"line-through", fontWeight:400 }}>
-              ₹{product.originalPrice}
-            </span>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+            <span style={{ fontSize:"1.05rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span style={{ fontSize:"0.75rem", color:"rgba(255,245,230,0.55)", textDecoration:"line-through" }}>₹{product.originalPrice}</span>
+            )}
+          </div>
+          {/* Zomato-style add button */}
+          {qty === 0 ? (
+            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:10, color:"#fff", fontWeight:800, fontSize:"0.78rem", padding:"0.45rem 0.9rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.3rem", boxShadow:"0 3px 12px rgba(255,107,0,0.4)", fontFamily:"'DM Sans',sans-serif", transition:"transform .15s" }}
+              onMouseDown={e=>e.currentTarget.style.transform="scale(0.95)"} onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}>
+              <span style={{ fontSize:"1rem", lineHeight:1 }}>+</span> ADD
+            </button>
+          ) : (
+            <div style={{ display:"flex", alignItems:"center", gap:0, background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:10, overflow:"hidden", boxShadow:"0 3px 12px rgba(255,107,0,0.4)" }}>
+              <button onClick={handleDec} style={{ width:32, height:32, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"1.1rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
+              <span style={{ minWidth:24, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"0.85rem" }}>{qty}</span>
+              <button onClick={handleInc} style={{ width:32, height:32, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"1.1rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
+            </div>
           )}
         </div>
-
-        {/* Add to Cart */}
-        <button className="add-cart-btn" onClick={() => onAddToCart(product)}>
-          <ShoppingCart size={14} strokeWidth={2.2} />
-          Add to Cart
-        </button>
       </div>
     </div>
   );
@@ -471,7 +477,7 @@ export default function Products() {
             <div className="prod-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem" }}>
               {paginated.map((p, i) => (
                 <div key={p._id} style={{ animationDelay:`${i * 0.04}s` }}>
-                  <ProductCard product={p} onAddToCart={handleAddToCart} />
+                  <ProductCard product={p} />
                 </div>
               ))}
             </div>
