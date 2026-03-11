@@ -91,12 +91,12 @@ function ProductCard({ product, wishlist, onWishlist }) {
       <div style={{ flex:1, padding:"0.65rem 0.75rem", display:"flex", flexDirection:"column", justifyContent:"space-between", minWidth:0 }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:"0.25rem" }}>
           <div style={{ minWidth:0, flex:1 }}>
-            <div style={{ fontSize:"0.56rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.15rem", display:"flex", alignItems:"center", gap:"0.35rem" }}>
+            <div style={{ fontSize:"0.72rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.06em", textTransform:"uppercase", marginBottom:"0.2rem", display:"flex", alignItems:"center", gap:"0.35rem" }}>
               {product.category}
-              {product.isSafeForKids && <span style={{ color:"#1ABC9C", fontSize:"0.54rem" }}>✦ Kids Safe</span>}
+              {product.isSafeForKids && <span style={{ color:"#1ABC9C", fontSize:"0.72rem" }}>✦ Kids Safe</span>}
             </div>
             <Link to={`/products/${toSlug(product.name)}`} style={{ textDecoration:"none" }}>
-              <div style={{ fontSize:"0.8rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
+              <div style={{ fontSize:"0.95rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
                 {product.name}
               </div>
             </Link>
@@ -111,21 +111,21 @@ function ProductCard({ product, wishlist, onWishlist }) {
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.25rem", marginBottom:"0.18rem", flexWrap:"wrap" }}>
               <StarRating rating={product.rating} />
-              <span style={{ fontSize:"0.58rem", color:"rgba(255,245,230,0.5)" }}>({product.numReviews})</span>
+              <span style={{ fontSize:"0.75rem", color:"rgba(255,245,230,0.5)" }}>({product.numReviews})</span>
               {product.stock <= 20
-                ? <span style={{ fontSize:"0.65rem", fontWeight:800, padding:"0.18rem 0.5rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 {product.stock} left</span>
-                : <span style={{ fontSize:"0.65rem", fontWeight:800, padding:"0.18rem 0.5rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
+                ? <span style={{ fontSize:"0.78rem", fontWeight:800, padding:"0.22rem 0.6rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 {product.stock} left</span>
+                : <span style={{ fontSize:"0.78rem", fontWeight:800, padding:"0.22rem 0.6rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
               }
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.3rem" }}>
-              <span style={{ fontSize:"0.92rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
+              <span style={{ fontSize:"1.05rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
               {product.originalPrice > product.price && (
-                <span style={{ fontSize:"0.65rem", color:"rgba(255,245,230,0.35)", textDecoration:"line-through" }}>₹{product.originalPrice}</span>
+                <span style={{ fontSize:"0.78rem", color:"rgba(255,245,230,0.35)", textDecoration:"line-through" }}>₹{product.originalPrice}</span>
               )}
             </div>
           </div>
           {qty === 0 ? (
-            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"0.7rem", padding:"0.35rem 0.7rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.4)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
+            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"0.82rem", padding:"0.42rem 0.85rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.4)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
               + ADD
             </button>
           ) : (
@@ -139,7 +139,7 @@ function ProductCard({ product, wishlist, onWishlist }) {
                 onBlur={commitQty}
                 onKeyDown={e => { if (e.key === "Enter") { commitQty(); e.target.blur(); } }}
                 onClick={e => e.preventDefault()}
-                style={{ width:28, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"0.75rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
+                style={{ width:28, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"0.88rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
               />
               <button onClick={handleInc} disabled={qty >= max} style={{ width:24, height:28, border:"none", background:"transparent", color: qty >= max ? "rgba(255,255,255,0.3)" : "#fff", fontWeight:800, fontSize:"0.95rem", cursor: qty >= max ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
             </div>
@@ -248,7 +248,7 @@ export default function Products() {
     return (
       <>
         <div style={{ marginBottom:"1.5rem" }}>
-          <p style={{ fontSize:"0.65rem", letterSpacing:"0.15em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Category</p>
+          <p style={{ fontSize:"0.78rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Category</p>
           {CATEGORIES.map(cat => (
             <label key={cat} className={`filter-check${cats.includes(cat) ? " active" : ""}`}>
               <input type="checkbox" checked={cats.includes(cat)} onChange={() => toggle(cat)} />{cat}
@@ -256,23 +256,23 @@ export default function Products() {
           ))}
         </div>
         <div style={{ marginBottom:"1.5rem" }}>
-          <p style={{ fontSize:"0.65rem", letterSpacing:"0.15em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Price Range</p>
+          <p style={{ fontSize:"0.78rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Price Range</p>
           <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"0.5rem" }}>
-            <span style={{ fontSize:"0.75rem", color:"#FF6B00", fontWeight:700 }}>₹{price[0]}</span>
-            <span style={{ fontSize:"0.75rem", color:"#FF6B00", fontWeight:700 }}>₹{price[1]}</span>
+            <span style={{ fontSize:"0.88rem", color:"#FF6B00", fontWeight:700 }}>₹{price[0]}</span>
+            <span style={{ fontSize:"0.88rem", color:"#FF6B00", fontWeight:700 }}>₹{price[1]}</span>
           </div>
           <input type="range" className="range-input" min={0} max={2000} step={50}
             value={price[1]} style={{ "--val":`${(price[1]/2000)*100}%` }}
             onChange={e => setPrice([price[0], Number(e.target.value)])} />
           <div style={{ display:"flex", justifyContent:"space-between", marginTop:"0.25rem" }}>
-            <span style={{ fontSize:"0.62rem", color:"rgba(26,8,0,0.55)" }}>₹0</span>
-            <span style={{ fontSize:"0.62rem", color:"rgba(26,8,0,0.55)" }}>₹2000</span>
+            <span style={{ fontSize:"0.75rem", color:"rgba(26,8,0,0.55)" }}>₹0</span>
+            <span style={{ fontSize:"0.75rem", color:"rgba(26,8,0,0.55)" }}>₹2000</span>
           </div>
         </div>
         <div style={{ marginBottom:"1.2rem" }}>
-          <p style={{ fontSize:"0.65rem", letterSpacing:"0.15em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Kids Safe Only</p>
+          <p style={{ fontSize:"0.78rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Kids Safe Only</p>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background: kids ? "rgba(46,204,113,0.1)" : "rgba(0,0,0,0.04)", border:`1.5px solid ${kids ? "rgba(46,204,113,0.35)" : "rgba(26,8,0,0.1)"}`, borderRadius:12, padding:"0.6rem 0.85rem", cursor:"pointer" }} onClick={() => setKids(k => !k)}>
-            <span style={{ fontSize:"0.8rem", color: kids ? "#1a7a4a" : "rgba(26,8,0,0.6)", fontWeight:700, display:"flex", alignItems:"center", gap:"0.35rem" }}>
+            <span style={{ fontSize:"0.92rem", color: kids ? "#1a7a4a" : "rgba(26,8,0,0.6)", fontWeight:700, display:"flex", alignItems:"center", gap:"0.35rem" }}>
               <Baby size={14} strokeWidth={2} color={kids ? "#1ABC9C" : "rgba(26,8,0,0.4)"} />{kids ? "Kids Safe ON" : "Kids Safe OFF"}
             </span>
             <div className={`kids-toggle${kids ? " on" : ""}`} style={{ pointerEvents:"none" }} />
@@ -392,7 +392,7 @@ export default function Products() {
         .tab-bar { display:flex; border-bottom:1px solid rgba(255,245,230,0.08); margin-bottom:1.5rem; }
         .tab-btn {
           padding:0.55rem 1.2rem; border:none; background:none; cursor:pointer;
-          font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600;
+          font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:600;
           color:rgba(255,245,230,0.45); border-bottom:2px solid transparent;
           transition:all .2s; display:flex; align-items:center; gap:0.4rem;
         }
@@ -458,7 +458,7 @@ export default function Products() {
                 <SlidersHorizontal size={15} color="#FF6B00" /> Filters
               </span>
               {hasFilters && (
-                <button onClick={clearFilters} style={{ background:"none", border:"none", color:"rgba(255,107,0,0.7)", fontSize:"0.72rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"0.2rem" }}>
+                <button onClick={clearFilters} style={{ background:"none", border:"none", color:"rgba(255,107,0,0.7)", fontSize:"0.82rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"0.2rem" }}>
                   <X size={11}/> Clear
                 </button>
               )}
@@ -478,7 +478,7 @@ export default function Products() {
               <button className={`tab-btn${activeTab==="all" ? " active" : ""}`} onClick={() => setActiveTab("all")}>All Products</button>
               <button className={`tab-btn${activeTab==="wishlist" ? " active" : ""}`} onClick={() => setActiveTab("wishlist")}>
                 <Heart size={13} fill={activeTab==="wishlist" ? "#FF3D00" : "none"} color={activeTab==="wishlist" ? "#FF3D00" : "rgba(255,245,230,0.45)"} />
-                Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{wishlist.length}</span>}
+                Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:20, height:20, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.8rem", fontWeight:800 }}>{wishlist.length}</span>}
               </button>
             </div>
 
@@ -512,12 +512,12 @@ export default function Products() {
                 {(selectedCats.length > 0 || kidsOnly) && (
                   <div style={{ display:"flex", gap:"0.45rem", flexWrap:"wrap", marginBottom:"1rem" }}>
                     {selectedCats.map(c => (
-                      <div key={c} style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(255,107,0,0.12)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.22rem 0.7rem", fontSize:"0.72rem", color:"#FF6B00", fontWeight:600 }}>
+                      <div key={c} style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(255,107,0,0.12)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.28rem 0.8rem", fontSize:"0.82rem", color:"#FF6B00", fontWeight:600 }}>
                         {c} <X size={10} style={{ cursor:"pointer" }} onClick={() => toggleCat(c)} />
                       </div>
                     ))}
                     {kidsOnly && (
-                      <div style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(46,204,113,0.12)", border:"1px solid rgba(46,204,113,0.3)", borderRadius:100, padding:"0.22rem 0.7rem", fontSize:"0.72rem", color:"#2ECC71", fontWeight:600 }}>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(46,204,113,0.12)", border:"1px solid rgba(46,204,113,0.3)", borderRadius:100, padding:"0.28rem 0.8rem", fontSize:"0.82rem", color:"#2ECC71", fontWeight:600 }}>
                         <Baby size={10}/> Kids Safe <X size={10} style={{ cursor:"pointer" }} onClick={() => setKidsOnly(false)} />
                       </div>
                     )}

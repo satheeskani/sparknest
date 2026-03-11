@@ -94,11 +94,19 @@ export default function Navbar() {
         .nav-link.active             { color:#FFD700; }
         .nav-link.active::after      { width:100%; }
 
-        .cart-icon {
-          position:relative; color:rgba(255,245,230,0.75);
-          text-decoration:none; transition:color .2s, transform .2s;
+        @keyframes cart-gradient { 0%{background-position:0% center} 100%{background-position:200% center} }
+        @keyframes cart-glow { 0%,100%{box-shadow:0 0 12px rgba(255,107,0,0.4),0 0 24px rgba(255,61,0,0.2)} 50%{box-shadow:0 0 22px rgba(255,215,0,0.6),0 0 40px rgba(255,107,0,0.35)} }
+        .cart-btn {
+          display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;
+          background: linear-gradient(90deg,#FF3D00,#FF6B00,#FFD700,#FF6B00,#FF3D00);
+          background-size:300% auto;
+          animation: cart-gradient 3s linear infinite, cart-glow 2.5s ease-in-out infinite;
+          border:none; border-radius:50px; padding:0.48rem 1.1rem;
+          color:#1A0500; cursor:pointer;
+          font-family:'DM Sans',sans-serif; font-weight:800; font-size:0.85rem;
+          white-space:nowrap; flex-shrink:0; line-height:1;
         }
-        .cart-icon:hover { color:#FFD700; transform:scale(1.12); }
+        .cart-btn:hover { transform:scale(1.06); }
         .cart-count {
           position:absolute; top:-8px; right:-8px;
           background:linear-gradient(135deg,#FF6B00,#FF3D00);
@@ -208,9 +216,14 @@ export default function Navbar() {
 
         {/* Desktop Auth + Cart */}
         <div className="desktop-auth" style={{ display:"flex", alignItems:"center", gap:"1.2rem" }}>
-          <button onClick={() => setCartOpen(true)} className="cart-icon" style={{ background:"none", border:"none", cursor:"pointer", position:"relative", padding:0 }}>
-            <ShoppingCart size={22} />
-            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+          <button onClick={() => setCartOpen(true)} className="cart-btn">
+            <ShoppingCart size={17} />
+            <span>Cart</span>
+            {cartCount > 0 && (
+              <span style={{ color:"#fff", fontSize:"0.85rem", fontWeight:800 }}>
+                {cartCount}
+              </span>
+            )}
           </button>
 
 
@@ -218,9 +231,14 @@ export default function Navbar() {
 
         {/* Mobile: cart + hamburger */}
         <div className="hamburger-wrap" style={{ display:"flex", alignItems:"center", gap:"1rem" }}>
-          <button onClick={() => setCartOpen(true)} className="cart-icon" style={{ background:"none", border:"none", cursor:"pointer", position:"relative", padding:0 }}>
-            <ShoppingCart size={22} />
-            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+          <button onClick={() => setCartOpen(true)} className="cart-btn">
+            <ShoppingCart size={17} />
+            <span>Cart</span>
+            {cartCount > 0 && (
+              <span style={{ color:"#fff", fontSize:"0.85rem", fontWeight:800 }}>
+                {cartCount}
+              </span>
+            )}
           </button>
           <button className="hamburger" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
