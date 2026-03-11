@@ -28,7 +28,6 @@ const DEMO_PRODUCTS = [
   { _id:"10", name:"Colour Rain Rockets",        category:"Rockets",     price:649,  originalPrice:799,  rating:4.4, numReviews:72,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80" },
   { _id:"11", name:"Mini Flower Pot (12pcs)",    category:"Flower Pots", price:249,  originalPrice:299,  rating:4.7, numReviews:189, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80" },
   { _id:"12", name:"Atom Bomb Special (10pcs)",  category:"Bombs",       price:149,  originalPrice:199,  rating:4.2, numReviews:33,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
-  { _id:"13", name:"Atom Bomb Special (10pcs)",  category:"Bombs",       price:149,  originalPrice:199,  rating:4.2, numReviews:33,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
 ];
 
 function StarRating({ rating }) {
@@ -318,7 +317,7 @@ export default function Products() {
           color: #FFF5E6; font-family: 'DM Sans',sans-serif;
           font-size: 0.82rem; font-weight: 600; outline: none; cursor: pointer;
           appearance: none; -webkit-appearance: none; transition: border-color .2s;
-          min-width: 150px;
+          min-width: 150px; width: 100%; box-sizing: border-box;
         }
         .sort-select:hover { border-color: rgba(255,107,0,0.35); }
         .sort-select:focus { border-color: rgba(255,107,0,0.55); box-shadow: 0 0 0 3px rgba(255,107,0,0.1); }
@@ -401,6 +400,11 @@ export default function Products() {
         }
         @media(max-width:480px) {
           .prod-grid { gap:0.65rem !important; }
+          .toolbar-wrap { flex-direction:column !important; }
+          .toolbar-search { order:1; width:100% !important; flex:unset !important; min-width:unset !important; }
+          .toolbar-row2 { order:2; display:flex !important; gap:0.65rem; width:100%; }
+          .toolbar-sort { flex:1 !important; min-width:unset !important; }
+          .toolbar-sort .sort-select { width:100% !important; min-width:unset !important; box-sizing:border-box; }
         }
       `}</style>
 
@@ -478,23 +482,26 @@ export default function Products() {
               <WishlistView wishlist={wishlist} onWishlist={toggleWishlist} />
             ) : (
               <>
-                <div style={{ display:"flex", gap:"0.65rem", marginBottom:"1.2rem", flexWrap:"wrap", alignItems:"center" }}>
-                  <button onClick={openSidebar} className="mobile-filter-btn"
-                    style={{ alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:12, padding:"0.58rem 1rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"0.82rem", fontWeight:600, cursor:"pointer" }}>
-                    <SlidersHorizontal size={14}/> Filters
-                    {hasFilters && <span style={{ background:"#FF6B00", color:"#fff", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{selectedCats.length + (kidsOnly?1:0)}</span>}
-                  </button>
+                <div className="toolbar-wrap" style={{ display:"flex", gap:"0.65rem", marginBottom:"1.2rem", alignItems:"center" }}>
 
-                  <div style={{ position:"relative", flex:1, minWidth:160 }}>
+                  <div className="toolbar-search" style={{ position:"relative", flex:1, minWidth:160 }}>
                     <Search size={14} color="rgba(255,245,230,0.3)" style={{ position:"absolute", left:"0.85rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }} />
                     <input className="search-bar" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
                   </div>
 
-                  <div style={{ position:"relative", flexShrink:0 }}>
-                    <select className="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                      {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
-                    <ChevronDown size={14} color="#FF6B00" style={{ position:"absolute", right:"0.75rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none", strokeWidth:2.5 }} />
+                  <div className="toolbar-row2" style={{ display:"contents" }}>
+                    <button onClick={openSidebar} className="mobile-filter-btn"
+                      style={{ alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:12, padding:"0.58rem 1rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"0.82rem", fontWeight:600, cursor:"pointer", flexShrink:0 }}>
+                      <SlidersHorizontal size={14}/> Filters
+                      {hasFilters && <span style={{ background:"#FF6B00", color:"#fff", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{selectedCats.length + (kidsOnly?1:0)}</span>}
+                    </button>
+
+                    <div className="toolbar-sort" style={{ position:"relative", flexShrink:0 }}>
+                      <select className="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                        {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      </select>
+                      <ChevronDown size={14} color="#FF6B00" style={{ position:"absolute", right:"0.75rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none", strokeWidth:2.5 }} />
+                    </div>
                   </div>
                 </div>
 

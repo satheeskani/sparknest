@@ -24,17 +24,14 @@ export default function Navbar() {
 
   const cartCount = items.reduce((acc, i) => acc + i.quantity, 0);
 
-  // ── Scroll → glassmorphism
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // ── Close menu on route change
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
-  // ── Lock body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -43,6 +40,9 @@ export default function Navbar() {
   const isActive = (path) =>
     path === "/" ? location.pathname === "/" : location.pathname + location.search === path || location.pathname === path;
 
+  // Pages with dark backgrounds need a solid navbar always
+  const darkPage = ["/products", "/cart", "/checkout", "/login"].some(p => location.pathname.startsWith(p));
+
   return (
     <>
       <style>{`
@@ -50,10 +50,6 @@ export default function Navbar() {
         @keyframes shimmer-logo {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
-        }
-        @keyframes slideDown {
-          from { opacity:0; transform:translateY(-10px); }
-          to   { opacity:1; transform:translateY(0); }
         }
         @keyframes slideInLeft {
           from { opacity:0; transform:translateX(-100%); }
@@ -64,7 +60,6 @@ export default function Navbar() {
           to   { opacity:1; }
         }
 
-        /* Logo */
         .nav-logo-text {
           font-family: 'Cinzel Decorative', serif;
           font-size: 1.5rem; font-weight: 900;
@@ -76,10 +71,8 @@ export default function Navbar() {
           filter: drop-shadow(0 0 12px rgba(255,215,0,0.35));
           text-decoration: none;
           -webkit-font-smoothing: antialiased;
-          text-rendering: geometricPrecision;
         }
 
-        /* Desktop nav link */
         .nav-link {
           position: relative;
           font-size: 0.82rem; font-weight: 700;
@@ -89,9 +82,6 @@ export default function Navbar() {
           padding: 0.35rem 0;
           transition: color 0.25s;
           white-space: nowrap;
-          text-rendering: geometricPrecision;
-          -webkit-font-smoothing: antialiased;
-          opacity: 1;
         }
         .nav-link::after {
           content: '';
@@ -105,7 +95,6 @@ export default function Navbar() {
         .nav-link.active             { color:#FFD700; }
         .nav-link.active::after      { width:100%; }
 
-        /* Cart */
         .cart-icon {
           position:relative; color:rgba(255,245,230,0.75);
           text-decoration:none; transition:color .2s, transform .2s;
@@ -120,7 +109,6 @@ export default function Navbar() {
           box-shadow: 0 0 10px rgba(255,107,0,.6);
         }
 
-        /* Login btn */
         .login-btn {
           background:linear-gradient(135deg,#FFD700,#FF6B00,#FF3D00);
           background-size:200% auto;
@@ -135,7 +123,6 @@ export default function Navbar() {
         }
         .login-btn:hover { transform:scale(1.06); box-shadow:0 6px 24px rgba(255,107,0,.6); }
 
-        /* Hamburger */
         .hamburger {
           background:rgba(255,255,255,.05);
           border:1px solid rgba(255,215,0,.25);
@@ -146,7 +133,6 @@ export default function Navbar() {
         }
         .hamburger:hover { background:rgba(255,215,0,.1); border-color:rgba(255,215,0,.5); }
 
-        /* Mobile overlay */
         .mobile-overlay {
           position:fixed; inset:0; z-index:998;
           background:rgba(0,0,0,.65);
@@ -154,7 +140,6 @@ export default function Navbar() {
           animation:fadeOverlay .25s ease;
         }
 
-        /* Mobile drawer */
         .mobile-drawer {
           position:fixed; top:0; left:0; z-index:999;
           width:min(300px,82vw); height:100vh;
@@ -165,7 +150,6 @@ export default function Navbar() {
           display:flex; flex-direction:column; overflow:hidden;
         }
 
-        /* Mobile link */
         .mobile-link {
           display:flex; align-items:center; gap:0.9rem;
           padding:1rem 1.6rem;
@@ -174,8 +158,6 @@ export default function Navbar() {
           border-bottom:1px solid rgba(255,255,255,.04);
           transition:background .2s, color .2s, padding-left .2s;
           letter-spacing:0.05em;
-          -webkit-font-smoothing:antialiased;
-          text-rendering:geometricPrecision;
         }
         .mobile-link:hover {
           background:rgba(255,215,0,.06);
@@ -188,7 +170,6 @@ export default function Navbar() {
           border-left:3px solid #FFD700;
         }
 
-        /* Logout btn */
         .logout-btn {
           background:none; border:none;
           color:rgba(255,107,0,.8); cursor:pointer;
@@ -214,16 +195,11 @@ export default function Navbar() {
         padding:"0 clamp(1.5rem, 5vw, 4rem)",
         height:68,
         display:"flex", alignItems:"center", justifyContent:"space-between",
-        /* Glassmorphism kicks in after scroll */
-        background: scrolled
-          ? "rgba(8,4,0,0.92)"
-          : "linear-gradient(180deg,rgba(10,5,0,0.9) 0%,transparent 100%)",
-        backdropFilter: scrolled ? "blur(20px) saturate(180%)" : "blur(6px)",
-        WebkitBackdropFilter: scrolled ? "blur(20px) saturate(180%)" : "blur(6px)",
-        borderBottom: scrolled
-          ? "1px solid rgba(255,215,0,0.15)"
-          : "1px solid transparent",
-        boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.4)" : "none",
+        background: "rgba(8,4,0,0.95)",
+        backdropFilter: "blur(20px) saturate(180%)",
+        WebkitBackdropFilter: "blur(20px) saturate(180%)",
+        borderBottom: scrolled ? "1px solid rgba(255,215,0,0.15)" : "1px solid rgba(255,215,0,0.08)",
+        boxShadow: scrolled ? "0 4px 30px rgba(0,0,0,0.4)" : "0 2px 16px rgba(0,0,0,0.5)",
         transition:"background .35s, backdrop-filter .35s, border-color .35s, box-shadow .35s",
       }}>
 
@@ -233,11 +209,7 @@ export default function Navbar() {
         {/* Desktop Links */}
         <div className="desktop-links" style={{ display:"flex", gap:"2.5rem", alignItems:"center" }}>
           {navLinks.map(({ label, path }) => (
-            <Link
-              key={path}
-              to={path}
-              className={`nav-link${isActive(path) ? " active" : ""}`}
-            >
+            <Link key={path} to={path} className={`nav-link${isActive(path) ? " active" : ""}`}>
               {label}
             </Link>
           ))}
@@ -284,7 +256,7 @@ export default function Navbar() {
       {/* ── MOBILE DRAWER ── */}
       {menuOpen && (
         <div className="mobile-drawer">
-          {/* Drawer header */}
+          {/* Drawer header — no emoji */}
           <div style={{
             padding:"1.2rem 1.6rem",
             display:"flex", alignItems:"center", justifyContent:"space-between",
@@ -295,7 +267,7 @@ export default function Navbar() {
               fontFamily:"'Cinzel Decorative',serif", fontSize:"1.2rem", fontWeight:900,
               background:"linear-gradient(90deg,#FFD700,#FF6B00,#FF1493)",
               WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
-            }}>SparkNest 🎆</span>
+            }}>SparkNest</span>
             <button className="hamburger" onClick={() => setMenuOpen(false)}>
               <X size={20} />
             </button>
@@ -307,7 +279,7 @@ export default function Navbar() {
             background:"linear-gradient(135deg,rgba(255,215,0,.06),rgba(255,107,0,.04))",
             borderBottom:"1px solid rgba(255,255,255,.04)",
           }}>
-            <p style={{ fontSize:"0.75rem", color:"rgba(255,215,0,.7)", fontWeight:600 }}>
+            <p style={{ margin:0, fontSize:"0.75rem", color:"rgba(255,215,0,.7)", fontWeight:600 }}>
               🪔 Happy Diwali 2025! &nbsp;✨
             </p>
           </div>
@@ -323,32 +295,33 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
-          </div>
 
-          {/* Drawer footer — auth */}
-          <div style={{
-            padding:"1.4rem 1.6rem",
-            borderTop:"1px solid rgba(255,215,0,.12)",
-            background:"rgba(255,215,0,.02)",
-          }}>
-            {user ? (
-              <div style={{ display:"flex", flexDirection:"column", gap:"0.8rem" }}>
-                <p style={{ fontSize:"0.88rem", color:"rgba(255,245,230,.65)", fontWeight:600 }}>
-                  👋 Hi, {user.name.split(" ")[0]}!
-                </p>
-                <button className="logout-btn" onClick={() => { dispatch(logout()); setMenuOpen(false); }}>
-                  <LogOut size={16} /> Logout
-                </button>
-              </div>
-            ) : (
-              <Link to="/login" className="login-btn" style={{ display:"block", textAlign:"center" }}
-                onClick={() => setMenuOpen(false)}>
-                Login / Register
-              </Link>
-            )}
+            {/* Auth — right below Contact Us, same row style */}
+            <div style={{ borderTop:"1px solid rgba(255,215,0,.12)", padding:"1rem 1.6rem" }}>
+              {user ? (
+                <div style={{ display:"flex", flexDirection:"column", gap:"0.8rem" }}>
+                  <p style={{ margin:0, fontSize:"0.88rem", color:"rgba(255,245,230,.65)", fontWeight:600 }}>
+                    👋 Hi, {user.name.split(" ")[0]}!
+                  </p>
+                  <button className="logout-btn" onClick={() => { dispatch(logout()); setMenuOpen(false); }}>
+                    <LogOut size={16} /> Logout
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="login-btn"
+                  style={{ display:"block", textAlign:"center" }}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Login / Register
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       )}
+
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
