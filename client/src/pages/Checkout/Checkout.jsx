@@ -63,6 +63,8 @@ export default function Checkout() {
   const [step, setStep] = useState(1);
   const [activeBank, setActiveBank] = useState(0);
   const [whatsappSent, setWhatsappSent] = useState(false);
+  const [paidConfirmed, setPaidConfirmed] = useState(false);
+  const [orderId] = useState(() => "SN" + Date.now().toString().slice(-6));
 
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -75,35 +77,82 @@ export default function Checkout() {
   };
 
   const buildOrderMessage = (recipient) => {
-    const itemLines = items.map(i => `• ${i.name} x${i.quantity} = Rs.${(i.price * i.quantity).toLocaleString()}`).join("\n");
+    const divider = "━━━━━━━━━━━━━━━━━━━━━━";
+    const itemLines = items.map((i, idx) =>
+      `${idx + 1}. ${i.name}\n   Qty: ${i.quantity} × ₹${i.price.toLocaleString()} = *₹${(i.price * i.quantity).toLocaleString()}*`
+    ).join("\n");
     const bank = BANK_ACCOUNTS[0];
-    return encodeURIComponent(
-`🎆 *SparkNest ${recipient === "admin" ? "New Order Received!" : "Your Order Summary"}*
+    const date = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
-👤 *Customer Details*
-Name: ${form.name}
-Phone: ${form.phone}${form.email ? `\nEmail: ${form.email}` : ""}
-Address: ${form.address}, ${form.city}, ${form.state} - ${form.pincode}
+    if (recipient === "customer") {
+      return encodeURIComponent(
+`*SparkNest — Order Confirmation*
+Order ID: #${orderId} | Date: ${date}
+${divider}
 
-🛒 *Order Items*
+*Delivery Address*
+${form.name}
+${form.phone}${form.email ? " | " + form.email : ""}
+${form.address}
+${form.city}, ${form.state} — ${form.pincode}
+${divider}
+
+*Order Summary*
 ${itemLines}
+${divider}
 
-💰 *Price Breakdown*
-Subtotal: Rs.${(total + savings).toLocaleString()}${savings > 0 ? `\nDiscount: -Rs.${savings.toLocaleString()}` : ""}
-Delivery: ${shipping === 0 ? "FREE" : `Rs.${shipping}`}
-*Total Payable: Rs.${grandTotal.toLocaleString()}*
+*Price Breakdown*
+Item Total  :  ₹${(total + savings).toLocaleString()}${savings > 0 ? `
+Discount    : -₹${savings.toLocaleString()}` : ""}
+Delivery    :  ${shipping === 0 ? "FREE" : "₹" + shipping}
+──────────────────────
+*Total Payable :  ₹${grandTotal.toLocaleString()}*
+${divider}
 
-🏦 *Payment Details*
-UPI ID: ${UPI_ID}
-Bank: ${bank.bank}
-A/C Name: ${bank.name}
-A/C No: ${bank.accountNo}
-IFSC: ${bank.ifsc}
+*Payment Details*
+UPI ID  :  ${UPI_ID}
 
-${recipient === "customer"
-  ? "✅ Please complete the payment and send the screenshot here. We will confirm and dispatch your order within 12 hours! 🚀\n\nThank you for shopping with SparkNest! 🎇"
-  : "⚠️ Please verify payment screenshot and confirm dispatch."}`
-    );
+Bank Transfer:
+Bank    :  ${bank.bank}
+A/C No  :  ${bank.accountNo}
+IFSC    :  ${bank.ifsc}
+Name    :  ${bank.name}
+${divider}
+
+Kindly transfer *₹${grandTotal.toLocaleString()}* and reply with your payment screenshot to confirm your order.
+
+We will dispatch within 24 hours of payment confirmation.
+
+Thank you for choosing SparkNest! 🎆`
+      );
+    } else {
+      return encodeURIComponent(
+`*SparkNest — New Order Alert* 🔔
+Order ID: #${orderId} | Date: ${date}
+${divider}
+
+*Customer Details*
+Name    :  ${form.name}
+Phone   :  ${form.phone}${form.email ? `
+Email   :  ${form.email}` : ""}
+Address :  ${form.address}, ${form.city}, ${form.state} — ${form.pincode}
+${divider}
+
+*Order Items*
+${itemLines}
+${divider}
+
+*Price Breakdown*
+Item Total  :  ₹${(total + savings).toLocaleString()}${savings > 0 ? `
+Discount    : -₹${savings.toLocaleString()}` : ""}
+Delivery    :  ${shipping === 0 ? "FREE" : "₹" + shipping}
+──────────────────────
+*Total Payable :  ₹${grandTotal.toLocaleString()}*
+${divider}
+
+Please verify payment screenshot from customer and confirm dispatch.`
+      );
+    }
   };
 
   const handleWhatsappCustomer = () => {
@@ -114,10 +163,39 @@ ${recipient === "customer"
     window.open(`https://wa.me/91${ADMIN_WHATSAPP}?text=${buildOrderMessage("admin")}`, "_blank");
   };
 
-  const handleSendWhatsapp = () => {
-    handleWhatsappCustomer();
-    setTimeout(() => handleWhatsappAdmin(), 800);
+  const handleSendWhatsapp = async () => {
     setWhatsappSent(true);
+
+    // 1. Send emails automatically via Brevo
+    try {
+      await fetch("/api/send-order-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerEmail: form.email || null,
+          customerName: form.name,
+          orderId,
+          items,
+          form,
+          total,
+          savings,
+          shipping,
+          grandTotal,
+        }),
+      });
+    } catch (err) {
+      console.error("Email send failed:", err);
+    }
+
+    // 2. Open admin WhatsApp only
+    handleWhatsappAdmin();
+
+    // 3. Auto-confirm → success
+    dispatch(clearCart());
+    setTimeout(() => {
+      setStep(3);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 1200);
   };
 
   const handleSuccess = () => {
@@ -144,13 +222,18 @@ ${recipient === "customer"
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=DM+Sans:wght@400;600;700;800&display=swap');`}</style>
         <div style={{ fontSize: "5rem", lineHeight: 1 }}>🎆</div>
         <h1 style={{ color: "#FFD700", fontFamily: "'Cinzel Decorative',cursive", fontSize: "clamp(1.2rem,4vw,1.8rem)", margin: 0 }}>Order Placed!</h1>
-        <p style={{ color: "rgba(255,245,230,0.7)", fontSize: "0.95rem", maxWidth: 380, lineHeight: 1.7, margin: 0 }}>
-          Thank you, <strong style={{ color: "#FFF5E6" }}>{form.name}</strong>!<br />
-          Complete the payment and send the screenshot on WhatsApp. We'll confirm and dispatch soon! 🚀
+        <div style={{ background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 12, padding: "0.7rem 1.4rem", marginTop: "-0.3rem" }}>
+          <p style={{ color: "rgba(255,245,230,0.5)", fontSize: "0.72rem", margin: "0 0 0.2rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Order ID</p>
+          <p style={{ color: "#FFD700", fontWeight: 800, fontSize: "1.1rem", margin: 0, fontFamily: "monospace" }}>#{orderId}</p>
+        </div>
+        <p style={{ color: "rgba(255,245,230,0.7)", fontSize: "0.95rem", maxWidth: 420, lineHeight: 1.7, margin: 0 }}>
+          Dear <strong style={{ color: "#FFF5E6" }}>{form.name}</strong>, your order has been received.<br />
+          {form.email && <><span style={{ color: "#FFD700" }}>📧 Order confirmation sent to {form.email}</span><br /></>}
+          Complete the payment and send the screenshot to our WhatsApp. We will confirm and dispatch within <strong style={{ color: "#FFF5E6" }}>24 hours</strong>. 🚀
         </p>
         <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", justifyContent: "center", marginTop: "0.5rem" }}>
-          <button onClick={handleWhatsappCustomer} style={{ background: "#25D366", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <MessageCircle size={18} /> Open My WhatsApp
+          <button onClick={handleWhatsappAdmin} style={{ background: "#25D366", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <MessageCircle size={18} /> Contact Us on WhatsApp
           </button>
           <button onClick={() => navigate("/products")} style={{ background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 12, color: "#FF6B00", fontWeight: 700, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem" }}>
             Continue Shopping
@@ -324,31 +407,39 @@ ${recipient === "customer"
                 </div>
 
                 <div style={{ marginTop: "1rem", background: "rgba(255,211,0,0.06)", border: "1px solid rgba(255,211,0,0.18)", borderRadius: 10, padding: "0.7rem 0.9rem", fontSize: "0.75rem", color: "rgba(255,245,230,0.6)", lineHeight: 1.65 }}>
-                  ⚡ After paying, click <strong style={{ color: "#FFD700" }}>"Send Order on WhatsApp"</strong> below and share your payment screenshot. We'll confirm and dispatch! 🚀
+                  ⚡ Complete the payment above, then click <strong style={{ color: "#FFD700" }}>"I Have Paid"</strong> below to confirm your order.
                 </div>
               </div>
 
-              {/* WhatsApp CTA */}
-              {!whatsappSent ? (
-                <button onClick={handleSendWhatsapp} style={{ width: "100%", padding: "1rem", background: "#25D366", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(37,211,102,0.35)", fontFamily: "'DM Sans',sans-serif" }}>
-                  <MessageCircle size={20} /> Send Order on WhatsApp
+              {/* Step A — I Have Paid */}
+              {!paidConfirmed && !whatsappSent && (
+                <button onClick={() => setPaidConfirmed(true)} style={{ width: "100%", padding: "1rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(255,107,0,0.4)", fontFamily: "'DM Sans',sans-serif" }}>
+                  <ShieldCheck size={20} /> I Have Paid — Confirm Order
                 </button>
-              ) : (
+              )}
+
+              {/* Step B — Send on WhatsApp (shown after paid confirmed) */}
+              {paidConfirmed && !whatsappSent && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                  <div style={{ background: "rgba(37,211,102,0.07)", border: "1px solid rgba(37,211,102,0.22)", borderRadius: 14, padding: "1rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
-                    <p style={{ color: "#2ECC71", fontWeight: 700, fontSize: "0.85rem", margin: 0, textAlign: "center" }}>✅ WhatsApp opened! Send the message + payment screenshot.</p>
-                    <div style={{ display: "flex", gap: "0.6rem" }}>
-                      <button onClick={handleWhatsappCustomer} style={{ flex: 1, padding: "0.6rem", background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.25)", borderRadius: 10, color: "#2ECC71", fontWeight: 700, fontSize: "0.77rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem", fontFamily: "'DM Sans',sans-serif" }}>
-                        <MessageCircle size={13} /> Resend to Me
-                      </button>
-                      <button onClick={handleWhatsappAdmin} style={{ flex: 1, padding: "0.6rem", background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.25)", borderRadius: 10, color: "#2ECC71", fontWeight: 700, fontSize: "0.77rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3rem", fontFamily: "'DM Sans',sans-serif" }}>
-                        <MessageCircle size={13} /> Resend to Admin
-                      </button>
-                    </div>
+                  <div style={{ background: "rgba(255,107,0,0.06)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 14, padding: "1rem", textAlign: "center" }}>
+                    <p style={{ color: "#FFD700", fontWeight: 800, fontSize: "0.88rem", margin: "0 0 0.3rem" }}>✅ Payment noted!</p>
+                    <p style={{ color: "rgba(255,245,230,0.5)", fontSize: "0.78rem", margin: 0 }}>Now send your order details + payment screenshot to our admin on WhatsApp to complete the process.</p>
                   </div>
-                  <button onClick={handleSuccess} style={{ width: "100%", padding: "0.95rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(255,107,0,0.35)", fontFamily: "'DM Sans',sans-serif" }}>
-                    <ShieldCheck size={20} /> Done! Confirm My Order ✓
+                  <button onClick={handleSendWhatsapp} style={{ width: "100%", padding: "1rem", background: "#25D366", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(37,211,102,0.35)", fontFamily: "'DM Sans',sans-serif" }}>
+                    <MessageCircle size={20} /> Send Order on WhatsApp
                   </button>
+                  <button onClick={() => setPaidConfirmed(false)} style={{ background: "none", border: "none", color: "rgba(255,245,230,0.35)", fontSize: "0.72rem", cursor: "pointer", textAlign: "center", fontFamily: "'DM Sans',sans-serif" }}>
+                    ← Go back
+                  </button>
+                </div>
+              )}
+
+              {/* Step C — Sending / redirecting */}
+              {whatsappSent && (
+                <div style={{ background: "rgba(37,211,102,0.07)", border: "1px solid rgba(37,211,102,0.22)", borderRadius: 14, padding: "1.1rem", textAlign: "center" }}>
+                  <div style={{ fontSize: "1.6rem", marginBottom: "0.4rem" }}>🎆</div>
+                  <p style={{ color: "#2ECC71", fontWeight: 800, fontSize: "0.9rem", margin: "0 0 0.3rem" }}>Order confirmed! Redirecting...</p>
+                  <p style={{ color: "rgba(255,245,230,0.45)", fontSize: "0.75rem", margin: 0 }}>WhatsApp opened on your device</p>
                 </div>
               )}
 
