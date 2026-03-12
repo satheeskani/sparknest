@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart, updateQty } from "../../redux/slices/cartSlice";
-import { ShoppingCart, Star, SlidersHorizontal, X, Baby, ChevronDown, ChevronLeft, ChevronRight, Search, Heart } from "lucide-react";
+import { ShoppingCart, SlidersHorizontal, X, Baby, ChevronDown, ChevronLeft, ChevronRight, Search, Heart } from "lucide-react";
 import toast from "react-hot-toast";
 
 const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -30,18 +30,6 @@ const DEMO_PRODUCTS = [
   { _id:"12", name:"Atom Bomb Special (10pcs)", stock:90,  category:"Bombs",       price:149,  originalPrice:199,  rating:4.2, numReviews:33,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
 ];
 
-function StarRating({ rating }) {
-  return (
-    <div style={{ display:"flex", alignItems:"center", gap:"0.15rem" }}>
-      {[1,2,3,4,5].map(s => (
-        <Star key={s} size={10}
-          fill={s <= Math.round(rating) ? "#FFD700" : "none"}
-          color={s <= Math.round(rating) ? "#FFD700" : "rgba(255,245,230,0.2)"}
-          strokeWidth={1.5} />
-      ))}
-    </div>
-  );
-}
 
 function ProductCard({ product, wishlist, onWishlist }) {
   const dispatch  = useDispatch();
@@ -88,49 +76,47 @@ function ProductCard({ product, wishlist, onWishlist }) {
         </div>
       </Link>
 
-      <div style={{ flex:1, padding:"0.65rem 0.75rem", display:"flex", flexDirection:"column", justifyContent:"space-between", minWidth:0 }}>
+      <div style={{ flex:1, padding:"0.5rem 0.65rem", display:"flex", flexDirection:"column", justifyContent:"space-between", minWidth:0 }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:"0.25rem" }}>
           <div style={{ minWidth:0, flex:1 }}>
-            <div style={{ fontSize:"0.72rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.06em", textTransform:"uppercase", marginBottom:"0.2rem", display:"flex", alignItems:"center", gap:"0.35rem" }}>
+            <div style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.06em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
               {product.category}
-              {product.isSafeForKids && <span style={{ color:"#1ABC9C", fontSize:"0.72rem" }}>✦ Kids Safe</span>}
+              {product.isSafeForKids && <span style={{ color:"#1ABC9C", fontSize:"1.05rem" }}>✦ Kids Safe</span>}
             </div>
             <Link to={`/products/${toSlug(product.name)}`} style={{ textDecoration:"none" }}>
-              <div style={{ fontSize:"0.95rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
+              <div style={{ fontSize:"1.05rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
                 {product.name}
               </div>
             </Link>
           </div>
           <button onClick={handleWish}
             style={{ flexShrink:0, width:27, height:27, borderRadius:"50%", border:`1.5px solid ${isWished ? "rgba(255,61,0,0.5)" : "rgba(255,245,230,0.12)"}`, background: isWished ? "rgba(255,61,0,0.1)" : "rgba(255,255,255,0.04)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"all .2s", marginLeft:"0.25rem" }}>
-            <Heart size={12} fill={isWished ? "#FF3D00" : "none"} color={isWished ? "#FF3D00" : "rgba(255,245,230,0.35)"} strokeWidth={2} />
+            <Heart size={12} fill={isWished ? "#FF3D00" : "none"} color={isWished ? "#FF3D00" : "rgba(255,245,230,0.6)"} strokeWidth={2} />
           </button>
         </div>
 
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.3rem", marginTop:"0.4rem" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.25rem", marginTop:"0.25rem" }}>
           <div>
-            <div style={{ display:"flex", alignItems:"center", gap:"0.25rem", marginBottom:"0.18rem", flexWrap:"wrap" }}>
-              <StarRating rating={product.rating} />
-              <span style={{ fontSize:"0.75rem", color:"rgba(255,245,230,0.5)" }}>({product.numReviews})</span>
+            <div style={{ display:"flex", alignItems:"center", gap:"0.25rem", marginBottom:"0.18rem" }}>
               {product.stock <= 20
-                ? <span style={{ fontSize:"0.78rem", fontWeight:800, padding:"0.22rem 0.6rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 {product.stock} left</span>
-                : <span style={{ fontSize:"0.78rem", fontWeight:800, padding:"0.22rem 0.6rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
+                ? <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 {product.stock} left</span>
+                : <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
               }
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.3rem" }}>
               <span style={{ fontSize:"1.05rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
               {product.originalPrice > product.price && (
-                <span style={{ fontSize:"0.78rem", color:"rgba(255,245,230,0.35)", textDecoration:"line-through" }}>₹{product.originalPrice}</span>
+                <span style={{ fontSize:"0.9rem", color:"rgba(255,245,230,0.6)", textDecoration:"line-through" }}>₹{product.originalPrice}</span>
               )}
             </div>
           </div>
           {qty === 0 ? (
-            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"0.82rem", padding:"0.42rem 0.85rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.4)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
+            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.42rem 0.85rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
               + ADD
             </button>
           ) : (
-            <div style={{ display:"flex", alignItems:"center", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:8, overflow:"hidden", boxShadow:"0 2px 8px rgba(255,107,0,0.4)", flexShrink:0 }}>
-              <button onClick={handleDec} style={{ width:24, height:28, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"0.95rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
+            <div style={{ display:"flex", alignItems:"center", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:8, overflow:"hidden", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", flexShrink:0 }}>
+              <button onClick={handleDec} style={{ width:24, height:28, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"1.05rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
               <input
                 type="number" min="1" max="99"
                 value={qtyVal}
@@ -139,9 +125,9 @@ function ProductCard({ product, wishlist, onWishlist }) {
                 onBlur={commitQty}
                 onKeyDown={e => { if (e.key === "Enter") { commitQty(); e.target.blur(); } }}
                 onClick={e => e.preventDefault()}
-                style={{ width:28, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"0.88rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
+                style={{ width:28, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"1.05rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
               />
-              <button onClick={handleInc} disabled={qty >= max} style={{ width:24, height:28, border:"none", background:"transparent", color: qty >= max ? "rgba(255,255,255,0.3)" : "#fff", fontWeight:800, fontSize:"0.95rem", cursor: qty >= max ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
+              <button onClick={handleInc} disabled={qty >= max} style={{ width:24, height:28, border:"none", background:"transparent", color: qty >= max ? "rgba(255,255,255,0.3)" : "#fff", fontWeight:800, fontSize:"1.05rem", cursor: qty >= max ? "not-allowed" : "pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
             </div>
           )}
         </div>
@@ -157,14 +143,14 @@ function WishlistView({ wishlist, onWishlist }) {
       <div style={{ marginBottom:"1.5rem" }}>
         <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"1.1rem", color:"#FFF5E6", margin:0, display:"flex", alignItems:"center", gap:"0.5rem" }}>
           <Heart size={18} fill="#FF3D00" color="#FF3D00" /> My Wishlist
-          <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"0.75rem", fontWeight:600, color:"rgba(255,245,230,0.5)", marginLeft:"0.25rem" }}>({wishedProducts.length} items)</span>
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"1.05rem", fontWeight:600, color:"rgba(255,245,230,0.72)", marginLeft:"0.25rem" }}>({wishedProducts.length} items)</span>
         </h2>
       </div>
       {wishedProducts.length === 0 ? (
-        <div style={{ textAlign:"center", padding:"4rem 2rem", color:"rgba(255,245,230,0.35)" }}>
+        <div style={{ textAlign:"center", padding:"4rem 2rem", color:"rgba(255,245,230,0.6)" }}>
           <Heart size={48} color="rgba(255,245,230,0.15)" style={{ marginBottom:"1rem" }} />
-          <p style={{ fontSize:"1rem", fontWeight:600, color:"rgba(255,245,230,0.5)", marginBottom:"0.5rem" }}>Your wishlist is empty</p>
-          <p style={{ fontSize:"0.82rem" }}>Tap the ♡ on any product to save it here</p>
+          <p style={{ fontSize:"1rem", fontWeight:600, color:"rgba(255,245,230,0.72)", marginBottom:"0.5rem" }}>Your wishlist is empty</p>
+          <p style={{ fontSize:"1rem" }}>Tap the ♡ on any product to save it here</p>
         </div>
       ) : (
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:"0.85rem" }}>
@@ -258,7 +244,7 @@ export default function Products() {
     return (
       <>
         <div style={{ marginBottom:"1.5rem" }}>
-          <p style={{ fontSize:"0.78rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Category</p>
+          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.75rem" }}>Category</p>
           {CATEGORIES.map(cat => (
             <label key={cat} className={`filter-check${cats.includes(cat) ? " active" : ""}`}>
               <input type="checkbox" checked={cats.includes(cat)} onChange={() => toggle(cat)} />{cat}
@@ -266,23 +252,23 @@ export default function Products() {
           ))}
         </div>
         <div style={{ marginBottom:"1.5rem" }}>
-          <p style={{ fontSize:"0.78rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Price Range</p>
+          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.75rem" }}>Price Range</p>
           <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"0.5rem" }}>
-            <span style={{ fontSize:"0.88rem", color:"#FF6B00", fontWeight:700 }}>₹{price[0]}</span>
-            <span style={{ fontSize:"0.88rem", color:"#FF6B00", fontWeight:700 }}>₹{price[1]}</span>
+            <span style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700 }}>₹{price[0]}</span>
+            <span style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700 }}>₹{price[1]}</span>
           </div>
           <input type="range" className="range-input" min={0} max={2000} step={50}
             value={price[1]} style={{ "--val":`${(price[1]/2000)*100}%` }}
             onChange={e => setPrice([price[0], Number(e.target.value)])} />
           <div style={{ display:"flex", justifyContent:"space-between", marginTop:"0.25rem" }}>
-            <span style={{ fontSize:"0.75rem", color:"rgba(26,8,0,0.55)" }}>₹0</span>
-            <span style={{ fontSize:"0.75rem", color:"rgba(26,8,0,0.55)" }}>₹2000</span>
+            <span style={{ fontSize:"1.05rem", color:"rgba(26,8,0,0.55)" }}>₹0</span>
+            <span style={{ fontSize:"1.05rem", color:"rgba(26,8,0,0.55)" }}>₹2000</span>
           </div>
         </div>
         <div style={{ marginBottom:"1.2rem" }}>
-          <p style={{ fontSize:"0.78rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem" }}>Kids Safe Only</p>
+          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.75rem" }}>Kids Safe Only</p>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background: kids ? "rgba(46,204,113,0.1)" : "rgba(0,0,0,0.04)", border:`1.5px solid ${kids ? "rgba(46,204,113,0.35)" : "rgba(26,8,0,0.1)"}`, borderRadius:12, padding:"0.6rem 0.85rem", cursor:"pointer" }} onClick={() => setKids(k => !k)}>
-            <span style={{ fontSize:"0.92rem", color: kids ? "#1a7a4a" : "rgba(26,8,0,0.6)", fontWeight:700, display:"flex", alignItems:"center", gap:"0.35rem" }}>
+            <span style={{ fontSize:"1rem", color: kids ? "#1a7a4a" : "rgba(26,8,0,0.6)", fontWeight:700, display:"flex", alignItems:"center", gap:"0.35rem" }}>
               <Baby size={14} strokeWidth={2} color={kids ? "#1ABC9C" : "rgba(26,8,0,0.4)"} />{kids ? "Kids Safe ON" : "Kids Safe OFF"}
             </span>
             <div className={`kids-toggle${kids ? " on" : ""}`} style={{ pointerEvents:"none" }} />
@@ -319,11 +305,11 @@ export default function Products() {
           display: flex; align-items: center; gap: 0.55rem;
           padding: 0.38rem 0.65rem; border-radius: 9px;
           cursor: pointer; transition: background .2s;
-          font-size: 0.8rem; color: #3a1a00; font-weight: 500; user-select: none;
+          font-size: 1rem; color: #3a1a00; font-weight: 600; user-select: none;
         }
         .filter-check:hover { background: rgba(255,107,0,0.07); }
         .filter-check.active { color: #FF6B00; background: rgba(255,107,0,0.11); }
-        .filter-check input[type=checkbox] { accent-color:#FF6B00; width:14px; height:14px; cursor:pointer; flex-shrink:0; }
+        .filter-check input[type=checkbox] { accent-color:#FF6B00; width:17px; height:17px; cursor:pointer; flex-shrink:0; }
 
         .sort-select {
           background: #1A0A00; border: 1.5px solid rgba(255,245,230,0.12);
@@ -333,7 +319,7 @@ export default function Products() {
           appearance: none; -webkit-appearance: none; transition: border-color .2s;
           width: 100%; box-sizing: border-box;
         }
-        .sort-select:hover { border-color: rgba(255,107,0,0.35); }
+        .sort-select:hover { border-color: rgba(255,107,0,0.6); }
         .sort-select:focus { border-color: rgba(255,107,0,0.55); box-shadow: 0 0 0 3px rgba(255,107,0,0.1); }
         .sort-select option { background:#1A0A00; color:#FFF5E6; }
 
@@ -344,7 +330,7 @@ export default function Products() {
           font-size: 0.85rem; outline: none; width: 100%;
           transition: border-color .2s, box-shadow .2s; box-sizing: border-box;
         }
-        .search-bar::placeholder { color: rgba(255,245,230,0.4); }
+        .search-bar::placeholder { color: rgba(255,245,230,0.65); }
         .search-bar:focus { border-color: rgba(255,107,0,0.5); box-shadow: 0 0 0 3px rgba(255,107,0,0.08); }
 
         .range-input {
@@ -402,8 +388,8 @@ export default function Products() {
         .tab-bar { display:flex; border-bottom:1px solid rgba(255,245,230,0.08); margin-bottom:1.5rem; }
         .tab-btn {
           padding:0.55rem 1.2rem; border:none; background:none; cursor:pointer;
-          font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600;
-          color:rgba(255,245,230,0.45); border-bottom:2px solid transparent;
+          font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:600;
+          color:rgba(255,245,230,0.7); border-bottom:2px solid transparent;
           transition:all .2s; display:flex; align-items:center; gap:0.4rem;
         }
         .tab-btn.active { color:#FF6B00; border-bottom-color:#FF6B00; }
@@ -432,7 +418,7 @@ export default function Products() {
       {/* Mobile filter drawer */}
       <div className={`filter-drawer${sidebarOpen ? " open" : ""}`}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1.3rem" }}>
-          <span style={{ fontWeight:800, color:"#1a0800", fontSize:"0.95rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
+          <span style={{ fontWeight:800, color:"#1a0800", fontSize:"1.05rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
             <SlidersHorizontal size={15} color="#FF6B00" /> Filters
           </span>
           <button onClick={() => setSidebarOpen(false)} style={{ background:"none", border:"none", cursor:"pointer", color:"rgba(26,8,0,0.5)", padding:"0.2rem" }}>
@@ -442,7 +428,7 @@ export default function Products() {
         <FilterContent pending={true} />
         <div style={{ marginTop:"1.5rem", paddingTop:"1rem", borderTop:"1px solid rgba(255,107,0,0.12)" }}>
           <button onClick={applyMobileFilters}
-            style={{ width:"100%", boxSizing:"border-box", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:12, color:"#fff", fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:"0.92rem", padding:"0.82rem", cursor:"pointer", boxShadow:"0 4px 16px rgba(255,107,0,0.4)" }}>
+            style={{ width:"100%", boxSizing:"border-box", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:12, color:"#fff", fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:"1rem", padding:"0.82rem", cursor:"pointer", boxShadow:"0 4px 16px rgba(255,107,0,0.65)" }}>
             Apply
           </button>
         </div>
@@ -454,7 +440,7 @@ export default function Products() {
           <h1 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.1rem,3vw,1.9rem)", color:"#FFF5E6", fontWeight:900, margin:0 }}>
             Shop <span style={{ background:"linear-gradient(90deg,#FFD700,#FF6B00,#FF1493)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>Crackers</span>
           </h1>
-          <p style={{ color:"rgba(255,245,230,0.5)", fontSize:"0.78rem", margin:0 }}>
+          <p style={{ color:"rgba(255,245,230,0.72)", fontSize:"0.9rem", margin:0 }}>
             {filtered.length} products · Page {currentPage}/{totalPages || 1}
           </p>
         </div>
@@ -464,21 +450,17 @@ export default function Products() {
           {/* Desktop Sidebar */}
           <aside className="filter-sidebar">
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1.3rem" }}>
-              <span style={{ fontWeight:800, color:"#1a0800", fontSize:"0.92rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
+              <span style={{ fontWeight:800, color:"#1a0800", fontSize:"1rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
                 <SlidersHorizontal size={15} color="#FF6B00" /> Filters
               </span>
               {hasFilters && (
-                <button onClick={clearFilters} style={{ background:"none", border:"none", color:"rgba(255,107,0,0.7)", fontSize:"0.82rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"0.2rem" }}>
+                <button onClick={clearFilters} style={{ background:"none", border:"none", color:"rgba(255,107,0,0.7)", fontSize:"1rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"0.2rem" }}>
                   <X size={11}/> Clear
                 </button>
               )}
             </div>
             <FilterContent pending={false} />
-            <div style={{ background:"rgba(255,107,0,0.06)", border:"1px solid rgba(255,107,0,0.14)", borderRadius:10, padding:"0.6rem 0.75rem", marginTop:"0.8rem" }}>
-              <p style={{ fontSize:"0.68rem", color:"rgba(26,8,0,0.6)", fontWeight:600, margin:0, lineHeight:1.5 }}>
-                🏭 Sourced from <strong style={{ color:"#FF6B00" }}>Sivakasi</strong> — India's cracker capital
-              </p>
-            </div>
+
           </aside>
 
           {/* Main */}
@@ -487,7 +469,7 @@ export default function Products() {
             <div className="tab-bar">
               <button className={`tab-btn${activeTab==="all" ? " active" : ""}`} onClick={() => setActiveTab("all")}>All Products</button>
               <button className={`tab-btn${activeTab==="wishlist" ? " active" : ""}`} onClick={() => setActiveTab("wishlist")}>
-                <Heart size={13} fill={activeTab==="wishlist" ? "#FF3D00" : "none"} color={activeTab==="wishlist" ? "#FF3D00" : "rgba(255,245,230,0.45)"} />
+                <Heart size={13} fill={activeTab==="wishlist" ? "#FF3D00" : "none"} color={activeTab==="wishlist" ? "#FF3D00" : "rgba(255,245,230,0.7)"} />
                 Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{wishlist.length}</span>}
               </button>
             </div>
@@ -499,13 +481,13 @@ export default function Products() {
                 {/* Toolbar */}
                 <div className="toolbar-wrap" style={{ display:"flex", gap:"0.65rem", marginBottom:"1.2rem", alignItems:"center" }}>
                   <div className="toolbar-search" style={{ position:"relative", flex:1, minWidth:160 }}>
-                    <Search size={14} color="rgba(255,245,230,0.3)" style={{ position:"absolute", left:"0.85rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }} />
+                    <Search size={14} color="rgba(255,245,230,0.55)" style={{ position:"absolute", left:"0.85rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }} />
                     <input className="search-bar" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
                   </div>
 
                   <div className="toolbar-row2" style={{ display:"contents" }}>
                     <button onClick={openSidebar} className="prod-filter-btn"
-                      style={{ alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:12, padding:"0.58rem 1rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"0.82rem", fontWeight:600, cursor:"pointer", flexShrink:0 }}>
+                      style={{ alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:12, padding:"0.58rem 1rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"1rem", fontWeight:600, cursor:"pointer", flexShrink:0 }}>
                       <SlidersHorizontal size={14}/> Filters
                       {hasFilters && <span style={{ background:"#FF6B00", color:"#fff", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{selectedCats.length + (kidsOnly?1:0)}</span>}
                     </button>
@@ -522,12 +504,12 @@ export default function Products() {
                 {(selectedCats.length > 0 || kidsOnly) && (
                   <div style={{ display:"flex", gap:"0.45rem", flexWrap:"wrap", marginBottom:"1rem" }}>
                     {selectedCats.map(c => (
-                      <div key={c} style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(255,107,0,0.12)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.28rem 0.8rem", fontSize:"0.82rem", color:"#FF6B00", fontWeight:600 }}>
+                      <div key={c} style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(255,107,0,0.12)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.28rem 0.8rem", fontSize:"1rem", color:"#FF6B00", fontWeight:600 }}>
                         {c} <X size={10} style={{ cursor:"pointer" }} onClick={() => toggleCat(c)} />
                       </div>
                     ))}
                     {kidsOnly && (
-                      <div style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(46,204,113,0.12)", border:"1px solid rgba(46,204,113,0.3)", borderRadius:100, padding:"0.28rem 0.8rem", fontSize:"0.82rem", color:"#2ECC71", fontWeight:600 }}>
+                      <div style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(46,204,113,0.12)", border:"1px solid rgba(46,204,113,0.3)", borderRadius:100, padding:"0.28rem 0.8rem", fontSize:"1rem", color:"#2ECC71", fontWeight:600 }}>
                         <Baby size={10}/> Kids Safe <X size={10} style={{ cursor:"pointer" }} onClick={() => setKidsOnly(false)} />
                       </div>
                     )}
@@ -536,16 +518,16 @@ export default function Products() {
 
                 {/* Grid */}
                 {loading ? (
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:280, gap:"0.8rem", color:"rgba(255,245,230,0.4)" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:280, gap:"0.8rem", color:"rgba(255,245,230,0.65)" }}>
                     <span style={{ width:26, height:26, border:"3px solid rgba(255,107,0,0.2)", borderTopColor:"#FF6B00", borderRadius:"50%", display:"inline-block", animation:"spin 0.8s linear infinite" }}/>
                     Loading...
                   </div>
                 ) : filtered.length === 0 ? (
-                  <div style={{ textAlign:"center", padding:"5rem 2rem", color:"rgba(255,245,230,0.35)" }}>
+                  <div style={{ textAlign:"center", padding:"5rem 2rem", color:"rgba(255,245,230,0.6)" }}>
                     <div style={{ fontSize:"3.5rem", marginBottom:"1rem" }}>🎆</div>
-                    <p style={{ fontSize:"0.95rem", fontWeight:600, color:"rgba(255,245,230,0.55)", marginBottom:"0.4rem" }}>No products found</p>
-                    <p style={{ fontSize:"0.82rem" }}>Try adjusting your filters</p>
-                    <button onClick={clearFilters} style={{ marginTop:"1rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.55rem 1.4rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"0.82rem", fontWeight:700, cursor:"pointer" }}>Clear Filters</button>
+                    <p style={{ fontSize:"1.05rem", fontWeight:600, color:"rgba(255,245,230,0.55)", marginBottom:"0.4rem" }}>No products found</p>
+                    <p style={{ fontSize:"1rem" }}>Try adjusting your filters</p>
+                    <button onClick={clearFilters} style={{ marginTop:"1rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.55rem 1.4rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"1rem", fontWeight:700, cursor:"pointer" }}>Clear Filters</button>
                   </div>
                 ) : (
                   <>
@@ -567,10 +549,10 @@ export default function Products() {
                           .filter(n => n===1||n===totalPages||Math.abs(n-currentPage)<=1)
                           .reduce((acc,n,idx,arr) => { if(idx>0&&n-arr[idx-1]>1)acc.push("..."); acc.push(n); return acc; },[])
                           .map((item,idx) => item==="..." ? (
-                            <span key={`d${idx}`} style={{ color:"rgba(255,245,230,0.3)", padding:"0 0.1rem" }}>…</span>
+                            <span key={`d${idx}`} style={{ color:"rgba(255,245,230,0.55)", padding:"0 0.1rem" }}>…</span>
                           ) : (
                             <button key={item} onClick={() => { setCurrentPage(item); window.scrollTo({top:0,behavior:"smooth"}); }}
-                              style={{ width:36, height:36, borderRadius:9, border: item===currentPage ? "none" : "1.5px solid rgba(255,245,230,0.12)", background: item===currentPage ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.04)", color: item===currentPage ? "#fff" : "rgba(255,245,230,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:"0.85rem", fontWeight: item===currentPage?800:500, cursor:"pointer", boxShadow: item===currentPage ? "0 4px 14px rgba(255,107,0,0.4)" : "none" }}>
+                              style={{ width:36, height:36, borderRadius:9, border: item===currentPage ? "none" : "1.5px solid rgba(255,245,230,0.12)", background: item===currentPage ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.04)", color: item===currentPage ? "#fff" : "rgba(255,245,230,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:"1.05rem", fontWeight: item===currentPage?800:500, cursor:"pointer", boxShadow: item===currentPage ? "0 4px 14px rgba(255,107,0,0.65)" : "none" }}>
                               {item}
                             </button>
                           ))

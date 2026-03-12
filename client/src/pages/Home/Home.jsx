@@ -237,7 +237,7 @@ export default function Home() {
           padding: 0.9rem 2.4rem; border-radius: 100px;
           font-size: 0.95rem; font-weight: 800;
           text-decoration: none; display: inline-block;
-          box-shadow: 0 8px 30px rgba(255,107,0,0.4);
+          box-shadow: 0 8px 30px rgba(255,107,0,0.65);
           transition: transform .2s, box-shadow .2s;
         }
         .shop-btn:hover { transform:scale(1.06); box-shadow:0 12px 40px rgba(255,107,0,0.65); }
@@ -352,7 +352,7 @@ export default function Home() {
         @media(max-width:560px) {
           .hero-section   { padding:5rem 1.2rem 3rem !important; }
           .hero-lamps     { font-size:1.5rem !important; gap:0.7rem !important; }
-          .hero-badge-wrap{ margin-bottom:1.4rem !important; font-size:0.68rem !important; }
+          .hero-badge-wrap{ margin-bottom:1.4rem !important; font-size:1rem !important; }
           .cta-row        { flex-direction:column; align-items:center; gap:0.8rem !important; }
           .shop-btn, .kids-btn { width:100%; text-align:center; padding:0.9rem 1.5rem; justify-content:center; }
           .stats-row { display:grid !important; grid-template-columns:1fr 1fr !important; gap:1.2rem !important; margin-top:2.5rem !important; }
@@ -399,7 +399,7 @@ export default function Home() {
             display:"inline-flex", alignItems:"center", gap:"0.5rem",
             background:"linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,107,0,.1))",
             border:"1px solid rgba(255,215,0,.5)", borderRadius:100,
-            padding:"0.5rem 1.4rem", fontSize:"0.75rem", letterSpacing:"0.15em",
+            padding:"0.5rem 1.4rem", fontSize:"1.05rem", letterSpacing:"0.15em",
             textTransform:"uppercase", color:"#FFD700", marginBottom:"2rem",
           }}>
             ✨ Premium Crackers from Sivakasi
@@ -466,7 +466,7 @@ export default function Home() {
                 Categories
               </span>
             </h2>
-            <p style={{ marginTop:"0.6rem", color:"#999", fontSize:"0.82rem" }}>
+            <p style={{ marginTop:"0.6rem", color:"#999", fontSize:"1rem" }}>
               8 categories · 144+ products · direct from Sivakasi
             </p>
           </div>
@@ -525,10 +525,10 @@ export default function Home() {
                 </span>
                 , Delivered Across India
               </h2>
-              <p style={{ color:"rgba(255,245,230,0.65)", fontSize:"0.92rem", lineHeight:1.85, marginBottom:"1rem" }}>
+              <p style={{ color:"rgba(255,245,230,0.65)", fontSize:"1rem", lineHeight:1.85, marginBottom:"1rem" }}>
                 SparkNest was founded with one mission — to bring the finest crackers straight from Sivakasi's legendary factories to your doorstep. Every product is handpicked, safety-certified, and packed with care.
               </p>
-              <p style={{ color:"rgba(255,245,230,0.5)", fontSize:"0.88rem", lineHeight:1.85, marginBottom:"1.8rem" }}>
+              <p style={{ color:"rgba(255,245,230,0.72)", fontSize:"1.05rem", lineHeight:1.85, marginBottom:"1.8rem" }}>
                 Sivakasi, Tamil Nadu has been India's fireworks capital since 1923. We partner directly with trusted manufacturers to bring you the best quality at the best prices — cutting out the middlemen.
               </p>
               <div className="about-stats" style={{ display:"flex", gap:"2rem", flexWrap:"wrap" }}>
@@ -540,7 +540,7 @@ export default function Home() {
                 ].map(s => (
                   <div key={s.label}>
                     <div style={{ fontSize:"1.6rem", fontWeight:900, background:"linear-gradient(135deg,#FFD700,#FF6B00)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>{s.num}</div>
-                    <div style={{ fontSize:"0.65rem", color:"rgba(255,245,230,0.4)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.1em", marginTop:"0.15rem" }}>{s.label}</div>
+                    <div style={{ fontSize:"1rem", color:"rgba(255,245,230,0.65)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.1em", marginTop:"0.15rem" }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -602,14 +602,14 @@ export default function Home() {
                   <p style={{ fontSize:"0.83rem", color:"rgba(26,8,0,0.7)", lineHeight:1.75, marginBottom:"1.1rem" }}>"{t.text}"</p>
                   {/* Author */}
                   <div style={{ display:"flex", alignItems:"center", gap:"0.7rem" }}>
-                    <div style={{ width:38, height:38, borderRadius:"50%", background:`linear-gradient(135deg,${t.color}33,${t.color}22)`, border:`2px solid ${t.color}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"0.85rem", fontWeight:800, color:t.color }}>
+                    <div style={{ width:38, height:38, borderRadius:"50%", background:`linear-gradient(135deg,${t.color}33,${t.color}22)`, border:`2px solid ${t.color}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.05rem", fontWeight:800, color:t.color }}>
                       {t.avatar}
                     </div>
                     <div>
-                      <div style={{ fontSize:"0.82rem", fontWeight:800, color:"#1a0800" }}>{t.name}</div>
-                      <div style={{ fontSize:"0.68rem", color:"rgba(26,8,0,0.45)", fontWeight:500 }}>📍 {t.city}</div>
+                      <div style={{ fontSize:"1rem", fontWeight:800, color:"#1a0800" }}>{t.name}</div>
+                      <div style={{ fontSize:"1rem", color:"rgba(26,8,0,0.45)", fontWeight:500 }}>📍 {t.city}</div>
                     </div>
-                    <div style={{ marginLeft:"auto", fontSize:"0.65rem", color:"rgba(26,8,0,0.3)", fontWeight:600 }}>✓ Verified</div>
+                    <div style={{ marginLeft:"auto", fontSize:"1rem", color:"rgba(26,8,0,0.3)", fontWeight:600 }}>✓ Verified</div>
                   </div>
                 </div>
               ))}
@@ -621,7 +621,7 @@ export default function Home() {
       {/* ════════════ TRUST ════════════ */}
       <section className="trust-section" style={{ position:"relative", zIndex:2, padding:"4rem clamp(1.2rem,4vw,4rem) 4.5rem" }}>
         <div style={{ textAlign:"center", marginBottom:"2rem" }}>
-          <p style={{ fontSize:"0.72rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FFD700", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
+          <p style={{ fontSize:"1.05rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FFD700", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
             <MapPin size={12} color="#FFD700" strokeWidth={2} /> Why SparkNest?
           </p>
           <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.1rem,2.5vw,2rem)", color:"#FFF5E6", fontWeight:900 }}>

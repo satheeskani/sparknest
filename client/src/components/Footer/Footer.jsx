@@ -30,7 +30,7 @@ function AccordionCol({ title, titleColor, gradientBar, children }) {
         }}
       >
         <span style={{
-          fontSize: "0.72rem", letterSpacing: "0.22em", textTransform: "uppercase",
+          fontSize: "1.05rem", letterSpacing: "0.22em", textTransform: "uppercase",
           fontWeight: 800, color: titleColor,
           WebkitFontSmoothing: "antialiased",
         }}>{title}</span>
@@ -205,7 +205,7 @@ export default function Footer() {
                 <Sparkles style={{ color:"#FFD700", width:22, height:22, flexShrink:0 }} />
                 <span className="footer-logo-text">SparkNest</span>
               </div>
-              <p style={{ fontSize:"0.88rem", color:"rgba(255,245,230,.8)", lineHeight:1.8, marginBottom:"1.2rem" }}>
+              <p style={{ fontSize:"1.05rem", color:"rgba(255,245,230,.8)", lineHeight:1.8, marginBottom:"1.2rem" }}>
                 India's smartest AI-powered cracker store. Premium quality from Sivakasi, delivered to your doorstep. 🏭
               </p>
               <div style={{ display:"flex", flexWrap:"wrap", gap:"0.4rem", marginBottom:"1.4rem" }}>
@@ -220,7 +220,7 @@ export default function Footer() {
                   </span>
                 ))}
               </div>
-              <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.6)" }}>Made with ❤️ in Sivakasi, India</p>
+              <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.6)" }}>Made with ❤️ in Sivakasi, India</p>
             </div>
 
             {/* Shop — desktop only */}
@@ -267,8 +267,8 @@ export default function Footer() {
               ))}
               <div style={{ marginTop:"1.2rem", padding:"1rem", borderRadius:12,
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
-                <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 support@sparknest.in</p>
-                <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.8)" }}>📞 8015850365</p>
+                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 support@sparknest.in</p>
+                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)" }}>📞 8015850365</p>
               </div>
             </div>
           </div>
@@ -293,8 +293,8 @@ export default function Footer() {
               ))}
               <div style={{ marginTop:"0.8rem", padding:"0.9rem", borderRadius:12,
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
-                <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 support@sparknest.in</p>
-                <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.8)" }}>📞 8015850365</p>
+                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 support@sparknest.in</p>
+                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)" }}>📞 8015850365</p>
               </div>
             </AccordionCol>
           </div>
@@ -311,7 +311,7 @@ export default function Footer() {
               © {new Date().getFullYear()} SparkNest. All rights reserved.
             </p>
 
-            <p style={{ fontSize:"0.78rem", color:"rgba(255,245,230,.8)" }}>
+            <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)" }}>
               🔒 Secure &amp; Encrypted Payments
             </p>
           </div>

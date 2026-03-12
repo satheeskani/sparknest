@@ -32,7 +32,7 @@ function CartQtyInput({ item }) {
       onFocus={e => { setFocused(true); e.target.select(); }}
       onBlur={commit}
       onKeyDown={e => { if (e.key === "Enter") { commit(); e.target.blur(); } }}
-      style={{ minWidth:22, width:32, textAlign:"center", color:"#FFF5E6", fontWeight:700, fontSize:"0.82rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
+      style={{ minWidth:22, width:32, textAlign:"center", color:"#FFF5E6", fontWeight:700, fontSize:"1rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
     />
   );
 }
@@ -123,10 +123,10 @@ export default function CartDrawer({ open, onClose }) {
           {items.length === 0 ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "60%", gap: "1rem" }}>
               <ShoppingCart size={56} color="rgba(255,107,0,0.2)" />
-              <p style={{ color: "rgba(255,245,230,0.4)", fontSize: "0.9rem", fontWeight: 500 }}>Your cart is empty</p>
+              <p style={{ color: "rgba(255,245,230,0.65)", fontSize: "0.9rem", fontWeight: 500 }}>Your cart is empty</p>
               <button
                 onClick={onClose}
-                style={{ background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: "0.85rem", padding: "0.6rem 1.4rem", cursor: "pointer" }}
+                style={{ background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: "1.05rem", padding: "0.6rem 1.4rem", cursor: "pointer" }}
               >
                 Shop Now 🎆
               </button>
@@ -147,10 +147,10 @@ export default function CartDrawer({ open, onClose }) {
                   />
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#FFF5E6", lineHeight: 1.3, marginBottom: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: "1rem", fontWeight: 700, color: "#FFF5E6", lineHeight: 1.3, marginBottom: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.name}
                     </div>
-                    <div style={{ fontSize: "0.75rem", color: "rgba(255,245,230,0.45)", marginBottom: "0.5rem" }}>
+                    <div style={{ fontSize: "1.05rem", color: "rgba(255,245,230,0.7)", marginBottom: "0.5rem" }}>
                       ₹{item.price} × {item.quantity}
                     </div>
                     {/* Qty controls */}
@@ -190,12 +190,12 @@ export default function CartDrawer({ open, onClose }) {
           <div style={{ padding: "1rem 1.4rem 1.4rem", borderTop: "1px solid rgba(255,107,0,0.12)", background: "rgba(255,107,0,0.04)" }}>
             {savings > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                <span style={{ fontSize: "0.78rem", color: "rgba(255,245,230,0.5)" }}>You save</span>
-                <span style={{ fontSize: "0.78rem", color: "#2ECC71", fontWeight: 700 }}>₹{savings.toLocaleString()}</span>
+                <span style={{ fontSize: "0.9rem", color: "rgba(255,245,230,0.72)" }}>You save</span>
+                <span style={{ fontSize: "0.9rem", color: "#2ECC71", fontWeight: 700 }}>₹{savings.toLocaleString()}</span>
               </div>
             )}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <span style={{ fontSize: "0.85rem", color: "rgba(255,245,230,0.6)", fontWeight: 500 }}>
+              <span style={{ fontSize: "1.05rem", color: "rgba(255,245,230,0.6)", fontWeight: 500 }}>
                 Total ({totalItems} {totalItems === 1 ? "item" : "items"})
               </span>
               <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#FFD700" }}>
@@ -208,16 +208,16 @@ export default function CartDrawer({ open, onClose }) {
                 width: "100%", padding: "0.9rem", border: "none", borderRadius: 14,
                 background: "linear-gradient(135deg,#FF6B00,#FF3D00)",
                 color: "#fff", fontWeight: 800, fontSize: "1rem",
-                cursor: "pointer", boxShadow: "0 4px 20px rgba(255,107,0,0.45)",
+                cursor: "pointer", boxShadow: "0 4px 20px rgba(255,107,0,0.7)",
                 fontFamily: "'DM Sans',sans-serif", letterSpacing: "0.02em",
                 transition: "transform .15s, box-shadow .15s",
               }}
               onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 6px 28px rgba(255,107,0,0.6)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(255,107,0,0.45)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(255,107,0,0.7)"; }}
             >
               Proceed to Checkout →
             </button>
-            <p style={{ textAlign: "center", fontSize: "0.7rem", color: "rgba(255,245,230,0.3)", marginTop: "0.6rem" }}>
+            <p style={{ textAlign: "center", fontSize: "0.7rem", color: "rgba(255,245,230,0.55)", marginTop: "0.6rem" }}>
               Free delivery on orders above ₹999
             </p>
           </div>

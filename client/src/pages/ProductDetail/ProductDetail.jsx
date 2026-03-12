@@ -81,23 +81,23 @@ function ProductCard({ product }) {
           <div style={{ fontSize:"0.54rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
             {product.category}{product.isSafeForKids && <span style={{ color:"#1ABC9C" }}>✦ Kids Safe</span>}
           </div>
-          <div style={{ fontSize:"0.78rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{product.name}</div>
+          <div style={{ fontSize:"0.9rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{product.name}</div>
         </div>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.3rem", marginTop:"0.35rem" }}>
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.2rem", marginBottom:"0.12rem" }}>
               <StarRating rating={product.rating} size={9}/>
-              <span style={{ fontSize:"0.56rem", color:"rgba(255,245,230,0.5)" }}>({product.numReviews})</span>
+              <span style={{ fontSize:"0.56rem", color:"rgba(255,245,230,0.72)" }}>({product.numReviews})</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.28rem" }}>
-              <span style={{ fontSize:"0.88rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
-              {product.originalPrice > product.price && <span style={{ fontSize:"0.62rem", color:"rgba(255,245,230,0.35)", textDecoration:"line-through" }}>₹{product.originalPrice}</span>}
+              <span style={{ fontSize:"1.05rem", fontWeight:800, color:"#FFD700" }}>₹{product.price}</span>
+              {product.originalPrice > product.price && <span style={{ fontSize:"0.9rem", color:"rgba(255,245,230,0.6)", textDecoration:"line-through" }}>₹{product.originalPrice}</span>}
             </div>
           </div>
           {qty === 0 ? (
-            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:7, color:"#fff", fontWeight:800, fontSize:"0.68rem", padding:"0.32rem 0.65rem", cursor:"pointer", boxShadow:"0 2px 8px rgba(255,107,0,0.4)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>+ ADD</button>
+            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:7, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.32rem 0.65rem", cursor:"pointer", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>+ ADD</button>
           ) : (
-            <div style={{ display:"flex", alignItems:"center", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:7, overflow:"hidden", boxShadow:"0 2px 8px rgba(255,107,0,0.4)", flexShrink:0 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display:"flex", alignItems:"center", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:7, overflow:"hidden", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", flexShrink:0 }} onClick={e => e.stopPropagation()}>
               <button onClick={handleDec} style={{ width:22, height:26, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"0.9rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
               <input
                 type="number" min="1" max="99"
@@ -107,7 +107,7 @@ function ProductCard({ product }) {
                   if (!isNaN(v) && v >= 1 && v <= 99) dispatch(updateQty({ id: product._id, quantity: Math.min(99, v) }));
                 }}
                 onClick={e => e.stopPropagation()}
-                style={{ width:24, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"0.72rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
+                style={{ width:24, textAlign:"center", color:"#fff", fontWeight:800, fontSize:"1.05rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
               />
               <button onClick={handleInc} style={{ width:22, height:26, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"0.9rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>+</button>
             </div>
@@ -153,7 +153,7 @@ export default function ProductDetail() {
 
   if (!product) return (
     <div style={{ minHeight:"100vh", background:"#0D0600", display:"flex", alignItems:"center", justifyContent:"center", paddingTop:80 }}>
-      <div style={{ textAlign:"center", color:"rgba(255,245,230,0.4)" }}>
+      <div style={{ textAlign:"center", color:"rgba(255,245,230,0.65)" }}>
         <div style={{ fontSize:"4rem", marginBottom:"1rem" }}>🎆</div>
         <p>Product not found</p>
         <Link to="/products" style={{ color:"#FF6B00", textDecoration:"none", fontWeight:700 }}>← Back to Shop</Link>
@@ -179,10 +179,10 @@ export default function ProductDetail() {
           background:linear-gradient(90deg,#FF3D00,#FF6B00,#FFD700,#FF6B00,#FF3D00);
           background-size:300% auto; animation:shimmer 3s linear infinite;
           border:none; border-radius:12px; color:#1A0500;
-          font-family:'DM Sans',sans-serif; font-size:0.92rem; font-weight:800;
+          font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:800;
           cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.45rem;
           transition:transform .2s, box-shadow .2s;
-          box-shadow:0 6px 22px rgba(255,107,0,0.35);
+          box-shadow:0 6px 22px rgba(255,107,0,0.6);
         }
         .add-cart-btn-main:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(255,107,0,0.5); }
 
@@ -210,12 +210,12 @@ export default function ProductDetail() {
       <div style={{ maxWidth:1200, margin:"0 auto", padding:"0 clamp(1rem,4vw,2.5rem) 4rem" }}>
 
         {/* Breadcrumb */}
-        <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"1.2rem 0 1.5rem", fontSize:"0.75rem", color:"rgba(255,245,230,0.4)", flexWrap:"wrap" }}>
-          <Link to="/" style={{ color:"rgba(255,245,230,0.5)", textDecoration:"none" }} onMouseEnter={e=>e.target.style.color="#FF6B00"} onMouseLeave={e=>e.target.style.color="rgba(255,245,230,0.5)"}>Home</Link>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.4rem", padding:"1.2rem 0 1.5rem", fontSize:"1.05rem", color:"rgba(255,245,230,0.65)", flexWrap:"wrap" }}>
+          <Link to="/" style={{ color:"rgba(255,245,230,0.72)", textDecoration:"none" }} onMouseEnter={e=>e.target.style.color="#FF6B00"} onMouseLeave={e=>e.target.style.color="rgba(255,245,230,0.72)"}>Home</Link>
           <ChevronRight size={11}/>
-          <Link to="/products" style={{ color:"rgba(255,245,230,0.5)", textDecoration:"none" }} onMouseEnter={e=>e.target.style.color="#FF6B00"} onMouseLeave={e=>e.target.style.color="rgba(255,245,230,0.5)"}>Shop</Link>
+          <Link to="/products" style={{ color:"rgba(255,245,230,0.72)", textDecoration:"none" }} onMouseEnter={e=>e.target.style.color="#FF6B00"} onMouseLeave={e=>e.target.style.color="rgba(255,245,230,0.72)"}>Shop</Link>
           <ChevronRight size={11}/>
-          <Link to={`/products?category=${product.category}`} style={{ color:"rgba(255,245,230,0.5)", textDecoration:"none" }} onMouseEnter={e=>e.target.style.color="#FF6B00"} onMouseLeave={e=>e.target.style.color="rgba(255,245,230,0.5)"}>{product.category}</Link>
+          <Link to={`/products?category=${product.category}`} style={{ color:"rgba(255,245,230,0.72)", textDecoration:"none" }} onMouseEnter={e=>e.target.style.color="#FF6B00"} onMouseLeave={e=>e.target.style.color="rgba(255,245,230,0.72)"}>{product.category}</Link>
           <ChevronRight size={11}/>
           <span style={{ color:"rgba(255,245,230,0.8)", fontWeight:600 }}>{product.name}</span>
         </div>
@@ -231,7 +231,7 @@ export default function ProductDetail() {
                   <img src={product.image} alt={product.name} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                   <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.35))", pointerEvents:"none" }}/>
                   {discount > 0 && <div style={{ position:"absolute", top:12, left:12, background:"linear-gradient(135deg,#FF3D00,#FF6B00)", color:"#fff", fontSize:"0.7rem", fontWeight:800, padding:"0.25rem 0.6rem", borderRadius:100, boxShadow:"0 2px 10px rgba(255,61,0,0.5)" }}>-{discount}% OFF</div>}
-                  {product.isSafeForKids && <div style={{ position:"absolute", top:12, right:12, background:"linear-gradient(135deg,#1ABC9C,#2ECC71)", color:"#fff", fontSize:"0.62rem", fontWeight:800, padding:"0.25rem 0.6rem", borderRadius:100, display:"flex", alignItems:"center", gap:"0.25rem", boxShadow:"0 2px 10px rgba(46,204,113,0.5)" }}><Baby size={10} strokeWidth={2.5}/> Kids Safe</div>}
+                  {product.isSafeForKids && <div style={{ position:"absolute", top:12, right:12, background:"linear-gradient(135deg,#1ABC9C,#2ECC71)", color:"#fff", fontSize:"0.9rem", fontWeight:800, padding:"0.25rem 0.6rem", borderRadius:100, display:"flex", alignItems:"center", gap:"0.25rem", boxShadow:"0 2px 10px rgba(46,204,113,0.5)" }}><Baby size={10} strokeWidth={2.5}/> Kids Safe</div>}
                 </div>
               </div>
             </div>
@@ -241,7 +241,7 @@ export default function ProductDetail() {
 
               {/* Category + badges row */}
               <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.45rem", flexWrap:"wrap" }}>
-                <span style={{ fontSize:"0.65rem", color:"#FF6B00", fontWeight:800, letterSpacing:"0.1em", textTransform:"uppercase" }}>{product.category}</span>
+                <span style={{ fontSize:"1rem", color:"#FF6B00", fontWeight:800, letterSpacing:"0.1em", textTransform:"uppercase" }}>{product.category}</span>
                 {product.isSafeForKids && <span style={{ background:"rgba(46,204,113,0.15)", border:"1px solid rgba(46,204,113,0.3)", color:"#2ECC71", fontSize:"0.6rem", fontWeight:700, padding:"0.12rem 0.5rem", borderRadius:100, display:"flex", alignItems:"center", gap:"0.2rem" }}><Baby size={9}/> Kids Safe</span>}
                 {product.stock <= 20 && <span style={{ background:"rgba(255,61,0,0.12)", border:"1px solid rgba(255,61,0,0.25)", color:"#FF3D00", fontSize:"0.6rem", fontWeight:700, padding:"0.12rem 0.5rem", borderRadius:100, animation:"pulse 2s infinite" }}>Only {product.stock} left!</span>}
               </div>
@@ -252,8 +252,8 @@ export default function ProductDetail() {
               {/* Rating + stock inline */}
               <div style={{ display:"flex", alignItems:"center", gap:"0.6rem", marginBottom:"0.9rem", flexWrap:"wrap" }}>
                 <StarRating rating={product.rating} size={14}/>
-                <span style={{ fontSize:"0.82rem", fontWeight:700, color:"#b8860b" }}>{product.rating}</span>
-                <span style={{ fontSize:"0.78rem", color:"rgba(26,8,0,0.55)" }}>({product.numReviews})</span>
+                <span style={{ fontSize:"1rem", fontWeight:700, color:"#b8860b" }}>{product.rating}</span>
+                <span style={{ fontSize:"0.9rem", color:"rgba(26,8,0,0.55)" }}>({product.numReviews})</span>
                 <span style={{ color:"rgba(26,8,0,0.18)" }}>|</span>
                 <span style={{ fontSize:"0.76rem", color: product.stock > 20 ? "#1a7a4a" : "#FF6B00", fontWeight:700 }}>
                   {product.stock > 0 ? `✓ In Stock (${product.stock})` : "✗ Out of Stock"}
@@ -265,8 +265,8 @@ export default function ProductDetail() {
                 <span style={{ fontSize:"1.7rem", fontWeight:800, background:"linear-gradient(135deg,#FF6B00,#FF3D00)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", lineHeight:1 }}>₹{product.price}</span>
                 {product.originalPrice > product.price && (
                   <>
-                    <span style={{ fontSize:"0.95rem", color:"rgba(26,8,0,0.35)", textDecoration:"line-through", fontWeight:400 }}>₹{product.originalPrice}</span>
-                    <span style={{ fontSize:"0.72rem", background:"linear-gradient(135deg,#FF3D00,#FF6B00)", color:"#fff", fontWeight:800, padding:"0.15rem 0.5rem", borderRadius:100 }}>Save ₹{product.originalPrice - product.price}</span>
+                    <span style={{ fontSize:"1.05rem", color:"rgba(26,8,0,0.35)", textDecoration:"line-through", fontWeight:400 }}>₹{product.originalPrice}</span>
+                    <span style={{ fontSize:"1.05rem", background:"linear-gradient(135deg,#FF3D00,#FF6B00)", color:"#fff", fontWeight:800, padding:"0.15rem 0.5rem", borderRadius:100 }}>Save ₹{product.originalPrice - product.price}</span>
                   </>
                 )}
               </div>
@@ -289,7 +289,7 @@ export default function ProductDetail() {
                     else setQty(1);
                   }}
                   onKeyDown={e => { if (e.key === "Enter") e.target.blur(); }}
-                  style={{ width:36, textAlign:"center", fontWeight:700, color:"#1a0800", fontSize:"0.95rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
+                  style={{ width:36, textAlign:"center", fontWeight:700, color:"#1a0800", fontSize:"1.05rem", background:"transparent", border:"none", outline:"none", MozAppearance:"textfield", WebkitAppearance:"none" }}
                 />
                   <button className="qty-btn" onClick={() => setQty(q => Math.min(Math.min(99, product.stock), q+1))}><Plus size={13}/></button>
                 </div>
@@ -315,7 +315,7 @@ export default function ProductDetail() {
                 ].map(({ icon:Icon, color, text }) => (
                   <div key={text} className="trust-badge">
                     <Icon size={12} color={color} strokeWidth={2}/>
-                    <span style={{ fontSize:"0.68rem", color:"rgba(26,8,0,0.7)", fontWeight:600 }}>{text}</span>
+                    <span style={{ fontSize:"1rem", color:"rgba(26,8,0,0.7)", fontWeight:600 }}>{text}</span>
                   </div>
                 ))}
               </div>
@@ -329,12 +329,12 @@ export default function ProductDetail() {
           <div style={{ animation:"fadeUp .5s ease .1s both" }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1.2rem", flexWrap:"wrap", gap:"0.75rem" }}>
               <div>
-                <p style={{ fontSize:"0.65rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", margin:"0 0 0.2rem" }}>✨ You May Also Like</p>
+                <p style={{ fontSize:"1rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", margin:"0 0 0.2rem" }}>✨ You May Also Like</p>
                 <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(0.95rem,2.5vw,1.35rem)", color:"#FFF5E6", fontWeight:900, margin:0 }}>
                   Related <span style={{ background:"linear-gradient(90deg,#FFD700,#FF6B00)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>Products</span>
                 </h2>
               </div>
-              <Link to="/products" style={{ fontSize:"0.78rem", color:"#FF6B00", textDecoration:"none", fontWeight:700, display:"flex", alignItems:"center", gap:"0.3rem", border:"1px solid rgba(255,107,0,0.25)", borderRadius:9, padding:"0.4rem 0.85rem", transition:"all .2s" }}
+              <Link to="/products" style={{ fontSize:"0.9rem", color:"#FF6B00", textDecoration:"none", fontWeight:700, display:"flex", alignItems:"center", gap:"0.3rem", border:"1px solid rgba(255,107,0,0.25)", borderRadius:9, padding:"0.4rem 0.85rem", transition:"all .2s" }}
                 onMouseEnter={e=>e.currentTarget.style.background="rgba(255,107,0,0.1)"}
                 onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                 View All <ChevronRight size={13}/>
