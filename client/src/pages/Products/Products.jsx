@@ -76,15 +76,15 @@ function ProductCard({ product, wishlist, onWishlist }) {
         </div>
       </Link>
 
-      <div style={{ flex:1, padding:"0.5rem 0.65rem", display:"flex", flexDirection:"column", justifyContent:"space-between", minWidth:0 }}>
+      <div className="prod-card-content" style={{ flex:1, padding:"0.5rem 0.65rem", display:"flex", flexDirection:"column", justifyContent:"space-between", minWidth:0 }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:"0.25rem" }}>
           <div style={{ minWidth:0, flex:1 }}>
-            <div style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.06em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
+            <div className="prod-cat-line" style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.06em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem", flexWrap:"nowrap", overflow:"hidden" }}>
               {product.category}
-              {product.isSafeForKids && <span style={{ color:"#1ABC9C", fontSize:"1.05rem" }}>✦ Kids Safe</span>}
+              
             </div>
             <Link to={`/products/${toSlug(product.name)}`} style={{ textDecoration:"none" }}>
-              <div style={{ fontSize:"1.05rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
+              <div className="prod-name" style={{ fontSize:"1.05rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
                 {product.name}
               </div>
             </Link>
@@ -111,7 +111,7 @@ function ProductCard({ product, wishlist, onWishlist }) {
             </div>
           </div>
           {qty === 0 ? (
-            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.42rem 0.85rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
+            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.42rem 0.85rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'Source Sans 3',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
               + ADD
             </button>
           ) : (
@@ -141,9 +141,9 @@ function WishlistView({ wishlist, onWishlist }) {
   return (
     <div>
       <div style={{ marginBottom:"1.5rem" }}>
-        <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"1.1rem", color:"#FFF5E6", margin:0, display:"flex", alignItems:"center", gap:"0.5rem" }}>
+        <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"1.1rem", color:"#FFF5E6", margin:0, display:"flex", alignItems:"center", gap:"0.5rem" }}>
           <Heart size={18} fill="#FF3D00" color="#FF3D00" /> My Wishlist
-          <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"1.05rem", fontWeight:600, color:"rgba(255,245,230,0.72)", marginLeft:"0.25rem" }}>({wishedProducts.length} items)</span>
+          <span style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:"1.05rem", fontWeight:600, color:"rgba(255,245,230,0.72)", marginLeft:"0.25rem" }}>({wishedProducts.length} items)</span>
         </h2>
       </div>
       {wishedProducts.length === 0 ? (
@@ -244,7 +244,7 @@ export default function Products() {
     return (
       <>
         <div style={{ marginBottom:"1.5rem" }}>
-          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.75rem" }}>Category</p>
+          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, fontFamily:"'Nunito Sans',sans-serif", marginBottom:"0.75rem" }}>Category</p>
           {CATEGORIES.map(cat => (
             <label key={cat} className={`filter-check${cats.includes(cat) ? " active" : ""}`}>
               <input type="checkbox" checked={cats.includes(cat)} onChange={() => toggle(cat)} />{cat}
@@ -252,7 +252,7 @@ export default function Products() {
           ))}
         </div>
         <div style={{ marginBottom:"1.5rem" }}>
-          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.75rem" }}>Price Range</p>
+          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, fontFamily:"'Nunito Sans',sans-serif", marginBottom:"0.75rem" }}>Price Range</p>
           <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"0.5rem" }}>
             <span style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700 }}>₹{price[0]}</span>
             <span style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700 }}>₹{price[1]}</span>
@@ -266,7 +266,7 @@ export default function Products() {
           </div>
         </div>
         <div style={{ marginBottom:"1.2rem" }}>
-          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.75rem" }}>Kids Safe Only</p>
+          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, fontFamily:"'Nunito Sans',sans-serif", marginBottom:"0.75rem" }}>Kids Safe Only</p>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", background: kids ? "rgba(46,204,113,0.1)" : "rgba(0,0,0,0.04)", border:`1.5px solid ${kids ? "rgba(46,204,113,0.35)" : "rgba(26,8,0,0.1)"}`, borderRadius:12, padding:"0.6rem 0.85rem", cursor:"pointer" }} onClick={() => setKids(k => !k)}>
             <span style={{ fontSize:"1rem", color: kids ? "#1a7a4a" : "rgba(26,8,0,0.6)", fontWeight:700, display:"flex", alignItems:"center", gap:"0.35rem" }}>
               <Baby size={14} strokeWidth={2} color={kids ? "#1ABC9C" : "rgba(26,8,0,0.4)"} />{kids ? "Kids Safe ON" : "Kids Safe OFF"}
@@ -279,9 +279,9 @@ export default function Products() {
   };
 
   return (
-    <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'DM Sans', sans-serif", paddingTop:"80px" }}>
+    <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'Source Sans 3', sans-serif", paddingTop:"80px" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');
 
         
         /* Hide number input spinners */
@@ -305,7 +305,7 @@ export default function Products() {
           display: flex; align-items: center; gap: 0.55rem;
           padding: 0.38rem 0.65rem; border-radius: 9px;
           cursor: pointer; transition: background .2s;
-          font-size: 1rem; color: #3a1a00; font-weight: 600; user-select: none;
+          font-size: 1rem; color: #3a1a00; font-weight: 600; user-select: none; font-family:'Source Sans 3',sans-serif;
         }
         .filter-check:hover { background: rgba(255,107,0,0.07); }
         .filter-check.active { color: #FF6B00; background: rgba(255,107,0,0.11); }
@@ -314,7 +314,7 @@ export default function Products() {
         .sort-select {
           background: #1A0A00; border: 1.5px solid rgba(255,245,230,0.12);
           border-radius: 12px; padding: 0.58rem 2.4rem 0.58rem 1rem;
-          color: #FFF5E6; font-family: 'DM Sans',sans-serif;
+          color: #FFF5E6; font-family: 'Source Sans 3',sans-serif;
           font-size: 0.82rem; font-weight: 600; outline: none; cursor: pointer;
           appearance: none; -webkit-appearance: none; transition: border-color .2s;
           width: 100%; box-sizing: border-box;
@@ -326,7 +326,7 @@ export default function Products() {
         .search-bar {
           background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,245,230,0.1);
           border-radius: 12px; padding: 0.58rem 1rem 0.58rem 2.5rem;
-          color: #FFF5E6; font-family: 'DM Sans',sans-serif;
+          color: #FFF5E6; font-family: 'Source Sans 3',sans-serif;
           font-size: 0.85rem; outline: none; width: 100%;
           transition: border-color .2s, box-shadow .2s; box-sizing: border-box;
         }
@@ -388,7 +388,7 @@ export default function Products() {
         .tab-bar { display:flex; border-bottom:1px solid rgba(255,245,230,0.08); margin-bottom:1.5rem; }
         .tab-btn {
           padding:0.55rem 1.2rem; border:none; background:none; cursor:pointer;
-          font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:600;
+          font-family:'Source Sans 3',sans-serif; font-size:1rem; font-weight:600;
           color:rgba(255,245,230,0.7); border-bottom:2px solid transparent;
           transition:all .2s; display:flex; align-items:center; gap:0.4rem;
         }
@@ -410,6 +410,12 @@ export default function Products() {
           .toolbar-search { order:0; flex: 0 0 100% !important; min-width:100% !important; }
           .toolbar-row2 { order:1; display:flex !important; width:100%; gap:0.65rem; }
           .toolbar-sort { flex:1 !important; }
+
+          /* Card mobile fixes */
+          .prod-card { min-height:85px !important; }
+          .prod-card-content { padding:0.38rem 0.5rem !important; }
+          .prod-cat-line { font-size:0.68rem !important; letter-spacing:0.03em !important; gap:0.2rem !important; white-space:nowrap !important; overflow:hidden !important; }
+          .prod-name { font-size:0.88rem !important; -webkit-line-clamp:1 !important; }
         }
       `}</style>
 
@@ -428,7 +434,7 @@ export default function Products() {
         <FilterContent pending={true} />
         <div style={{ marginTop:"1.5rem", paddingTop:"1rem", borderTop:"1px solid rgba(255,107,0,0.12)" }}>
           <button onClick={applyMobileFilters}
-            style={{ width:"100%", boxSizing:"border-box", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:12, color:"#fff", fontFamily:"'DM Sans',sans-serif", fontWeight:800, fontSize:"1rem", padding:"0.82rem", cursor:"pointer", boxShadow:"0 4px 16px rgba(255,107,0,0.65)" }}>
+            style={{ width:"100%", boxSizing:"border-box", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:12, color:"#fff", fontFamily:"'Source Sans 3',sans-serif", fontWeight:800, fontSize:"1rem", padding:"0.82rem", cursor:"pointer", boxShadow:"0 4px 16px rgba(255,107,0,0.65)" }}>
             Apply
           </button>
         </div>
@@ -437,7 +443,7 @@ export default function Products() {
       <div style={{ maxWidth:1380, margin:"0 auto", padding:"0 clamp(1.2rem,4vw,3rem)" }}>
 
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"2rem 0 1.5rem", borderBottom:"1px solid rgba(255,245,230,0.06)", marginBottom:"1.5rem", flexWrap:"wrap", gap:"1rem" }}>
-          <h1 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.1rem,3vw,1.9rem)", color:"#FFF5E6", fontWeight:900, margin:0 }}>
+          <h1 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.1rem,3vw,1.9rem)", color:"#FFF5E6", fontWeight:900, margin:0 }}>
             Shop <span style={{ background:"linear-gradient(90deg,#FFD700,#FF6B00,#FF1493)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>Crackers</span>
           </h1>
           <p style={{ color:"rgba(255,245,230,0.72)", fontSize:"0.9rem", margin:0 }}>
@@ -454,7 +460,7 @@ export default function Products() {
                 <SlidersHorizontal size={15} color="#FF6B00" /> Filters
               </span>
               {hasFilters && (
-                <button onClick={clearFilters} style={{ background:"none", border:"none", color:"rgba(255,107,0,0.7)", fontSize:"1rem", fontWeight:700, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", display:"flex", alignItems:"center", gap:"0.2rem" }}>
+                <button onClick={clearFilters} style={{ background:"none", border:"none", color:"rgba(255,107,0,0.7)", fontSize:"1rem", fontWeight:700, cursor:"pointer", fontFamily:"'Source Sans 3',sans-serif", display:"flex", alignItems:"center", gap:"0.2rem" }}>
                   <X size={11}/> Clear
                 </button>
               )}
@@ -487,7 +493,7 @@ export default function Products() {
 
                   <div className="toolbar-row2" style={{ display:"contents" }}>
                     <button onClick={openSidebar} className="prod-filter-btn"
-                      style={{ alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:12, padding:"0.58rem 1rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"1rem", fontWeight:600, cursor:"pointer", flexShrink:0 }}>
+                      style={{ alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:12, padding:"0.58rem 1rem", color:"#FF6B00", fontFamily:"'Source Sans 3',sans-serif", fontSize:"1rem", fontWeight:600, cursor:"pointer", flexShrink:0 }}>
                       <SlidersHorizontal size={14}/> Filters
                       {hasFilters && <span style={{ background:"#FF6B00", color:"#fff", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{selectedCats.length + (kidsOnly?1:0)}</span>}
                     </button>
@@ -527,7 +533,7 @@ export default function Products() {
                     <div style={{ fontSize:"3.5rem", marginBottom:"1rem" }}>🎆</div>
                     <p style={{ fontSize:"1.05rem", fontWeight:600, color:"rgba(255,245,230,0.55)", marginBottom:"0.4rem" }}>No products found</p>
                     <p style={{ fontSize:"1rem" }}>Try adjusting your filters</p>
-                    <button onClick={clearFilters} style={{ marginTop:"1rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.55rem 1.4rem", color:"#FF6B00", fontFamily:"'DM Sans',sans-serif", fontSize:"1rem", fontWeight:700, cursor:"pointer" }}>Clear Filters</button>
+                    <button onClick={clearFilters} style={{ marginTop:"1rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:100, padding:"0.55rem 1.4rem", color:"#FF6B00", fontFamily:"'Source Sans 3',sans-serif", fontSize:"1rem", fontWeight:700, cursor:"pointer" }}>Clear Filters</button>
                   </div>
                 ) : (
                   <>
@@ -552,7 +558,7 @@ export default function Products() {
                             <span key={`d${idx}`} style={{ color:"rgba(255,245,230,0.55)", padding:"0 0.1rem" }}>…</span>
                           ) : (
                             <button key={item} onClick={() => { setCurrentPage(item); window.scrollTo({top:0,behavior:"smooth"}); }}
-                              style={{ width:36, height:36, borderRadius:9, border: item===currentPage ? "none" : "1.5px solid rgba(255,245,230,0.12)", background: item===currentPage ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.04)", color: item===currentPage ? "#fff" : "rgba(255,245,230,0.6)", fontFamily:"'DM Sans',sans-serif", fontSize:"1.05rem", fontWeight: item===currentPage?800:500, cursor:"pointer", boxShadow: item===currentPage ? "0 4px 14px rgba(255,107,0,0.65)" : "none" }}>
+                              style={{ width:36, height:36, borderRadius:9, border: item===currentPage ? "none" : "1.5px solid rgba(255,245,230,0.12)", background: item===currentPage ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.04)", color: item===currentPage ? "#fff" : "rgba(255,245,230,0.6)", fontFamily:"'Source Sans 3',sans-serif", fontSize:"1.05rem", fontWeight: item===currentPage?800:500, cursor:"pointer", boxShadow: item===currentPage ? "0 4px 14px rgba(255,107,0,0.65)" : "none" }}>
                               {item}
                             </button>
                           ))

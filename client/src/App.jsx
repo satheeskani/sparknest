@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { ChevronUp } from "lucide-react";
 import { store } from "./redux/store";
 import Navbar from "./components/Navbar/Navbar";
@@ -12,6 +13,14 @@ import Products from "./pages/Products/Products";
 import ProductDetail from "./pages/ProductDetail/ProductDetail";
 import Cart from "./pages/Cart/Cart";
 import Checkout from "./pages/Checkout/Checkout";
+
+function RouteScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [pathname]);
+  return null;
+}
 
 function ScrollToTop() {
   const [visible, setVisible] = useState(false);
@@ -47,6 +56,7 @@ export default function App() {
     <Provider store={store}>
       <BrowserRouter>
         <div className="min-h-screen bg-dark text-white font-body">
+          <RouteScrollToTop />
           <Navbar />
           <main>
             <Routes>

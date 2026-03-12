@@ -45,7 +45,7 @@ export default function Navbar() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');
         @keyframes shimmer-logo {
           0%   { background-position: 0% center; }
           100% { background-position: 200% center; }
@@ -60,7 +60,7 @@ export default function Navbar() {
         }
 
         .nav-logo-text {
-          font-family: 'Cinzel Decorative', serif;
+          font-family: 'Libre Baskerville', serif;
           font-size: 1.5rem; font-weight: 900;
           background: linear-gradient(90deg,#FFD700,#FF6B00,#FF1493,#FFD700);
           background-size: 200% auto;
@@ -95,7 +95,7 @@ export default function Navbar() {
         .nav-link.active::after      { width:100%; }
 
         @keyframes cart-gradient { 0%{background-position:0% center} 100%{background-position:200% center} }
-        @keyframes cart-glow { 0%,100%{box-shadow:0 0 12px rgba(255,107,0,0.4),0 0 24px rgba(255,61,0,0.2)} 50%{box-shadow:0 0 22px rgba(255,215,0,0.6),0 0 40px rgba(255,107,0,0.35)} }
+        @keyframes cart-glow { 0%,100%{box-shadow:0 0 12px rgba(255,107,0,0.65),0 0 24px rgba(255,61,0,0.2)} 50%{box-shadow:0 0 22px rgba(255,215,0,0.6),0 0 40px rgba(255,107,0,0.6)} }
         .cart-btn {
           display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;
           background: linear-gradient(90deg,#FF3D00,#FF6B00,#FFD700,#FF6B00,#FF3D00);
@@ -103,14 +103,14 @@ export default function Navbar() {
           animation: cart-gradient 3s linear infinite, cart-glow 2.5s ease-in-out infinite;
           border:none; border-radius:50px; padding:0.48rem 1.1rem;
           color:#1A0500; cursor:pointer;
-          font-family:'DM Sans',sans-serif; font-weight:800; font-size:0.85rem;
+          font-family:'Source Sans 3',sans-serif; font-weight:800; font-size:1.05rem;
           white-space:nowrap; flex-shrink:0; line-height:1;
         }
         .cart-btn:hover { transform:scale(1.06); }
         .cart-count {
           position:absolute; top:-8px; right:-8px;
           background:linear-gradient(135deg,#FF6B00,#FF3D00);
-          color:#fff; font-size:0.62rem; font-weight:800;
+          color:#fff; font-size:0.9rem; font-weight:800;
           width:18px; height:18px; border-radius:50%;
           display:flex; align-items:center; justify-content:center;
           box-shadow: 0 0 10px rgba(255,107,0,.6);
@@ -122,7 +122,7 @@ export default function Navbar() {
           animation:shimmer-logo 2.5s linear infinite;
           color:#1A0500 !important;
           padding:0.5rem 1.4rem; border-radius:100px;
-          font-size:0.82rem; font-weight:800;
+          font-size:1rem; font-weight:800;
           text-decoration:none; white-space:nowrap;
           box-shadow:0 4px 16px rgba(255,107,0,.4);
           transition:transform .2s, box-shadow .2s;
@@ -220,7 +220,7 @@ export default function Navbar() {
             <ShoppingCart size={17} />
             <span>Cart</span>
             {cartCount > 0 && (
-              <span style={{ color:"#fff", fontSize:"0.85rem", fontWeight:800 }}>
+              <span style={{ color:"#fff", fontSize:"1.05rem", fontWeight:800 }}>
                 {cartCount}
               </span>
             )}
@@ -235,7 +235,7 @@ export default function Navbar() {
             <ShoppingCart size={17} />
             <span>Cart</span>
             {cartCount > 0 && (
-              <span style={{ color:"#fff", fontSize:"0.85rem", fontWeight:800 }}>
+              <span style={{ color:"#fff", fontSize:"1.05rem", fontWeight:800 }}>
                 {cartCount}
               </span>
             )}
@@ -262,7 +262,7 @@ export default function Navbar() {
             background:"rgba(255,215,0,.03)",
           }}>
             <span style={{
-              fontFamily:"'Cinzel Decorative',serif", fontSize:"1.2rem", fontWeight:900,
+              fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"1.2rem", fontWeight:900,
               background:"linear-gradient(90deg,#FFD700,#FF6B00,#FF1493)",
               WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
             }}>SparkNest</span>
@@ -277,7 +277,7 @@ export default function Navbar() {
             background:"linear-gradient(135deg,rgba(255,215,0,.06),rgba(255,107,0,.04))",
             borderBottom:"1px solid rgba(255,255,255,.04)",
           }}>
-            <p style={{ margin:0, fontSize:"0.75rem", color:"rgba(255,215,0,.7)", fontWeight:600 }}>
+            <p style={{ margin:0, fontSize:"1.05rem", color:"rgba(255,215,0,.7)", fontWeight:600 }}>
               🪔 Happy Diwali 2025! &nbsp;✨
             </p>
           </div>

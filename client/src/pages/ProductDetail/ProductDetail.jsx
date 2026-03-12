@@ -95,7 +95,7 @@ function ProductCard({ product }) {
             </div>
           </div>
           {qty === 0 ? (
-            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:7, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.32rem 0.65rem", cursor:"pointer", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'DM Sans',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>+ ADD</button>
+            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:7, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.32rem 0.65rem", cursor:"pointer", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'Source Sans 3',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>+ ADD</button>
           ) : (
             <div style={{ display:"flex", alignItems:"center", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:7, overflow:"hidden", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", flexShrink:0 }} onClick={e => e.stopPropagation()}>
               <button onClick={handleDec} style={{ width:22, height:26, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"0.9rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>
@@ -162,9 +162,9 @@ export default function ProductDetail() {
   );
 
   return (
-    <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'DM Sans',sans-serif", paddingTop:80 }}>
+    <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'Source Sans 3',sans-serif", paddingTop:80 }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@900&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');
         @keyframes shimmer { 0%{background-position:0% center} 100%{background-position:200% center} }
         
         /* Hide number input spinners */
@@ -179,7 +179,7 @@ export default function ProductDetail() {
           background:linear-gradient(90deg,#FF3D00,#FF6B00,#FFD700,#FF6B00,#FF3D00);
           background-size:300% auto; animation:shimmer 3s linear infinite;
           border:none; border-radius:12px; color:#1A0500;
-          font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:800;
+          font-family:'Source Sans 3',sans-serif; font-size:1rem; font-weight:800;
           cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.45rem;
           transition:transform .2s, box-shadow .2s;
           box-shadow:0 6px 22px rgba(255,107,0,0.6);
@@ -247,7 +247,7 @@ export default function ProductDetail() {
               </div>
 
               {/* Name */}
-              <h1 style={{ fontFamily:"'DM Sans',sans-serif", fontSize:"clamp(1.2rem,2.5vw,1.7rem)", fontWeight:800, color:"#1a0800", margin:"0 0 0.6rem", lineHeight:1.2 }}>{product.name}</h1>
+              <h1 style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:"clamp(1.2rem,2.5vw,1.7rem)", fontWeight:800, color:"#1a0800", margin:"0 0 0.6rem", lineHeight:1.2 }}>{product.name}</h1>
 
               {/* Rating + stock inline */}
               <div style={{ display:"flex", alignItems:"center", gap:"0.6rem", marginBottom:"0.9rem", flexWrap:"wrap" }}>
@@ -330,7 +330,7 @@ export default function ProductDetail() {
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1.2rem", flexWrap:"wrap", gap:"0.75rem" }}>
               <div>
                 <p style={{ fontSize:"1rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", margin:"0 0 0.2rem" }}>✨ You May Also Like</p>
-                <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(0.95rem,2.5vw,1.35rem)", color:"#FFF5E6", fontWeight:900, margin:0 }}>
+                <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(0.95rem,2.5vw,1.35rem)", color:"#FFF5E6", fontWeight:900, margin:0 }}>
                   Related <span style={{ background:"linear-gradient(90deg,#FFD700,#FF6B00)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>Products</span>
                 </h2>
               </div>

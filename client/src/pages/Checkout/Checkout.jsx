@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearCart } from "../../redux/slices/cartSlice";
-import { MapPin, Truck, ShieldCheck, ChevronRight, Copy, CheckCircle2, MessageCircle } from "lucide-react";
+import { MapPin, Truck, ChevronRight, Copy, CheckCircle2, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ADMIN_WHATSAPP = "8015850365";
@@ -63,8 +63,8 @@ export default function Checkout() {
   const [step, setStep] = useState(1);
   const [activeBank, setActiveBank] = useState(0);
   const [whatsappSent, setWhatsappSent] = useState(false);
-  const [paidConfirmed, setPaidConfirmed] = useState(false);
   const [orderId] = useState(() => "SN" + Date.now().toString().slice(-6));
+  const [orderSnapshot, setOrderSnapshot] = useState(null); // saved before cart is cleared
 
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -73,20 +73,18 @@ export default function Checkout() {
     if (!name || !phone || !address || !city || !pincode) { toast.error("Please fill all required fields"); return; }
     if (phone.length < 10) { toast.error("Enter valid phone number"); return; }
     setStep(2);
-    // On mobile scroll to order section, on desktop scroll to top
-    setTimeout(() => {
-      const el = document.getElementById("order-section");
-      if (el && window.innerWidth < 680) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    }, 50);
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
-  const buildOrderMessage = (recipient) => {
+  const buildOrderMessage = (recipient, snap = null) => {
+    const _items = snap ? snap.items : items;
+    const _total = snap ? snap.total : total;
+    const _savings = snap ? snap.savings : savings;
+    const _shipping = snap ? snap.shipping : shipping;
+    const _grandTotal = snap ? snap.grandTotal : grandTotal;
+    const _form = snap ? snap.form : form;
     const divider = "━━━━━━━━━━━━━━━━━━━━━━";
-    const itemLines = items.map((i, idx) =>
+    const itemLines = _items.map((i, idx) =>
       `${idx + 1}. ${i.name}\n   Qty: ${i.quantity} × ₹${i.price.toLocaleString()} = *₹${(i.price * i.quantity).toLocaleString()}*`
     ).join("\n");
     const bank = BANK_ACCOUNTS[0];
@@ -99,10 +97,10 @@ Order ID: #${orderId} | Date: ${date}
 ${divider}
 
 *Delivery Address*
-${form.name}
-${form.phone}${form.email ? " | " + form.email : ""}
-${form.address}
-${form.city}, ${form.state} — ${form.pincode}
+${_form.name}
+${_form.phone}${_form.email ? " | " + _form.email : ""}
+${_form.address}
+${_form.city}, ${_form.state} — ${_form.pincode}
 ${divider}
 
 *Order Summary*
@@ -110,11 +108,11 @@ ${itemLines}
 ${divider}
 
 *Price Breakdown*
-Item Total  :  ₹${(total + savings).toLocaleString()}${savings > 0 ? `
-Discount    : -₹${savings.toLocaleString()}` : ""}
-Delivery    :  ${shipping === 0 ? "FREE" : "₹" + shipping}
+Item Total  :  ₹${(_total + _savings).toLocaleString()}${_savings > 0 ? `
+Discount    : -₹${_savings.toLocaleString()}` : ""}
+Delivery    :  ${_shipping === 0 ? "FREE" : "₹" + _shipping}
 ──────────────────────
-*Total Payable :  ₹${grandTotal.toLocaleString()}*
+*Total Payable :  ₹${_grandTotal.toLocaleString()}*
 ${divider}
 
 *Payment Details*
@@ -127,7 +125,7 @@ IFSC    :  ${bank.ifsc}
 Name    :  ${bank.name}
 ${divider}
 
-Kindly transfer *₹${grandTotal.toLocaleString()}* and reply with your payment screenshot to confirm your order.
+Kindly transfer *₹${_grandTotal.toLocaleString()}* and reply with your payment screenshot to confirm your order.
 
 We will dispatch within 24 hours of payment confirmation.
 
@@ -140,10 +138,10 @@ Order ID: #${orderId} | Date: ${date}
 ${divider}
 
 *Customer Details*
-Name    :  ${form.name}
-Phone   :  ${form.phone}${form.email ? `
-Email   :  ${form.email}` : ""}
-Address :  ${form.address}, ${form.city}, ${form.state} — ${form.pincode}
+Name    :  ${_form.name}
+Phone   :  ${_form.phone}${_form.email ? `
+Email   :  ${_form.email}` : ""}
+Address :  ${_form.address}, ${_form.city}, ${_form.state} — ${_form.pincode}
 ${divider}
 
 *Order Items*
@@ -151,11 +149,11 @@ ${itemLines}
 ${divider}
 
 *Price Breakdown*
-Item Total  :  ₹${(total + savings).toLocaleString()}${savings > 0 ? `
-Discount    : -₹${savings.toLocaleString()}` : ""}
-Delivery    :  ${shipping === 0 ? "FREE" : "₹" + shipping}
+Item Total  :  ₹${(_total + _savings).toLocaleString()}${_savings > 0 ? `
+Discount    : -₹${_savings.toLocaleString()}` : ""}
+Delivery    :  ${_shipping === 0 ? "FREE" : "₹" + _shipping}
 ──────────────────────
-*Total Payable :  ₹${grandTotal.toLocaleString()}*
+*Total Payable :  ₹${_grandTotal.toLocaleString()}*
 ${divider}
 
 Please verify payment screenshot from customer and confirm dispatch.`
@@ -198,7 +196,8 @@ Please verify payment screenshot from customer and confirm dispatch.`
     // 2. Open admin WhatsApp only
     handleWhatsappAdmin();
 
-    // 3. Auto-confirm → success
+    // 3. Save snapshot then clear cart → success
+    setOrderSnapshot({ items: [...items], total, savings, shipping, grandTotal, form: { ...form } });
     dispatch(clearCart());
     setTimeout(() => {
       setStep(3);
@@ -206,16 +205,10 @@ Please verify payment screenshot from customer and confirm dispatch.`
     }, 1200);
   };
 
-  const handleSuccess = () => {
-    dispatch(clearCart());
-    setStep(3);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   // Empty cart guard
   if (items.length === 0 && step !== 3) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0D0600", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',sans-serif", gap: "1rem" }}>
+      <div style={{ minHeight: "100vh", background: "#0D0600", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Source Sans 3',sans-serif", gap: "1rem" }}>
         <div style={{ fontSize: "4rem" }}>🛒</div>
         <p style={{ color: "rgba(255,245,230,0.72)", fontSize: "1rem" }}>Your cart is empty</p>
         <button onClick={() => navigate("/products")} style={{ background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 12, color: "#fff", fontWeight: 700, padding: "0.7rem 1.8rem", cursor: "pointer", fontSize: "0.9rem" }}>Shop Now</button>
@@ -226,10 +219,10 @@ Please verify payment screenshot from customer and confirm dispatch.`
   // ── Step 3: Success ──
   if (step === 3) {
     return (
-      <div style={{ minHeight: "100vh", background: "#0D0600", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',sans-serif", gap: "1.2rem", padding: "2rem", textAlign: "center" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=DM+Sans:wght@400;600;700;800&display=swap');`}</style>
+      <div style={{ minHeight: "100vh", background: "#0D0600", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Source Sans 3',sans-serif", gap: "1.2rem", padding: "2rem", textAlign: "center" }}>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');`}</style>
         <div style={{ fontSize: "5rem", lineHeight: 1 }}>🎆</div>
-        <h1 style={{ color: "#FFD700", fontFamily: "'Cinzel Decorative',cursive", fontSize: "clamp(1.2rem,4vw,1.8rem)", margin: 0 }}>Order Placed!</h1>
+        <h1 style={{ color: "#FFD700", fontFamily: "'Libre Baskerville',serif", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "clamp(1.2rem,4vw,1.8rem)", margin: 0 }}>Order Placed!</h1>
         <div style={{ background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 12, padding: "0.7rem 1.4rem", marginTop: "-0.3rem" }}>
           <p style={{ color: "rgba(255,245,230,0.72)", fontSize: "1.05rem", margin: "0 0 0.2rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Order ID</p>
           <p style={{ color: "#FFD700", fontWeight: 800, fontSize: "1.1rem", margin: 0, fontFamily: "monospace" }}>#{orderId}</p>
@@ -240,8 +233,8 @@ Please verify payment screenshot from customer and confirm dispatch.`
           Complete the payment and send the screenshot to our WhatsApp. We will confirm and dispatch within <strong style={{ color: "#FFF5E6" }}>24 hours</strong>. 🚀
         </p>
         <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", justifyContent: "center", marginTop: "0.5rem" }}>
-          <button onClick={handleWhatsappAdmin} style={{ background: "#25D366", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <MessageCircle size={18} /> Contact Us on WhatsApp
+          <button onClick={() => window.open(`https://wa.me/91${ADMIN_WHATSAPP}?text=${buildOrderMessage("admin", orderSnapshot)}`, "_blank")} style={{ background: "#25D366", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+            <MessageCircle size={18} /> Send Order on WhatsApp
           </button>
           <button onClick={() => navigate("/products")} style={{ background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 12, color: "#FF6B00", fontWeight: 700, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem" }}>
             Continue Shopping
@@ -252,9 +245,9 @@ Please verify payment screenshot from customer and confirm dispatch.`
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0D0600", fontFamily: "'DM Sans',sans-serif", paddingTop: 88 }}>
+    <div style={{ minHeight: "100vh", background: "#0D0600", fontFamily: "'Source Sans 3',sans-serif", paddingTop: 88 }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');
 
         /* ── Inputs ── */
         .co-input {
@@ -262,7 +255,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
           background:rgba(255,255,255,0.05);
           border:1.5px solid rgba(255,107,0,0.2);
           border-radius:12px; color:#FFF5E6;
-          font-family:'DM Sans',sans-serif;
+          font-family:'Source Sans 3',sans-serif;
           font-size:1rem; font-weight:500;
           outline:none; transition:border .2s;
           box-sizing:border-box; appearance:none; -webkit-appearance:none;
@@ -278,7 +271,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
         }
 
         /* ── Bank tabs ── */
-        .bank-tab { padding:0.5rem 1.1rem; border-radius:8px; border:1.5px solid rgba(255,107,0,0.2); background:transparent; color:rgba(255,245,230,0.72); font-weight:700; font-size:1.05rem; cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
+        .bank-tab { padding:0.5rem 1.1rem; border-radius:8px; border:1.5px solid rgba(255,107,0,0.2); background:transparent; color:rgba(255,245,230,0.72); font-weight:700; font-size:1.05rem; cursor:pointer; transition:all .2s; font-family:'Source Sans 3',sans-serif; }
         .bank-tab.active { background:rgba(255,107,0,0.12); border-color:#FF6B00; color:#FF6B00; }
 
         /* ── Mobile ── */
@@ -286,8 +279,9 @@ Please verify payment screenshot from customer and confirm dispatch.`
           .co-layout { grid-template-columns:1fr !important; }
           .co-grid { grid-template-columns:1fr !important; }
           .co-sticky { position:static !important; top:unset !important; }
-          .co-addr-pill { display:none !important; }
-          .price-card { display:none !important; }
+          .price-card { order:2; margin-top:0 !important; }
+          .price-trust-badges { display:none !important; }
+          .price-card-inner { padding:1rem !important; border-radius:14px !important; }
         }
       `}</style>
 
@@ -346,7 +340,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
                   </select>
                 </div>
               </div>
-              <button onClick={handleNext} style={{ marginTop: "1.4rem", width: "100%", padding: "0.85rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, fontSize: "1.05rem", cursor: "pointer", boxShadow: "0 4px 20px rgba(255,107,0,0.65)", fontFamily: "'DM Sans',sans-serif" }}>
+              <button onClick={handleNext} style={{ marginTop: "1.4rem", width: "100%", padding: "0.85rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, fontSize: "1.05rem", cursor: "pointer", boxShadow: "0 4px 20px rgba(255,107,0,0.65)", fontFamily: "'Source Sans 3',sans-serif" }}>
                 Continue to Payment →
               </button>
             </div>
@@ -363,7 +357,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
                   <p className="co-address-name" style={{ color: "#FFF5E6", fontWeight: 700, fontSize: "1.05rem", margin: 0 }}>{form.name} · {form.phone}</p>
                   <p className="co-address-sub" style={{ color: "rgba(255,245,230,0.72)", fontSize: "0.8rem", margin: "0.2rem 0 0" }}>{form.address}, {form.city}, {form.state} - {form.pincode}</p>
                 </div>
-                <button onClick={() => setStep(1)} style={{ fontSize: "1.05rem", color: "#FF6B00", background: "none", border: "none", cursor: "pointer", fontWeight: 700, whiteSpace: "nowrap" }}>Edit</button>
+                <button onClick={() => { setStep(1); window.scrollTo({ top: 0, behavior: "instant" }); }} style={{ fontSize: "1.05rem", color: "#FF6B00", background: "none", border: "none", cursor: "pointer", fontWeight: 700, whiteSpace: "nowrap", padding: "0.3rem 0.5rem", borderRadius: 8, transition: "background .2s" }}>← Edit</button>
               </div>
 
               {/* Order items */}
@@ -437,36 +431,17 @@ Please verify payment screenshot from customer and confirm dispatch.`
                   })()}
                 </div>
 
-                <div style={{ marginTop: "1rem", background: "rgba(255,211,0,0.06)", border: "1px solid rgba(255,211,0,0.18)", borderRadius: 10, padding: "0.7rem 0.9rem", fontSize: "0.9rem", color: "rgba(255,245,230,0.6)", lineHeight: 1.65 }}>
-                  ⚡ Complete the payment above, then click <strong style={{ color: "#FFD700" }}>"I Have Paid"</strong> below to confirm your order.
+                <div style={{ marginTop: "1rem", background: "rgba(37,211,102,0.06)", border: "1px solid rgba(37,211,102,0.2)", borderRadius: 10, padding: "0.75rem 0.9rem", fontSize: "0.92rem", color: "rgba(255,245,230,0.72)", lineHeight: 1.65 }}>
+                  💬 After payment, send your <strong style={{ color: "#FFD700" }}>order details + payment screenshot</strong> to our admin on WhatsApp to complete your order.
                 </div>
               </div>
 
-              {/* Step A — I Have Paid */}
-              {!paidConfirmed && !whatsappSent && (
-                <button onClick={() => setPaidConfirmed(true)} style={{ width: "100%", padding: "1rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(255,107,0,0.65)", fontFamily: "'DM Sans',sans-serif" }}>
-                  <ShieldCheck size={20} /> I Have Paid — Confirm Order
+              {/* Single WhatsApp CTA */}
+              {!whatsappSent ? (
+                <button onClick={handleSendWhatsapp} style={{ width: "100%", padding: "1rem", background: "#25D366", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1.05rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(37,211,102,0.4)", fontFamily: "'Source Sans 3',sans-serif" }}>
+                  <MessageCircle size={20} /> Send Order on WhatsApp
                 </button>
-              )}
-
-              {/* Step B — Send on WhatsApp (shown after paid confirmed) */}
-              {paidConfirmed && !whatsappSent && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                  <div style={{ background: "rgba(255,107,0,0.06)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 14, padding: "1rem", textAlign: "center" }}>
-                    <p style={{ color: "#FFD700", fontWeight: 800, fontSize: "1.05rem", margin: "0 0 0.3rem" }}>✅ Payment noted!</p>
-                    <p style={{ color: "rgba(255,245,230,0.72)", fontSize: "0.9rem", margin: 0 }}>Now send your order details + payment screenshot to our admin on WhatsApp to complete the process.</p>
-                  </div>
-                  <button onClick={handleSendWhatsapp} style={{ width: "100%", padding: "1rem", background: "#25D366", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(37,211,102,0.35)", fontFamily: "'DM Sans',sans-serif" }}>
-                    <MessageCircle size={20} /> Send Order on WhatsApp
-                  </button>
-                  <button onClick={() => setPaidConfirmed(false)} style={{ background: "none", border: "none", color: "rgba(255,245,230,0.6)", fontSize: "1.05rem", cursor: "pointer", textAlign: "center", fontFamily: "'DM Sans',sans-serif" }}>
-                    ← Go back
-                  </button>
-                </div>
-              )}
-
-              {/* Step C — Sending / redirecting */}
-              {whatsappSent && (
+              ) : (
                 <div style={{ background: "rgba(37,211,102,0.07)", border: "1px solid rgba(37,211,102,0.22)", borderRadius: 14, padding: "1.1rem", textAlign: "center" }}>
                   <div style={{ fontSize: "1.6rem", marginBottom: "0.4rem" }}>🎆</div>
                   <p style={{ color: "#2ECC71", fontWeight: 800, fontSize: "0.9rem", margin: "0 0 0.3rem" }}>Order confirmed! Redirecting...</p>
@@ -480,7 +455,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
 
         {/* ── RIGHT: Price Summary ── */}
         <div className="co-sticky price-card" style={{ position: "sticky", top: 100 }}>
-          <div style={{ background: "linear-gradient(160deg,#FFF8F0,#FFF3E0)", borderRadius: 18, padding: "1.4rem", border: "1px solid rgba(255,107,0,0.15)", boxShadow: "0 4px 24px rgba(0,0,0,0.15)" }}>
+          <div className="price-card-inner" style={{ background: "linear-gradient(160deg,#FFF8F0,#FFF3E0)", borderRadius: 18, padding: "1.4rem", border: "1px solid rgba(255,107,0,0.15)", boxShadow: "0 4px 24px rgba(0,0,0,0.15)" }}>
             <h3 style={{ color: "#1a0800", fontWeight: 800, fontSize: "1.05rem", margin: "0 0 1rem" }}>Price Details</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -516,7 +491,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
           </div>
 
           {/* Trust badges */}
-          <div style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
+          <div className="price-trust-badges" style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
             {[["🔒","Secure","100% safe"],["🚚","Fast Ship","2–5 days"],["✅","Verified","Trusted store"],["💬","Support","WhatsApp help"]].map(([icon, title, sub]) => (
               <div key={title} style={{ background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.1)", borderRadius: 10, padding: "0.65rem", textAlign: "center" }}>
                 <div style={{ fontSize: "1.2rem" }}>{icon}</div>

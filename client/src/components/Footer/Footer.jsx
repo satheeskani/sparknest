@@ -73,7 +73,7 @@ export default function Footer() {
           -webkit-text-fill-color: transparent;
           animation: shimmer-text 3s linear infinite;
           font-size: 1.8rem; font-weight: 900;
-          font-family: 'Cinzel Decorative', serif;
+          font-family: 'Libre Baskerville', serif;
           -webkit-font-smoothing: antialiased;
         }
 
@@ -182,7 +182,7 @@ export default function Footer() {
               ))}
             </div>
             <p style={{
-              fontFamily:"'Cinzel Decorative',serif",
+              fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em",
               background:"linear-gradient(90deg,#FFD700,#FF6B00,#FF1493,#FFD700)",
               backgroundSize:"200% auto",
               WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",

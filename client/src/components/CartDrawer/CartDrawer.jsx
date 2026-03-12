@@ -47,6 +47,7 @@ export default function CartDrawer({ open, onClose }) {
 
   const handleCheckout = () => {
     onClose();
+    window.scrollTo({ top: 0, behavior: "instant" });
     navigate("/checkout");
   };
 
@@ -76,7 +77,7 @@ export default function CartDrawer({ open, onClose }) {
         transition: "transform 0.35s cubic-bezier(0.34,1.1,0.64,1)",
         boxShadow: "-8px 0 40px rgba(0,0,0,0.5)",
         borderLeft: "1px solid rgba(255,107,0,0.15)",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'Source Sans 3', sans-serif",
       }}>
 
         {/* Header */}
@@ -125,7 +126,7 @@ export default function CartDrawer({ open, onClose }) {
               <ShoppingCart size={56} color="rgba(255,107,0,0.2)" />
               <p style={{ color: "rgba(255,245,230,0.65)", fontSize: "0.9rem", fontWeight: 500 }}>Your cart is empty</p>
               <button
-                onClick={onClose}
+                onClick={() => { onClose(); navigate("/products"); window.scrollTo({ top: 0, behavior: "instant" }); }}
                 style={{ background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: "1.05rem", padding: "0.6rem 1.4rem", cursor: "pointer" }}
               >
                 Shop Now 🎆
@@ -209,7 +210,7 @@ export default function CartDrawer({ open, onClose }) {
                 background: "linear-gradient(135deg,#FF6B00,#FF3D00)",
                 color: "#fff", fontWeight: 800, fontSize: "1rem",
                 cursor: "pointer", boxShadow: "0 4px 20px rgba(255,107,0,0.7)",
-                fontFamily: "'DM Sans',sans-serif", letterSpacing: "0.02em",
+                fontFamily: "'Source Sans 3',sans-serif", letterSpacing: "0.02em",
                 transition: "transform .15s, box-shadow .15s",
               }}
               onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 6px 28px rgba(255,107,0,0.6)"; }}

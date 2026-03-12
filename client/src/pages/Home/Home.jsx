@@ -372,6 +372,7 @@ export default function Home() {
         @media(max-width:380px) {
           .masonry-grid { columns: 1; }
           .stats-row    { gap:0.8rem !important; }
+          .about-stats  { grid-template-columns:repeat(3,1fr) !important; gap:0.6rem !important; }
         }
       `}</style>
 
@@ -404,7 +405,7 @@ export default function Home() {
           }}>
             ✨ Premium Crackers from Sivakasi
           </div>
-          <h1 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.5rem,5vw,3rem)", fontWeight:900, lineHeight:1.15, marginBottom:"1.2rem" }}>
+          <h1 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.5rem,5vw,3rem)", fontWeight:900, lineHeight:1.15, marginBottom:"1.2rem" }}>
             <span style={{ display:"block", color:"#FFF5E6", textShadow:"0 0 40px rgba(255,215,0,.4)" }}>Spark the Joy of Every</span>
             <span className="hero-shimmer" style={{ display:"block" }}>Festival</span>
           </h1>
@@ -445,7 +446,7 @@ export default function Home() {
       <div style={{ position:"relative", zIndex:2, overflow:"hidden", width:"100%", background:"#0D0D0D", borderTop:"2px solid rgba(255,215,0,.35)", borderBottom:"2px solid rgba(255,215,0,.35)", padding:"0.85rem 0" }}>
         <div className="marquee-track">
           {[...marqueeItems,...marqueeItems].map((item,i)=>(
-            <span key={i} style={{ fontSize:"0.8rem", letterSpacing:"0.12em", textTransform:"uppercase", color:item.color, fontWeight:700, flexShrink:0 }}>
+            <span key={i} style={{ fontSize:"0.8rem", letterSpacing:"0.12em", textTransform:"uppercase", fontFamily:"'Nunito Sans',sans-serif", color:item.color, fontWeight:700, flexShrink:0 }}>
               {item.text}
               <span style={{ marginLeft:"3rem", color:"rgba(255,255,255,.15)" }}>◆</span>
             </span>
@@ -460,7 +461,7 @@ export default function Home() {
             <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
               <Tag size={11} color="#FF6B00" strokeWidth={2.5} /> Browse Categories
             </p>
-            <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.4rem,3vw,2.6rem)", color:"#1a0a00", fontWeight:900, lineHeight:1.2 }}>
+            <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.4rem,3vw,2.6rem)", color:"#1a0a00", fontWeight:900, lineHeight:1.2 }}>
               Product{" "}
               <span style={{ background:"linear-gradient(135deg,#FF6B00,#FF1493,#9B59B6,#00BFFF)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
                 Categories
@@ -518,7 +519,7 @@ export default function Home() {
               <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
                 <MapPin size={11} color="#FF6B00" strokeWidth={2.5} /> About SparkNest
               </p>
-              <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#FFF5E6", fontWeight:900, lineHeight:1.25, marginBottom:"1.2rem" }}>
+              <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#FFF5E6", fontWeight:900, lineHeight:1.25, marginBottom:"1.2rem" }}>
                 Born in{" "}
                 <span style={{ background:"linear-gradient(135deg,#FF6B00,#FFD700)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
                   Sivakasi
@@ -531,16 +532,15 @@ export default function Home() {
               <p style={{ color:"rgba(255,245,230,0.72)", fontSize:"1.05rem", lineHeight:1.85, marginBottom:"1.8rem" }}>
                 Sivakasi, Tamil Nadu has been India's fireworks capital since 1923. We partner directly with trusted manufacturers to bring you the best quality at the best prices — cutting out the middlemen.
               </p>
-              <div className="about-stats" style={{ display:"flex", gap:"2rem", flexWrap:"wrap" }}>
+              <div className="about-stats" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem" }}>
                 {[
-                  { num:"1923", label:"Since" },
                   { num:"500+", label:"Products" },
                   { num:"10K+", label:"Happy Customers" },
                   { num:"28",   label:"States Delivered" },
                 ].map(s => (
-                  <div key={s.label}>
+                  <div key={s.label} style={{ textAlign:"center", padding:"0.8rem 0.5rem", background:"rgba(255,107,0,0.06)", borderRadius:12, border:"1px solid rgba(255,107,0,0.12)" }}>
                     <div style={{ fontSize:"1.6rem", fontWeight:900, background:"linear-gradient(135deg,#FFD700,#FF6B00)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>{s.num}</div>
-                    <div style={{ fontSize:"1rem", color:"rgba(255,245,230,0.65)", fontWeight:600, textTransform:"uppercase", letterSpacing:"0.1em", marginTop:"0.15rem" }}>{s.label}</div>
+                    <div style={{ fontSize:"0.75rem", color:"rgba(255,245,230,0.65)", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", marginTop:"0.2rem" }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -574,7 +574,7 @@ export default function Home() {
               <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
                 <Star size={11} color="#FF6B00" strokeWidth={2.5} fill="#FF6B00" /> Customer Reviews
               </p>
-              <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#1a0a00", fontWeight:900 }}>
+              <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#1a0a00", fontWeight:900 }}>
                 What Our{" "}
                 <span style={{ background:"linear-gradient(135deg,#FF6B00,#C0392B)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
                   Customers Say
@@ -624,7 +624,7 @@ export default function Home() {
           <p style={{ fontSize:"1.05rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FFD700", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
             <MapPin size={12} color="#FFD700" strokeWidth={2} /> Why SparkNest?
           </p>
-          <h2 style={{ fontFamily:"'Cinzel Decorative',serif", fontSize:"clamp(1.1rem,2.5vw,2rem)", color:"#FFF5E6", fontWeight:900 }}>
+          <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.1rem,2.5vw,2rem)", color:"#FFF5E6", fontWeight:900 }}>
             Trusted by <span style={{ color:"#FFD700" }}>10,000+</span> Happy Customers
           </h2>
         </div>
