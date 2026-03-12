@@ -458,7 +458,7 @@ export default function Home() {
       <div className="cat-section-outer">
         <div className="cat-section-inner">
           <div style={{ textAlign:"center", marginBottom:"2.8rem" }}>
-            <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
+            <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
               <Tag size={11} color="#FF6B00" strokeWidth={2.5} /> Browse Categories
             </p>
             <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.4rem,3vw,2.6rem)", color:"#1a0a00", fontWeight:900, lineHeight:1.2 }}>
@@ -516,7 +516,7 @@ export default function Home() {
           <div className="about-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"4rem", alignItems:"center" }}>
             {/* Left — text */}
             <div>
-              <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem", display:"flex", alignItems:"center", gap:"0.4rem" }}>
+              <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem", display:"flex", alignItems:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
                 <MapPin size={11} color="#FF6B00" strokeWidth={2.5} /> About SparkNest
               </p>
               <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#FFF5E6", fontWeight:900, lineHeight:1.25, marginBottom:"1.2rem" }}>
@@ -571,7 +571,7 @@ export default function Home() {
           {/* ── Testimonials ── */}
           <div>
             <div style={{ textAlign:"center", marginBottom:"2.8rem" }}>
-              <p style={{ fontSize:"0.7rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
+              <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
                 <Star size={11} color="#FF6B00" strokeWidth={2.5} fill="#FF6B00" /> Customer Reviews
               </p>
               <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#1a0a00", fontWeight:900 }}>
@@ -621,7 +621,7 @@ export default function Home() {
       {/* ════════════ TRUST ════════════ */}
       <section className="trust-section" style={{ position:"relative", zIndex:2, padding:"4rem clamp(1.2rem,4vw,4rem) 4.5rem" }}>
         <div style={{ textAlign:"center", marginBottom:"2rem" }}>
-          <p style={{ fontSize:"1.05rem", letterSpacing:"0.22em", textTransform:"uppercase", color:"#FFD700", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem" }}>
+          <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FFD700", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
             <MapPin size={12} color="#FFD700" strokeWidth={2} /> Why SparkNest?
           </p>
           <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.1rem,2.5vw,2rem)", color:"#FFF5E6", fontWeight:900 }}>
