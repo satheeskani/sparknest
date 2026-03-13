@@ -91,7 +91,7 @@ function LangSwitcher() {
 // Layout wrapper — hides Navbar/Footer on admin page
 function Layout({ children }) {
   const { pathname } = useLocation();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = pathname.startsWith("/sparknest-cp");
   return (
     <div className="min-h-screen bg-dark text-white font-body">
       <RouteScrollToTop />
@@ -119,7 +119,7 @@ export default function App() {
               <Route path="/checkout"       element={<Checkout />} />
               <Route path="/contact"        element={<Contact />} />
               <Route path="/blog"           element={<Blog />} />
-              <Route path="/admin"          element={<AdminPanel />} />
+              <Route path="/sparknest-cp"    element={<AdminPanel />} />
             </Routes>
           </Layout>
         </BrowserRouter>
