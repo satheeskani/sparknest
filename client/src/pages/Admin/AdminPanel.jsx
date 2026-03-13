@@ -6,15 +6,14 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-// ── Config ────────────────────────────────────────────────────────────────────
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "sparknest@admin2025";
-const API            = import.meta.env.PROD ? "" : "http://localhost:5000";
+// ── Config ─────────────────────────────────────────────────────────────────────
+const API = import.meta.env.VITE_API_URL || "";
 
-const CATEGORIES = ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","Kids Special","Combo Packs","Gift Boxes"];
-const CAT_COLORS = { "Sparklers":"#FFD700","Rockets":"#FF6B00","Bombs":"#FF3D00","Flower Pots":"#2ECC71","Sky Shots":"#00BFFF","Kids Special":"#FF69B4","Combo Packs":"#7B2FBE","Gift Boxes":"#F39C12" };
-const CAT_EMOJI  = { "Sparklers":"✨","Rockets":"🚀","Bombs":"💥","Flower Pots":"🌸","Sky Shots":"🎆","Kids Special":"🧒","Combo Packs":"📦","Gift Boxes":"🎁" };
-const ORDER_STATUS   = ["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
-const PAYMENT_STATUS = ["Pending","Screenshot Received","Confirmed","Failed"];
+const CATEGORIES    = ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","Kids Special","Combo Packs","Gift Boxes"];
+const CAT_COLORS    = { "Sparklers":"#FFD700","Rockets":"#FF6B00","Bombs":"#FF3D00","Flower Pots":"#2ECC71","Sky Shots":"#00BFFF","Kids Special":"#FF69B4","Combo Packs":"#7B2FBE","Gift Boxes":"#F39C12" };
+const CAT_EMOJI     = { "Sparklers":"✨","Rockets":"🚀","Bombs":"💥","Flower Pots":"🌸","Sky Shots":"🎆","Kids Special":"🧒","Combo Packs":"📦","Gift Boxes":"🎁" };
+const ORDER_STATUS  = ["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
+const PAYMENT_STATUS= ["Pending","Screenshot Received","Confirmed","Failed"];
 
 const STATUS_COLORS = {
   "Pending":             { bg:"rgba(255,215,0,0.12)",  text:"#FFD700",  border:"rgba(255,215,0,0.3)" },
@@ -31,12 +30,23 @@ const STATUS_COLORS = {
 
 const EMPTY_FORM = { name:"", slug:"", description:"", price:"", originalPrice:"", category:"Sparklers", stock:"", isFeatured:false, isSafeForKids:false, tags:"", image:"" };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
 const toSlug   = s => s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const fmtPrice = n => `₹${Number(n||0).toLocaleString("en-IN")}`;
 const fmtDate  = d => new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
 
-// ── Shared UI ─────────────────────────────────────────────────────────────────
+// Authenticated fetch — automatically attaches Bearer token
+const authFetch = (url, options = {}, token) => {
+  return fetch(`${API}${url}`, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+};
+
+// ── Shared UI ──────────────────────────────────────────────────────────────────
 const S = {
   input: { width:"100%", padding:"0.7rem 0.9rem", background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,107,0,0.2)", borderRadius:10, color:"#FFF5E6", fontFamily:"'Source Sans 3',sans-serif", fontSize:"0.95rem", outline:"none", boxSizing:"border-box" },
   label: { fontSize:"0.7rem", fontWeight:700, color:"rgba(255,245,230,0.45)", textTransform:"uppercase", letterSpacing:"0.07em", display:"block", marginBottom:"0.35rem" },
@@ -62,8 +72,8 @@ function StatCard({ icon, label, value, color="#FF6B00" }) {
   );
 }
 
-function Input(props)  { return <input    {...props} style={{ ...S.input, ...props.style }} onFocus={e=>e.target.style.borderColor="rgba(255,107,0,0.6)"} onBlur={e=>e.target.style.borderColor="rgba(255,107,0,0.2)"} />; }
-function Textarea(props){ return <textarea {...props} style={{ ...S.input, resize:"vertical", ...props.style }} onFocus={e=>e.target.style.borderColor="rgba(255,107,0,0.6)"} onBlur={e=>e.target.style.borderColor="rgba(255,107,0,0.2)"} />; }
+function Input(props)   { return <input    {...props} style={{ ...S.input, ...props.style }} onFocus={e=>e.target.style.borderColor="rgba(255,107,0,0.6)"} onBlur={e=>e.target.style.borderColor="rgba(255,107,0,0.2)"} />; }
+function Textarea(props) { return <textarea {...props} style={{ ...S.input, resize:"vertical", ...props.style }} onFocus={e=>e.target.style.borderColor="rgba(255,107,0,0.6)"} onBlur={e=>e.target.style.borderColor="rgba(255,107,0,0.2)"} />; }
 function FSelect({ children, ...props }) { return <select {...props} style={{ ...S.input, background:"#1a0800", appearance:"none", ...props.style }} onFocus={e=>e.target.style.borderColor="rgba(255,107,0,0.6)"} onBlur={e=>e.target.style.borderColor="rgba(255,107,0,0.2)"}>{children}</select>; }
 
 function Btn({ children, variant="primary", style={}, ...props }) {
@@ -71,24 +81,26 @@ function Btn({ children, variant="primary", style={}, ...props }) {
   return <button {...props} style={{ fontFamily:"'Source Sans 3',sans-serif", fontWeight:800, fontSize:"0.88rem", borderRadius:10, cursor:props.disabled?"not-allowed":"pointer", display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.6rem 1.1rem", opacity:props.disabled?0.55:1, transition:"opacity .2s", ...v[variant], ...style }}>{children}</button>;
 }
 
-// ── Image Upload ──────────────────────────────────────────────────────────────
-function ImageUpload({ currentImage, onUpload, uploading, setUploading }) {
+// ── Image Upload ───────────────────────────────────────────────────────────────
+function ImageUpload({ currentImage, onUpload, uploading, setUploading, token }) {
   const fileRef = useRef();
   const [preview, setPreview] = useState(currentImage||"");
   useEffect(()=>{ setPreview(currentImage||""); },[currentImage]);
+
   const handleFile = async (file) => {
     if (!file||!file.type.startsWith("image/")){ toast.error("Images only"); return; }
     if (file.size>5*1024*1024){ toast.error("Max 5MB"); return; }
     setPreview(URL.createObjectURL(file)); setUploading(true);
     try {
-      const fd = new FormData(); fd.append("image",file);
-      const res  = await fetch(`${API}/api/products/upload-image`,{method:"POST",body:fd});
+      const fd = new FormData(); fd.append("image", file);
+      const res  = await authFetch("/api/products/upload-image", { method:"POST", body:fd }, token);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
       setPreview(data.url); onUpload(data.url); toast.success("Uploaded!");
     } catch(err){ toast.error(err.message); setPreview(currentImage||""); }
     finally{ setUploading(false); }
   };
+
   return (
     <div>
       <label style={S.label}>Product Image</label>
@@ -103,25 +115,32 @@ function ImageUpload({ currentImage, onUpload, uploading, setUploading }) {
   );
 }
 
-// ── Product Modal ─────────────────────────────────────────────────────────────
-function ProductModal({ product, onClose, onSaved }) {
+// ── Product Modal ──────────────────────────────────────────────────────────────
+function ProductModal({ product, onClose, onSaved, token }) {
   const isEdit = !!product?._id;
   const [form,setForm]           = useState(isEdit?{...product,price:String(product.price),originalPrice:String(product.originalPrice||""),stock:String(product.stock),tags:(product.tags||[]).join(", ")}:EMPTY_FORM);
   const [saving,setSaving]       = useState(false);
   const [uploading,setUploading] = useState(false);
+
   const onChange = e => { const{name,value,type,checked}=e.target; setForm(f=>({...f,[name]:type==="checkbox"?checked:value,...(name==="name"&&!isEdit?{slug:toSlug(value)}:{})})); };
+
   const handleSubmit = async () => {
     if (!form.name||!form.price||!form.stock||!form.description){ toast.error("Fill required fields"); return; }
     if (!form.image){ toast.error("Upload an image"); return; }
     setSaving(true);
     try {
-      const payload = {...form,price:Number(form.price),originalPrice:form.originalPrice?Number(form.originalPrice):undefined,stock:Number(form.stock),isFeatured:!!form.isFeatured,isSafeForKids:!!form.isSafeForKids,tags:form.tags?form.tags.split(",").map(t=>t.trim()).filter(Boolean):[],slug:form.slug||toSlug(form.name)};
-      const res  = await fetch(isEdit?`${API}/api/products/${product._id}`:`${API}/api/products`,{method:isEdit?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      const payload = { ...form, price:Number(form.price), originalPrice:form.originalPrice?Number(form.originalPrice):undefined, stock:Number(form.stock), isFeatured:!!form.isFeatured, isSafeForKids:!!form.isSafeForKids, tags:form.tags?form.tags.split(",").map(t=>t.trim()).filter(Boolean):[], slug:form.slug||toSlug(form.name) };
+      const res  = await authFetch(
+        isEdit ? `/api/products/${product._id}` : "/api/products",
+        { method:isEdit?"PATCH":"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) },
+        token
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
       toast.success(isEdit?"Updated!":"Product added!"); onSaved();
     } catch(err){ toast.error(err.message); } finally{ setSaving(false); }
   };
+
   return (
     <div style={{ position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.82)",backdropFilter:"blur(6px)",display:"flex",alignItems:"flex-start",justifyContent:"center",padding:"1rem",overflowY:"auto" }}>
       <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,107,0,0.2)",borderRadius:20,width:"100%",maxWidth:640,margin:"auto",padding:"1.8rem" }}>
@@ -145,7 +164,7 @@ function ProductModal({ product, onClose, onSaved }) {
               </label>
             ))}
           </div>
-          <div style={{ gridColumn:"1/-1" }}><ImageUpload currentImage={form.image} onUpload={url=>setForm(f=>({...f,image:url}))} uploading={uploading} setUploading={setUploading} /></div>
+          <div style={{ gridColumn:"1/-1" }}><ImageUpload currentImage={form.image} onUpload={url=>setForm(f=>({...f,image:url}))} uploading={uploading} setUploading={setUploading} token={token} /></div>
         </div>
         <div style={{ display:"flex",gap:"0.75rem",marginTop:"1.3rem" }}>
           <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
@@ -158,13 +177,16 @@ function ProductModal({ product, onClose, onSaved }) {
   );
 }
 
-// ── Delete Confirm ────────────────────────────────────────────────────────────
-function DeleteConfirm({ product, onClose, onDeleted }) {
+// ── Delete Confirm ─────────────────────────────────────────────────────────────
+function DeleteConfirm({ product, onClose, onDeleted, token }) {
   const [deleting,setDeleting] = useState(false);
   const handleDelete = async () => {
     setDeleting(true);
-    try { const res=await fetch(`${API}/api/products/${product._id}`,{method:"DELETE"}); if (!res.ok) throw new Error(); toast.success("Deleted"); onDeleted(); }
-    catch { toast.error("Failed to delete"); } finally { setDeleting(false); }
+    try {
+      const res = await authFetch(`/api/products/${product._id}`, { method:"DELETE" }, token);
+      if (!res.ok) throw new Error();
+      toast.success("Deleted"); onDeleted();
+    } catch { toast.error("Failed to delete"); } finally { setDeleting(false); }
   };
   return (
     <div style={{ position:"fixed",inset:0,zIndex:1001,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
@@ -186,26 +208,28 @@ function DeleteConfirm({ product, onClose, onDeleted }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // DASHBOARD TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function DashboardTab() {
+function DashboardTab({ token }) {
   const [data,setData]       = useState(null);
   const [loading,setLoading] = useState(true);
-  useEffect(()=>{ fetch(`${API}/api/admin/dashboard`).then(r=>r.json()).then(d=>{setData(d);setLoading(false);}).catch(()=>setLoading(false)); },[]);
+  useEffect(()=>{
+    authFetch("/api/admin/dashboard", {}, token)
+      .then(r=>r.json()).then(d=>{setData(d);setLoading(false);}).catch(()=>setLoading(false));
+  },[token]);
+
   if (loading) return <div style={{ textAlign:"center",padding:"4rem" }}><Loader2 size={30} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /></div>;
   if (!data?.success) return <p style={{ color:"rgba(255,245,230,0.4)",textAlign:"center",padding:"3rem" }}>Failed to load dashboard data</p>;
+
   const { stats, recentOrders, monthlyRevenue, categoryBreakdown } = data;
   const maxRev = Math.max(...(monthlyRevenue||[]).map(m=>m.total),1);
   return (
     <div style={{ display:"flex",flexDirection:"column",gap:"1.4rem" }}>
-      {/* Stat Cards */}
       <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"1rem" }}>
-        <StatCard icon={<ShoppingBag size={20} color="#FF6B00" />} label="Total Orders"   value={stats.totalOrders}              color="#FF6B00" />
-        <StatCard icon={<TrendingUp  size={20} color="#FFD700" />} label="Total Revenue"  value={fmtPrice(stats.totalRevenue)}   color="#FFD700" />
-        <StatCard icon={<Users       size={20} color="#2ECC71" />} label="Users"          value={stats.totalUsers}               color="#2ECC71" />
-        <StatCard icon={<Package     size={20} color="#00BFFF" />} label="Products"       value={stats.totalProducts}            color="#00BFFF" />
+        <StatCard icon={<ShoppingBag size={20} color="#FF6B00" />} label="Total Orders"  value={stats.totalOrders}            color="#FF6B00" />
+        <StatCard icon={<TrendingUp  size={20} color="#FFD700" />} label="Total Revenue" value={fmtPrice(stats.totalRevenue)} color="#FFD700" />
+        <StatCard icon={<Users       size={20} color="#2ECC71" />} label="Users"         value={stats.totalUsers}             color="#2ECC71" />
+        <StatCard icon={<Package     size={20} color="#00BFFF" />} label="Products"      value={stats.totalProducts}          color="#00BFFF" />
       </div>
-
       <div style={{ display:"grid",gridTemplateColumns:"3fr 2fr",gap:"1.2rem" }}>
-        {/* Revenue Chart */}
         <div style={S.card}>
           <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.92rem",margin:"0 0 1.2rem" }}>Monthly Revenue — Last 6 Months</h3>
           <div style={{ display:"flex",alignItems:"flex-end",gap:"0.6rem",height:110 }}>
@@ -220,8 +244,6 @@ function DashboardTab() {
             ))}
           </div>
         </div>
-
-        {/* Recent Orders */}
         <div style={S.card}>
           <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.92rem",margin:"0 0 0.9rem" }}>Recent Orders</h3>
           <div style={{ display:"flex",flexDirection:"column",gap:"0.55rem" }}>
@@ -241,8 +263,6 @@ function DashboardTab() {
           </div>
         </div>
       </div>
-
-      {/* Category Breakdown */}
       <div style={S.card}>
         <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.92rem",margin:"0 0 1rem" }}>Products by Category</h3>
         <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.75rem" }}>
@@ -266,7 +286,7 @@ function DashboardTab() {
 // ══════════════════════════════════════════════════════════════════════════════
 // PRODUCTS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function ProductsTab() {
+function ProductsTab({ token }) {
   const [products,setProducts]   = useState([]);
   const [loading,setLoading]     = useState(true);
   const [search,setSearch]       = useState("");
@@ -275,10 +295,14 @@ function ProductsTab() {
 
   const fetchProducts = async () => {
     setLoading(true);
-    try { const res=await fetch(`${API}/api/products?limit=100`); const data=await res.json(); setProducts(data.products||[]); }
-    catch { toast.error("Failed to load"); } finally { setLoading(false); }
+    try {
+      const res  = await authFetch("/api/products?limit=100", {}, token);
+      const data = await res.json();
+      setProducts(data.products||[]);
+    } catch { toast.error("Failed to load"); } finally { setLoading(false); }
   };
   useEffect(()=>{ fetchProducts(); },[]);
+
   const filtered = products.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.category.toLowerCase().includes(search.toLowerCase()));
   return (
     <div>
@@ -306,8 +330,8 @@ function ProductsTab() {
           </table>
         </div>
       )}
-      {modal     && <ProductModal product={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);fetchProducts();}} />}
-      {delTarget && <DeleteConfirm product={delTarget} onClose={()=>setDelTarget(null)} onDeleted={()=>{setDelTarget(null);fetchProducts();}} />}
+      {modal     && <ProductModal product={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);fetchProducts();}} token={token} />}
+      {delTarget && <DeleteConfirm product={delTarget} onClose={()=>setDelTarget(null)} onDeleted={()=>{setDelTarget(null);fetchProducts();}} token={token} />}
     </div>
   );
 }
@@ -315,10 +339,14 @@ function ProductsTab() {
 // ══════════════════════════════════════════════════════════════════════════════
 // CATEGORIES TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function CategoriesTab() {
+function CategoriesTab({ token }) {
   const [cats,setCats]       = useState([]);
   const [loading,setLoading] = useState(true);
-  useEffect(()=>{ fetch(`${API}/api/admin/categories`).then(r=>r.json()).then(d=>{setCats(d.categories||[]);setLoading(false);}).catch(()=>setLoading(false)); },[]);
+  useEffect(()=>{
+    authFetch("/api/admin/categories", {}, token)
+      .then(r=>r.json()).then(d=>{setCats(d.categories||[]);setLoading(false);}).catch(()=>setLoading(false));
+  },[token]);
+
   if (loading) return <div style={{ textAlign:"center",padding:"4rem" }}><Loader2 size={28} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /></div>;
   return (
     <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:"1rem" }}>
@@ -349,24 +377,31 @@ function CategoriesTab() {
 // ══════════════════════════════════════════════════════════════════════════════
 // USERS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function UsersTab() {
+function UsersTab({ token }) {
   const [users,setUsers]     = useState([]);
   const [loading,setLoading] = useState(true);
   const [search,setSearch]   = useState("");
+
   const fetchUsers = async () => {
     setLoading(true);
-    try { const res=await fetch(`${API}/api/admin/users?limit=50`); const data=await res.json(); setUsers(data.users||[]); }
-    catch { toast.error("Failed to load users"); } finally { setLoading(false); }
+    try {
+      const res  = await authFetch("/api/admin/users?limit=50", {}, token);
+      const data = await res.json();
+      setUsers(data.users||[]);
+    } catch { toast.error("Failed to load users"); } finally { setLoading(false); }
   };
   useEffect(()=>{ fetchUsers(); },[]);
-  const updateRole = async (userId,role) => {
+
+  const updateRole = async (userId, role) => {
     try {
-      const res=await fetch(`${API}/api/admin/users/${userId}/role`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({role})});
-      const data=await res.json(); if (!res.ok) throw new Error(data.message);
-      toast.success(`Role → ${role}`); fetchUsers();
+      const res  = await authFetch(`/api/admin/users/${userId}/role`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({role}) }, token);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast.success(`Role updated to ${role}`); fetchUsers();
     } catch(err){ toast.error(err.message); }
   };
-  const filtered=users.filter(u=>!search||u.name.toLowerCase().includes(search.toLowerCase())||u.email.toLowerCase().includes(search.toLowerCase()));
+
+  const filtered = users.filter(u=>!search||u.name.toLowerCase().includes(search.toLowerCase())||u.email.toLowerCase().includes(search.toLowerCase()));
   return (
     <div>
       <div style={{ display:"flex",gap:"0.75rem",marginBottom:"1.2rem" }}>
@@ -404,7 +439,7 @@ function UsersTab() {
 // ══════════════════════════════════════════════════════════════════════════════
 // ORDERS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function OrdersTab() {
+function OrdersTab({ token }) {
   const [orders,setOrders]     = useState([]);
   const [loading,setLoading]   = useState(true);
   const [search,setSearch]     = useState("");
@@ -414,21 +449,24 @@ function OrdersTab() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const params=new URLSearchParams({limit:50,...(filter?{status:filter}:{})});
-      const res=await fetch(`${API}/api/admin/orders?${params}`); const data=await res.json(); setOrders(data.orders||[]);
+      const params = new URLSearchParams({ limit:50, ...(filter?{status:filter}:{}) });
+      const res    = await authFetch(`/api/admin/orders?${params}`, {}, token);
+      const data   = await res.json();
+      setOrders(data.orders||[]);
     } catch { toast.error("Failed to load orders"); } finally { setLoading(false); }
   };
   useEffect(()=>{ fetchOrders(); },[filter]);
 
-  const updateStatus = async (orderId,field,value) => {
+  const updateStatus = async (orderId, field, value) => {
     try {
-      const res=await fetch(`${API}/api/admin/orders/${orderId}/status`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({[field]:value})});
-      const data=await res.json(); if (!res.ok) throw new Error(data.message);
+      const res  = await authFetch(`/api/admin/orders/${orderId}/status`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({[field]:value}) }, token);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
       toast.success("Status updated!"); setOrders(prev=>prev.map(o=>o.orderId===orderId?data.order:o));
     } catch(err){ toast.error(err.message); }
   };
 
-  const filtered=orders.filter(o=>!search||o.orderId.toLowerCase().includes(search.toLowerCase())||o.customer?.name?.toLowerCase().includes(search.toLowerCase())||o.customer?.phone?.includes(search));
+  const filtered = orders.filter(o=>!search||o.orderId.toLowerCase().includes(search.toLowerCase())||o.customer?.name?.toLowerCase().includes(search.toLowerCase())||o.customer?.phone?.includes(search));
   return (
     <div>
       <div style={{ display:"flex",gap:"0.75rem",marginBottom:"1.2rem",flexWrap:"wrap" }}>
@@ -443,7 +481,6 @@ function OrdersTab() {
           {filtered.length===0&&<p style={{ textAlign:"center",color:"rgba(255,245,230,0.38)",padding:"2rem" }}>No orders found</p>}
           {filtered.map(o=>(
             <div key={o._id} style={{ background:"rgba(255,107,0,0.02)",border:"1px solid rgba(255,107,0,0.1)",borderRadius:14,overflow:"hidden" }}>
-              {/* Header Row */}
               <div style={{ display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.95rem 1.1rem",cursor:"pointer",flexWrap:"wrap" }} onClick={()=>setExpanded(expanded===o._id?null:o._id)}>
                 <div style={{ flex:1,minWidth:0 }}>
                   <div style={{ display:"flex",alignItems:"center",gap:"0.5rem",flexWrap:"wrap",marginBottom:"0.2rem" }}>
@@ -458,10 +495,8 @@ function OrdersTab() {
                 </div>
                 <ChevronDown size={15} color="rgba(255,245,230,0.35)" style={{ transform:expanded===o._id?"rotate(180deg)":"none",transition:"transform .2s",flexShrink:0 }} />
               </div>
-              {/* Expanded */}
               {expanded===o._id&&(
                 <div style={{ borderTop:"1px solid rgba(255,107,0,0.1)",padding:"1rem 1.1rem",display:"flex",flexDirection:"column",gap:"0.9rem" }}>
-                  {/* Items */}
                   <div>
                     <p style={{ ...S.label,marginBottom:"0.5rem" }}>Items</p>
                     {o.items?.map((item,i)=>(
@@ -472,12 +507,10 @@ function OrdersTab() {
                       </div>
                     ))}
                   </div>
-                  {/* Address */}
                   <div>
                     <p style={{ ...S.label,marginBottom:"0.3rem" }}>Delivery Address</p>
                     <p style={{ color:"rgba(255,245,230,0.6)",fontSize:"0.82rem",margin:0,lineHeight:1.6 }}>{o.customer?.address}, {o.customer?.city}, {o.customer?.state} — {o.customer?.pincode}</p>
                   </div>
-                  {/* Status Update */}
                   <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.9rem" }}>
                     <div><p style={{ ...S.label,marginBottom:"0.35rem" }}>Order Status</p><FSelect value={o.orderStatus} onChange={e=>updateStatus(o.orderId,"orderStatus",e.target.value)}>{ORDER_STATUS.map(s=><option key={s} value={s}>{s}</option>)}</FSelect></div>
                     <div><p style={{ ...S.label,marginBottom:"0.35rem" }}>Payment Status</p><FSelect value={o.paymentStatus} onChange={e=>updateStatus(o.orderId,"paymentStatus",e.target.value)}>{PAYMENT_STATUS.map(s=><option key={s} value={s}>{s}</option>)}</FSelect></div>
@@ -493,23 +526,53 @@ function OrdersTab() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// LOGIN
+// LOGIN — real backend JWT auth
 // ══════════════════════════════════════════════════════════════════════════════
 function AdminLogin({ onLogin }) {
-  const [pw,setPw]       = useState("");
-  const [error,setError] = useState("");
-  const handleLogin = () => { if (pw===ADMIN_PASSWORD){ onLogin(); setError(""); } else setError("Incorrect password"); };
+  const [email,setEmail]     = useState("");
+  const [pw,setPw]           = useState("");
+  const [error,setError]     = useState("");
+  const [loading,setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !pw) { setError("Enter email and password"); return; }
+    setLoading(true); setError("");
+    try {
+      const res  = await fetch(`${API}/api/auth/login`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ email, password:pw }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
+      if (data.user?.role !== "admin") throw new Error("Not an admin account");
+      onLogin(data.token, data.user);
+    } catch(err){ setError(err.message); }
+    finally{ setLoading(false); }
+  };
+
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Source Sans 3',sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Source+Sans+3:wght@400;600;700;800&display=swap');`}</style>
-      <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,107,0,0.2)",borderRadius:20,padding:"2.5rem",width:"100%",maxWidth:350,textAlign:"center" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Source+Sans+3:wght@400;600;700;800&display=swap'); @keyframes spin { to { transform:rotate(360deg); } }`}</style>
+      <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,107,0,0.2)",borderRadius:20,padding:"2.5rem",width:"100%",maxWidth:360,textAlign:"center" }}>
         <div style={{ fontSize:"2.6rem",marginBottom:"0.6rem" }}>🔐</div>
         <h1 style={{ fontFamily:"'Libre Baskerville',serif",color:"#FFF5E6",fontSize:"1.25rem",margin:"0 0 0.3rem" }}>Admin Panel</h1>
         <p style={{ color:"rgba(255,245,230,0.38)",fontSize:"0.8rem",margin:"0 0 1.6rem" }}>SparkNest · Sivakasi</p>
-        <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} placeholder="Enter admin password"
-          style={{ width:"100%",padding:"0.82rem 1rem",background:"rgba(255,255,255,0.06)",border:`1.5px solid ${error?"#FF3D00":"rgba(255,107,0,0.2)"}`,borderRadius:12,color:"#FFF5E6",fontFamily:"'Source Sans 3',sans-serif",fontSize:"1rem",outline:"none",boxSizing:"border-box" }} />
-        {error&&<p style={{ color:"#FF3D00",fontSize:"0.78rem",margin:"0.45rem 0 0" }}>{error}</p>}
-        <button onClick={handleLogin} style={{ width:"100%",padding:"0.82rem",background:"linear-gradient(135deg,#FF6B00,#FF3D00)",border:"none",borderRadius:12,color:"#fff",fontWeight:800,fontSize:"1rem",cursor:"pointer",boxShadow:"0 4px 20px rgba(255,107,0,0.45)",fontFamily:"'Source Sans 3',sans-serif",marginTop:"1rem" }}>Login</button>
+        <div style={{ marginBottom:"0.85rem",textAlign:"left" }}>
+          <label style={S.label}>Email</label>
+          <input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} placeholder="admin@sparknest.in"
+            style={{ ...S.input, border:`1.5px solid ${error?"#FF3D00":"rgba(255,107,0,0.2)"}` }} />
+        </div>
+        <div style={{ marginBottom:"0.6rem",textAlign:"left" }}>
+          <label style={S.label}>Password</label>
+          <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleLogin()} placeholder="••••••••"
+            style={{ ...S.input, border:`1.5px solid ${error?"#FF3D00":"rgba(255,107,0,0.2)"}` }} />
+        </div>
+        {error && <p style={{ color:"#FF3D00",fontSize:"0.78rem",margin:"0.45rem 0 0",textAlign:"left" }}>{error}</p>}
+        <button onClick={handleLogin} disabled={loading}
+          style={{ width:"100%",padding:"0.82rem",background:"linear-gradient(135deg,#FF6B00,#FF3D00)",border:"none",borderRadius:12,color:"#fff",fontWeight:800,fontSize:"1rem",cursor:loading?"not-allowed":"pointer",boxShadow:"0 4px 20px rgba(255,107,0,0.45)",fontFamily:"'Source Sans 3',sans-serif",marginTop:"1rem",opacity:loading?0.7:1,display:"flex",alignItems:"center",justifyContent:"center",gap:"0.5rem" }}>
+          {loading ? <><Loader2 size={16} style={{ animation:"spin 1s linear infinite" }} />Signing in…</> : "Login"}
+        </button>
       </div>
     </div>
   );
@@ -527,11 +590,23 @@ const TABS = [
 ];
 
 export default function AdminPanel() {
-  const [authed,setAuthed] = useState(()=>sessionStorage.getItem("sn_admin")==="1");
-  const [tab,setTab]       = useState("dashboard");
-  const handleLogin  = () => { sessionStorage.setItem("sn_admin","1"); setAuthed(true); };
-  const handleLogout = () => { sessionStorage.removeItem("sn_admin"); setAuthed(false); };
-  if (!authed) return <AdminLogin onLogin={handleLogin} />;
+  const [token,setToken] = useState(()=>sessionStorage.getItem("sn_admin_token")||null);
+  const [user,setUser]   = useState(()=>{ try{ return JSON.parse(sessionStorage.getItem("sn_admin_user")); }catch{ return null; } });
+  const [tab,setTab]     = useState("dashboard");
+
+  const handleLogin  = (tok, usr) => {
+    sessionStorage.setItem("sn_admin_token", tok);
+    sessionStorage.setItem("sn_admin_user", JSON.stringify(usr));
+    setToken(tok); setUser(usr);
+  };
+  const handleLogout = () => {
+    sessionStorage.removeItem("sn_admin_token");
+    sessionStorage.removeItem("sn_admin_user");
+    setToken(null); setUser(null);
+  };
+
+  if (!token) return <AdminLogin onLogin={handleLogin} />;
+
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
       <style>{`
@@ -542,14 +617,15 @@ export default function AdminPanel() {
         ::-webkit-scrollbar-track { background:rgba(255,107,0,0.04); }
         ::-webkit-scrollbar-thumb { background:rgba(255,107,0,0.25); border-radius:10px; }
       `}</style>
-      {/* Top Bar */}
       <div style={{ background:"rgba(6,3,0,0.98)",borderBottom:"1px solid rgba(255,107,0,0.13)",padding:"0 clamp(1rem,4vw,2rem)",height:58,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:200 }}>
         <span style={{ fontFamily:"'Libre Baskerville',serif",color:"#FFD700",fontSize:"1rem",fontWeight:700,display:"flex",alignItems:"center",gap:"0.45rem" }}>
           <Package size={17} color="#FF6B00" /> SparkNest Admin
         </span>
-        <Btn variant="ghost" onClick={handleLogout} style={{ padding:"0.38rem 0.75rem",fontSize:"0.78rem" }}><LogOut size={13} /> Logout</Btn>
+        <div style={{ display:"flex",alignItems:"center",gap:"0.85rem" }}>
+          {user && <span style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.78rem" }}>{user.name}</span>}
+          <Btn variant="ghost" onClick={handleLogout} style={{ padding:"0.38rem 0.75rem",fontSize:"0.78rem" }}><LogOut size={13} /> Logout</Btn>
+        </div>
       </div>
-      {/* Tabs */}
       <div style={{ background:"rgba(255,107,0,0.025)",borderBottom:"1px solid rgba(255,107,0,0.09)",padding:"0 clamp(1rem,4vw,2rem)",display:"flex",gap:"0.2rem",overflowX:"auto" }}>
         {TABS.map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)}
@@ -558,13 +634,12 @@ export default function AdminPanel() {
           </button>
         ))}
       </div>
-      {/* Content */}
       <div style={{ maxWidth:1200,margin:"0 auto",padding:"1.8rem clamp(1rem,4vw,2rem)" }}>
-        {tab==="dashboard"  && <DashboardTab />}
-        {tab==="products"   && <ProductsTab />}
-        {tab==="categories" && <CategoriesTab />}
-        {tab==="users"      && <UsersTab />}
-        {tab==="orders"     && <OrdersTab />}
+        {tab==="dashboard"  && <DashboardTab  token={token} />}
+        {tab==="products"   && <ProductsTab   token={token} />}
+        {tab==="categories" && <CategoriesTab token={token} />}
+        {tab==="users"      && <UsersTab      token={token} />}
+        {tab==="orders"     && <OrdersTab     token={token} />}
       </div>
     </div>
   );

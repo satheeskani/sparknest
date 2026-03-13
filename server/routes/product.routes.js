@@ -9,23 +9,19 @@ import {
   uploadImage,
 } from "../controllers/product.controller.js";
 import upload from "../middleware/upload.middleware.js";
+import { protect, adminOnly } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-// Public
-router.get("/",          getProducts);
-router.get("/featured",  getFeaturedProducts);
-router.get("/:slug",     getProductBySlug);
+// ── Public ────────────────────────────────────────────────────────────────────
+router.get("/",         getProducts);
+router.get("/featured", getFeaturedProducts);
+router.get("/:slug",    getProductBySlug);
 
-// Image-only upload — returns Cloudinary URL
-// POST /api/products/upload-image  (multipart, field "image")
-router.post("/upload-image", upload.single("image"), uploadImage);
-
-// Admin CRUD
-// POST   — JSON body with image URL already uploaded
-// PATCH  — JSON body, optional new image URL
-router.post("/",      createProduct);
-router.patch("/:id",  updateProduct);
-router.delete("/:id", deleteProduct);
+// ── Admin only ────────────────────────────────────────────────────────────────
+router.post("/upload-image", protect, adminOnly, upload.single("image"), uploadImage);
+router.post("/",             protect, adminOnly, createProduct);
+router.patch("/:id",         protect, adminOnly, updateProduct);
+router.delete("/:id",        protect, adminOnly, deleteProduct);
 
 export default router;
