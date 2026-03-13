@@ -12,4 +12,7 @@ export default defineConfig({
       },
     },
   },
+  define: {
+    __VERCEL_TOOLBAR__: false,
+  },
 });
