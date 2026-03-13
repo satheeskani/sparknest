@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Plus, Pencil, Trash2, X, Upload, Loader2, LogOut, Package,
   ImageIcon, Users, ShoppingBag, LayoutDashboard, Tag,
@@ -205,18 +205,45 @@ function DeleteConfirm({ product, onClose, onDeleted, token }) {
   );
 }
 
+// ── Skeleton loaders ──────────────────────────────────────────────────────────
+function SkeletonDashboard() {
+  return (
+    <div style={{ display:"flex",flexDirection:"column",gap:"1.4rem" }}>
+      <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"1rem" }}>
+        {[...Array(4)].map((_,i)=><div key={i} className="skeleton" style={{ height:88,borderRadius:16 }} />)}
+      </div>
+      <div style={{ display:"grid",gridTemplateColumns:"3fr 2fr",gap:"1.2rem" }}>
+        <div className="skeleton" style={{ height:180,borderRadius:16 }} />
+        <div className="skeleton" style={{ height:180,borderRadius:16 }} />
+      </div>
+      <div className="skeleton" style={{ height:160,borderRadius:16 }} />
+    </div>
+  );
+}
+function SkeletonTable() {
+  return (
+    <div style={{ display:"flex",flexDirection:"column",gap:"0.6rem" }}>
+      <div style={{ display:"flex",gap:"0.75rem",marginBottom:"0.6rem" }}>
+        <div className="skeleton" style={{ height:40,flex:1,borderRadius:10 }} />
+        <div className="skeleton" style={{ height:40,width:120,borderRadius:10 }} />
+      </div>
+      {[...Array(6)].map((_,i)=><div key={i} className="skeleton" style={{ height:52,borderRadius:10 }} />)}
+    </div>
+  );
+}
+function SkeletonGrid() {
+  return (
+    <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:"1rem" }}>
+      {[...Array(8)].map((_,i)=><div key={i} className="skeleton" style={{ height:180,borderRadius:16 }} />)}
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // DASHBOARD TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function DashboardTab({ token }) {
-  const [data,setData]       = useState(null);
-  const [loading,setLoading] = useState(true);
-  useEffect(()=>{
-    authFetch("/api/admin/dashboard", {}, token)
-      .then(r=>r.json()).then(d=>{setData(d);setLoading(false);}).catch(()=>setLoading(false));
-  },[token]);
-
-  if (loading) return <div style={{ textAlign:"center",padding:"4rem" }}><Loader2 size={30} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /></div>;
+function DashboardTab({ token, data, loading, onRefresh }) {
+  if (loading || !data) return <SkeletonDashboard />;
   if (!data?.success) return <p style={{ color:"rgba(255,245,230,0.4)",textAlign:"center",padding:"3rem" }}>Failed to load dashboard data</p>;
 
   const { stats, recentOrders, monthlyRevenue, categoryBreakdown } = data;
@@ -286,22 +313,15 @@ function DashboardTab({ token }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // PRODUCTS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function ProductsTab({ token }) {
+function ProductsTab({ token, data, loading, onRefresh }) {
   const [products,setProducts]   = useState([]);
-  const [loading,setLoading]     = useState(true);
   const [search,setSearch]       = useState("");
   const [modal,setModal]         = useState(null);
   const [delTarget,setDelTarget] = useState(null);
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const res  = await authFetch("/api/products?limit=100", {}, token);
-      const data = await res.json();
-      setProducts(data.products||[]);
-    } catch { toast.error("Failed to load"); } finally { setLoading(false); }
-  };
-  useEffect(()=>{ fetchProducts(); },[]);
+  useEffect(()=>{ if (data?.products) setProducts(data.products); },[data]);
+
+  const fetchProducts = () => onRefresh();
 
   const filtered = products.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.category.toLowerCase().includes(search.toLowerCase()));
   return (
@@ -310,7 +330,7 @@ function ProductsTab({ token }) {
         <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products…" style={{ flex:1,minWidth:180 }} />
         <Btn onClick={()=>setModal("add")}><Plus size={15} /> Add Product</Btn>
       </div>
-      {loading ? <div style={{ textAlign:"center",padding:"3rem" }}><Loader2 size={28} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /></div> : (
+      {loading ? <SkeletonTable /> : (
         <div style={{ background:"rgba(255,107,0,0.02)",border:"1px solid rgba(255,107,0,0.1)",borderRadius:14,overflow:"auto" }}>
           <table style={{ width:"100%",borderCollapse:"collapse",minWidth:600 }}>
             <thead><tr style={{ background:"rgba(255,107,0,0.05)",borderBottom:"1px solid rgba(255,107,0,0.1)" }}>{["Image","Name","Category","Price","Stock","Actions"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
@@ -339,15 +359,9 @@ function ProductsTab({ token }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // CATEGORIES TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function CategoriesTab({ token }) {
-  const [cats,setCats]       = useState([]);
-  const [loading,setLoading] = useState(true);
-  useEffect(()=>{
-    authFetch("/api/admin/categories", {}, token)
-      .then(r=>r.json()).then(d=>{setCats(d.categories||[]);setLoading(false);}).catch(()=>setLoading(false));
-  },[token]);
-
-  if (loading) return <div style={{ textAlign:"center",padding:"4rem" }}><Loader2 size={28} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /></div>;
+function CategoriesTab({ token, data, loading }) {
+  if (loading || !data) return <SkeletonGrid />;
+  const cats = data?.categories || [];
   return (
     <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:"1rem" }}>
       {cats.map(c=>{
@@ -377,20 +391,13 @@ function CategoriesTab({ token }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // USERS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function UsersTab({ token }) {
-  const [users,setUsers]     = useState([]);
-  const [loading,setLoading] = useState(true);
-  const [search,setSearch]   = useState("");
+function UsersTab({ token, data, loading, onRefresh }) {
+  const [users,setUsers]   = useState([]);
+  const [search,setSearch] = useState("");
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const res  = await authFetch("/api/admin/users?limit=50", {}, token);
-      const data = await res.json();
-      setUsers(data.users||[]);
-    } catch { toast.error("Failed to load users"); } finally { setLoading(false); }
-  };
-  useEffect(()=>{ fetchUsers(); },[]);
+  useEffect(()=>{ if (data?.users) setUsers(data.users); },[data]);
+
+  const fetchUsers = () => onRefresh();
 
   const updateRole = async (userId, role) => {
     try {
@@ -408,7 +415,7 @@ function UsersTab({ token }) {
         <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name or email…" style={{ flex:1 }} />
         <Btn variant="ghost" onClick={fetchUsers}><RefreshCw size={14} /> Refresh</Btn>
       </div>
-      {loading ? <div style={{ textAlign:"center",padding:"3rem" }}><Loader2 size={28} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /></div> : (
+      {loading ? <SkeletonTable /> : (
         <div style={{ background:"rgba(255,107,0,0.02)",border:"1px solid rgba(255,107,0,0.1)",borderRadius:14,overflow:"auto" }}>
           <table style={{ width:"100%",borderCollapse:"collapse",minWidth:600 }}>
             <thead><tr style={{ background:"rgba(255,107,0,0.05)",borderBottom:"1px solid rgba(255,107,0,0.1)" }}>{["User","Email","Phone","Role","Joined","Change Role"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
@@ -439,23 +446,15 @@ function UsersTab({ token }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // ORDERS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function OrdersTab({ token }) {
+function OrdersTab({ token, data, loading, onRefresh }) {
   const [orders,setOrders]     = useState([]);
-  const [loading,setLoading]   = useState(true);
   const [search,setSearch]     = useState("");
   const [filter,setFilter]     = useState("");
   const [expanded,setExpanded] = useState(null);
 
-  const fetchOrders = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ limit:50, ...(filter?{status:filter}:{}) });
-      const res    = await authFetch(`/api/admin/orders?${params}`, {}, token);
-      const data   = await res.json();
-      setOrders(data.orders||[]);
-    } catch { toast.error("Failed to load orders"); } finally { setLoading(false); }
-  };
-  useEffect(()=>{ fetchOrders(); },[filter]);
+  useEffect(()=>{ if (data?.orders) setOrders(data.orders); },[data]);
+
+  const fetchOrders = () => onRefresh();
 
   const updateStatus = async (orderId, field, value) => {
     try {
@@ -476,7 +475,7 @@ function OrdersTab({ token }) {
         </FSelect>
         <Btn variant="ghost" onClick={fetchOrders}><RefreshCw size={14} /> Refresh</Btn>
       </div>
-      {loading ? <div style={{ textAlign:"center",padding:"3rem" }}><Loader2 size={28} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /></div> : (
+      {loading ? <SkeletonTable /> : (
         <div style={{ display:"flex",flexDirection:"column",gap:"0.65rem" }}>
           {filtered.length===0&&<p style={{ textAlign:"center",color:"rgba(255,245,230,0.38)",padding:"2rem" }}>No orders found</p>}
           {filtered.map(o=>(
@@ -589,6 +588,38 @@ const TABS = [
   { id:"orders",     label:"Orders",     icon:<ShoppingBag size={15} /> },
 ];
 
+// ── Global data cache — fetched once on login, shared across all tabs ──────────
+function useAdminData(token) {
+  const [cache, setCache]     = useState({});
+  const [loading, setLoading] = useState({});
+
+  const fetch$ = useCallback(async (key, url) => {
+    if (cache[key] || loading[key]) return;           // already have it or in-flight
+    setLoading(l => ({ ...l, [key]: true }));
+    try {
+      const res  = await authFetch(url, {}, token);
+      const data = await res.json();
+      setCache(c => ({ ...c, [key]: data }));
+    } catch {}
+    finally { setLoading(l => ({ ...l, [key]: false })); }
+  }, [cache, loading, token]);
+
+  const invalidate = useCallback((key) => {
+    setCache(c => { const n = { ...c }; delete n[key]; return n; });
+  }, []);
+
+  // Prefetch all tabs immediately on mount
+  useEffect(() => {
+    fetch$("dashboard",  "/api/admin/dashboard");
+    fetch$("products",   "/api/products?limit=100");
+    fetch$("categories", "/api/admin/categories");
+    fetch$("users",      "/api/admin/users?limit=50");
+    fetch$("orders",     "/api/admin/orders?limit=50");
+  }, [token]); // eslint-disable-line
+
+  return { cache, loading, invalidate, refetch: fetch$ };
+}
+
 export default function AdminPanel() {
   const [token,setToken] = useState(()=>sessionStorage.getItem("sn_admin_token")||null);
   const [user,setUser]   = useState(()=>{ try{ return JSON.parse(sessionStorage.getItem("sn_admin_user")); }catch{ return null; } });
@@ -607,25 +638,40 @@ export default function AdminPanel() {
 
   if (!token) return <AdminLogin onLogin={handleLogin} />;
 
+  return <AdminShell token={token} user={user} onLogout={handleLogout} tab={tab} setTab={setTab} />;
+}
+
+// Separate shell so useAdminData only runs when logged in
+function AdminShell({ token, user, onLogout, tab, setTab }) {
+  const { cache, loading, invalidate, refetch } = useAdminData(token);
+
+  const reload = (key, url) => { invalidate(key); setTimeout(() => refetch(key, url), 50); };
+
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@300;400;600;700;800&display=swap');
         @keyframes spin { to { transform:rotate(360deg); } }
+        @keyframes shimmer { 0%{opacity:.4} 50%{opacity:.9} 100%{opacity:.4} }
         * { box-sizing:border-box; }
         ::-webkit-scrollbar { width:5px; height:5px; }
         ::-webkit-scrollbar-track { background:rgba(255,107,0,0.04); }
         ::-webkit-scrollbar-thumb { background:rgba(255,107,0,0.25); border-radius:10px; }
+        .skeleton { background:rgba(255,107,0,0.08); border-radius:8px; animation:shimmer 1.4s ease-in-out infinite; }
       `}</style>
+
+      {/* Top Bar */}
       <div style={{ background:"rgba(6,3,0,0.98)",borderBottom:"1px solid rgba(255,107,0,0.13)",padding:"0 clamp(1rem,4vw,2rem)",height:58,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:200 }}>
         <span style={{ fontFamily:"'Libre Baskerville',serif",color:"#FFD700",fontSize:"1rem",fontWeight:700,display:"flex",alignItems:"center",gap:"0.45rem" }}>
           <Package size={17} color="#FF6B00" /> SparkNest Admin
         </span>
         <div style={{ display:"flex",alignItems:"center",gap:"0.85rem" }}>
           {user && <span style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.78rem" }}>{user.name}</span>}
-          <Btn variant="ghost" onClick={handleLogout} style={{ padding:"0.38rem 0.75rem",fontSize:"0.78rem" }}><LogOut size={13} /> Logout</Btn>
+          <Btn variant="ghost" onClick={onLogout} style={{ padding:"0.38rem 0.75rem",fontSize:"0.78rem" }}><LogOut size={13} /> Logout</Btn>
         </div>
       </div>
+
+      {/* Tabs */}
       <div style={{ background:"rgba(255,107,0,0.025)",borderBottom:"1px solid rgba(255,107,0,0.09)",padding:"0 clamp(1rem,4vw,2rem)",display:"flex",gap:"0.2rem",overflowX:"auto" }}>
         {TABS.map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)}
@@ -634,12 +680,14 @@ export default function AdminPanel() {
           </button>
         ))}
       </div>
+
+      {/* Content — tabs receive cached data, no re-fetching on switch */}
       <div style={{ maxWidth:1200,margin:"0 auto",padding:"1.8rem clamp(1rem,4vw,2rem)" }}>
-        {tab==="dashboard"  && <DashboardTab  token={token} />}
-        {tab==="products"   && <ProductsTab   token={token} />}
-        {tab==="categories" && <CategoriesTab token={token} />}
-        {tab==="users"      && <UsersTab      token={token} />}
-        {tab==="orders"     && <OrdersTab     token={token} />}
+        {tab==="dashboard"  && <DashboardTab  token={token} data={cache.dashboard}  loading={!!loading.dashboard}  onRefresh={()=>reload("dashboard","/api/admin/dashboard")} />}
+        {tab==="products"   && <ProductsTab   token={token} data={cache.products}   loading={!!loading.products}   onRefresh={()=>reload("products","/api/products?limit=100")} />}
+        {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} />}
+        {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users","/api/admin/users?limit=50")} />}
+        {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders","/api/admin/orders?limit=50")} />}
       </div>
     </div>
   );
