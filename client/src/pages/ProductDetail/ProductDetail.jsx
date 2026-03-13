@@ -6,23 +6,9 @@ import { addToCart, removeFromCart, updateQty } from "../../redux/slices/cartSli
 import { ShoppingCart, Star, Baby, Shield, Truck, Flame, Plus, Minus, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 
-const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-const fromSlug = (slug, products) => products.find(p => toSlug(p.name) === slug);
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-const DEMO_PRODUCTS = [
-  { _id:"1",  name:"Golden Sparklers Pack",      category:"Sparklers",    price:299,  originalPrice:399,  rating:4.8, numReviews:124, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80", description:"Experience the magic of Diwali with our premium Golden Sparklers Pack. Each sparkler burns for 90 seconds with a brilliant golden shower effect. Perfect for family celebrations, weddings, and festivals.", stock:45 },
-  { _id:"2",  name:"Sky Rocket 10-in-1",          category:"Rockets",      price:549,  originalPrice:699,  rating:4.6, numReviews:89,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&q=80", description:"Reach for the skies with our Sky Rocket 10-in-1 combo. Each box contains 10 rockets with different colour effects — red stars, green comets, golden rain, and silver crackling.", stock:28 },
-  { _id:"3",  name:"Rainbow Flower Pot Set",      category:"Flower Pots",  price:399,  originalPrice:499,  rating:4.9, numReviews:201, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=800&q=80", description:"A mesmerising flower pot set that creates a stunning rainbow-coloured fountain effect. Safe enough for the whole family and produces minimal smoke.", stock:60 },
-  { _id:"4",  name:"Thunder Bomb Pack (20pcs)",   category:"Bombs",        price:199,  originalPrice:249,  rating:4.3, numReviews:56,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=800&q=80", description:"Classic thunder crackers with a loud, satisfying bang. Pack of 20 individually wrapped crackers with long fuses for safe lighting.", stock:100 },
-  { _id:"5",  name:"Sky Shot Premium Bundle",     category:"Sky Shots",    price:899,  originalPrice:1199, rating:4.7, numReviews:143, isSafeForKids:false, image:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=800&q=80", description:"Our premium sky shot bundle delivers a professional fireworks show from your own backyard. Sequential firing with 3-second intervals.", stock:15 },
-  { _id:"6",  name:"Kids Fun Cracker Set",        category:"Kids Special", price:349,  originalPrice:449,  rating:4.9, numReviews:312, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=800&q=80", description:"Specially designed for children aged 5 and above. Includes colourful sparklers, pop-pops, and snake tablets — all low-noise and low-smoke.", stock:80 },
-  { _id:"7",  name:"Diwali Mega Combo Pack",      category:"Combo Packs",  price:1499, originalPrice:1999, rating:4.8, numReviews:267, isSafeForKids:false, image:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800&q=80", description:"The ultimate Diwali celebration package! Includes rockets, flower pots, sparklers, bombs, and sky shots — everything for a full night of celebration.", stock:20 },
-  { _id:"8",  name:"Premium Gift Box Deluxe",     category:"Gift Boxes",   price:799,  originalPrice:999,  rating:4.6, numReviews:98,  isSafeForKids:true,  image:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=800&q=80", description:"A beautifully packaged gift box perfect for Diwali gifting. Contains premium sparklers, colour pencils, and flower pots in a decorative box with ribbon.", stock:35 },
-  { _id:"9",  name:"Silver Sparklers (50pcs)",    category:"Sparklers",    price:179,  originalPrice:199,  rating:4.5, numReviews:445, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80", description:"Our best-selling Silver Sparklers pack — 50 sparklers with a classic silver shower effect. Perfect for birthdays, weddings, and Diwali.", stock:120 },
-  { _id:"10", name:"Colour Rain Rockets",         category:"Rockets",      price:649,  originalPrice:799,  rating:4.4, numReviews:72,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&q=80", description:"A stunning rocket pack with a beautiful colour rain effect. Each rocket bursts into a cascade of multicoloured stars that slowly fall like rain.", stock:40 },
-  { _id:"11", name:"Mini Flower Pot (12pcs)",     category:"Flower Pots",  price:249,  originalPrice:299,  rating:4.7, numReviews:189, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=800&q=80", description:"Compact mini flower pots for balconies and courtyards. Pack of 12, each creating a colourful fountain for 90 seconds. Very low noise and smoke.", stock:75 },
-  { _id:"12", name:"Atom Bomb Special (10pcs)",   category:"Bombs",        price:149,  originalPrice:199,  rating:4.2, numReviews:33,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=800&q=80", description:"The classic Atom Bomb cracker — a Diwali staple for decades. Each cracker delivers a sharp, loud bang. Pack of 10 with extra-long fuses.", stock:90 },
-];
+const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 function StarRating({ rating, size = 13 }) {
   return (
@@ -141,13 +127,21 @@ export default function ProductDetail() {
   const [related, setRelated] = useState([]);
   const [qty, setQty]         = useState(1);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     window.scrollTo(0, 0);
-    const found = fromSlug(slug, DEMO_PRODUCTS);
-    if (found) {
-      setProduct(found);
-      setRelated(DEMO_PRODUCTS.filter(p => p._id !== found._id && (p.category === found.category || p.isSafeForKids === found.isSafeForKids)).slice(0, 4));
-    }
+    setLoading(true);
+    fetch(`${API}/api/products/${slug}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setProduct(data.product);
+          setRelated(data.related || []);
+        }
+      })
+      .catch(err => console.error("Failed to fetch product:", err))
+      .finally(() => setLoading(false));
     setQty(1);
   }, [slug]);
 
@@ -163,6 +157,15 @@ export default function ProductDetail() {
 
   const discount = product ? Math.round(100 - (product.price / product.originalPrice) * 100) : 0;
   const inCart   = items.filter(i => i._id === product?._id).reduce((a,b) => a + b.quantity, 0);
+
+  if (loading) return (
+    <div style={{ minHeight:"100vh", background:"#0D0600", display:"flex", alignItems:"center", justifyContent:"center" }}>
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"1rem", color:"rgba(255,245,230,0.65)" }}>
+        <span style={{ width:36, height:36, border:"3px solid rgba(255,107,0,0.2)", borderTopColor:"#FF6B00", borderRadius:"50%", display:"inline-block", animation:"spin 0.8s linear infinite" }}/>
+        <p>Loading product...</p>
+      </div>
+    </div>
+  );
 
   if (!product) return (
     <div style={{ minHeight:"100vh", background:"#0D0600", display:"flex", alignItems:"center", justifyContent:"center", paddingTop:80 }}>

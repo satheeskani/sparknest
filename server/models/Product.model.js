@@ -23,12 +23,4 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto-generate slug from name if not provided
-productSchema.pre("validate", function (next) {
-  if (!this.slug && this.name) {
-    this.slug = this.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-  }
-  next();
-});
-
 export default mongoose.model("Product", productSchema);

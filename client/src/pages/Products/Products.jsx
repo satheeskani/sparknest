@@ -6,25 +6,11 @@ import { ShoppingCart, SlidersHorizontal, X, Baby, ChevronDown, ChevronLeft, Che
 import toast from "react-hot-toast";
 import { useLang } from "../../components/LangContext/LangContext";
 
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 const CATEGORIES = ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","Kids Special","Combo Packs","Gift Boxes"];
-
-const DEMO_PRODUCTS = [
-  { _id:"1",  name:"Golden Sparklers Pack", stock:45,      category:"Sparklers",   price:299,  originalPrice:399,  rating:4.8, numReviews:124, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80" },
-  { _id:"2",  name:"Sky Rocket 10-in-1", stock:28,         category:"Rockets",     price:549,  originalPrice:699,  rating:4.6, numReviews:89,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80" },
-  { _id:"3",  name:"Rainbow Flower Pot Set", stock:60,     category:"Flower Pots", price:399,  originalPrice:499,  rating:4.9, numReviews:201, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80" },
-  { _id:"4",  name:"Thunder Bomb Pack (20pcs)", stock:100,  category:"Bombs",       price:199,  originalPrice:249,  rating:4.3, numReviews:56,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
-  { _id:"5",  name:"Sky Shot Premium Bundle", stock:15,    category:"Sky Shots",   price:899,  originalPrice:1199, rating:4.7, numReviews:143, isSafeForKids:false, image:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=400&q=80" },
-  { _id:"6",  name:"Kids Fun Cracker Set", stock:80,       category:"Kids Special",price:349,  originalPrice:449,  rating:4.9, numReviews:312, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=400&q=80" },
-  { _id:"7",  name:"Diwali Mega Combo Pack", stock:20,     category:"Combo Packs", price:1499, originalPrice:1999, rating:4.8, numReviews:267, isSafeForKids:false, image:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400&q=80" },
-  { _id:"8",  name:"Premium Gift Box Deluxe", stock:35,    category:"Gift Boxes",  price:799,  originalPrice:999,  rating:4.6, numReviews:98,  isSafeForKids:true,  image:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80" },
-  { _id:"9",  name:"Silver Sparklers (50pcs)", stock:120,   category:"Sparklers",   price:179,  originalPrice:199,  rating:4.5, numReviews:445, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80" },
-  { _id:"10", name:"Colour Rain Rockets", stock:40,        category:"Rockets",     price:649,  originalPrice:799,  rating:4.4, numReviews:72,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=400&q=80" },
-  { _id:"11", name:"Mini Flower Pot (12pcs)", stock:75,    category:"Flower Pots", price:249,  originalPrice:299,  rating:4.7, numReviews:189, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=400&q=80" },
-  { _id:"12", name:"Atom Bomb Special (10pcs)", stock:90,  category:"Bombs",       price:149,  originalPrice:199,  rating:4.2, numReviews:33,  isSafeForKids:false, image:"https://images.unsplash.com/photo-1514254040595-6e0d913fc1e4?w=400&q=80" },
-];
-
 
 function ProductCard({ product, wishlist, onWishlist }) {
   const dispatch  = useDispatch();
@@ -136,8 +122,8 @@ function ProductCard({ product, wishlist, onWishlist }) {
   );
 }
 
-function WishlistView({ wishlist, onWishlist }) {
-  const wishedProducts = DEMO_PRODUCTS.filter(p => wishlist.includes(p._id));
+function WishlistView({ wishlist, onWishlist, products }) {
+  const wishedProducts = products.filter(p => wishlist.includes(p._id));
   return (
     <div>
       <div style={{ marginBottom:"1.5rem" }}>
@@ -172,8 +158,17 @@ export default function Products() {
     { label:"Price: High→Low", value:"price_desc" },
     { label:"Top Rated",       value:"rating"     },
   ];
-  const [products]  = useState(DEMO_PRODUCTS);
-  const [loading]   = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading]   = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API}/api/products?limit=100`)
+      .then(r => r.json())
+      .then(data => { if (data.success) setProducts(data.products); })
+      .catch(err => console.error("Failed to fetch products:", err))
+      .finally(() => setLoading(false));
+  }, []);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [search, setSearch]           = useState("");
   const [activeTab, setActiveTab]     = useState("all");
@@ -318,6 +313,26 @@ export default function Products() {
         input[type=number] { -moz-appearance:textfield; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes spin   { to{transform:rotate(360deg)} }
+        @keyframes skel-wave { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+        .skel-bar {
+          background: rgba(255,255,255,0.07);
+          border-radius: 6px;
+          position: relative;
+          overflow: hidden;
+        }
+        .skel-bar::after, .skel-shine::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+          animation: skel-wave 1.4s infinite;
+        }
+        .skel-shine {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+        }
 
         .prod-card {
           background: rgba(255,255,255,0.04);
@@ -501,7 +516,7 @@ export default function Products() {
             </div>
 
             {activeTab === "wishlist" ? (
-              <WishlistView wishlist={wishlist} onWishlist={toggleWishlist} />
+              <WishlistView wishlist={wishlist} onWishlist={toggleWishlist} products={products} />
             ) : (
               <>
                 {/* Toolbar */}
@@ -544,9 +559,30 @@ export default function Products() {
 
                 {/* Grid */}
                 {loading ? (
-                  <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:280, gap:"0.8rem", color:"rgba(255,245,230,0.65)" }}>
-                    <span style={{ width:26, height:26, border:"3px solid rgba(255,107,0,0.2)", borderTopColor:"#FF6B00", borderRadius:"50%", display:"inline-block", animation:"spin 0.8s linear infinite" }}/>
-                    Loading...
+                  <div className="prod-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.8rem" }}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} style={{ display:"flex", flexDirection:"row", minHeight:115, borderRadius:14, overflow:"hidden", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,245,230,0.07)" }}>
+                        {/* Image skeleton */}
+                        <div style={{ width:105, flexShrink:0, background:"rgba(255,255,255,0.06)", position:"relative", overflow:"hidden" }}>
+                          <div className="skel-shine" />
+                        </div>
+                        {/* Content skeleton */}
+                        <div style={{ flex:1, padding:"0.65rem 0.75rem", display:"flex", flexDirection:"column", justifyContent:"space-between" }}>
+                          <div>
+                            <div className="skel-bar" style={{ width:"45%", height:10, marginBottom:8 }} />
+                            <div className="skel-bar" style={{ width:"90%", height:13, marginBottom:5 }} />
+                            <div className="skel-bar" style={{ width:"65%", height:13 }} />
+                          </div>
+                          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                            <div>
+                              <div className="skel-bar" style={{ width:70, height:11, marginBottom:6 }} />
+                              <div className="skel-bar" style={{ width:55, height:16 }} />
+                            </div>
+                            <div className="skel-bar" style={{ width:60, height:30, borderRadius:8 }} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : filtered.length === 0 ? (
                   <div style={{ textAlign:"center", padding:"5rem 2rem", color:"rgba(255,245,230,0.6)" }}>
