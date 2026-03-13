@@ -1,0 +1,4 @@
+cd server
+echo "node_modules/
+.env
+dist/" > .gitignore

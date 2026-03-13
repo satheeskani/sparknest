@@ -3,40 +3,53 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import rateLimit from "express-rate-limit";
 import { connectDB } from "./config/db.js";
-
-// Route imports
-import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.routes.js";
-import cartRoutes from "./routes/cart.routes.js";
 import orderRoutes from "./routes/order.routes.js";
-import aiRoutes from "./routes/ai.routes.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
 connectDB();
 
-// Middleware
+// Security
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true }));
+
+// CORS — allow Vercel frontend + localhost dev
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://sparknest-one.vercel.app",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
+    else cb(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+}));
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/ai", aiRoutes);
 
 // Health check
 app.get("/", (req, res) => {
-  res.json({ message: "🎆 SparkNest API is running!" });
+  res.json({ success: true, message: "🎆 SparkNest API is running!" });
+});
+
+// 404
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Route not found" });
 });
 
 // Global error handler
@@ -49,5 +62,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 SparkNest server running on http://localhost:${PORT}`);
+  console.log(`🚀 SparkNest server running on port ${PORT}`);
 });
