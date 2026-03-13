@@ -4,16 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart, updateQty } from "../../redux/slices/cartSlice";
 import { ShoppingCart, SlidersHorizontal, X, Baby, ChevronDown, ChevronLeft, ChevronRight, Search, Heart } from "lucide-react";
 import toast from "react-hot-toast";
+import { useLang } from "../../components/LangContext/LangContext";
 
 const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 const CATEGORIES = ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","Kids Special","Combo Packs","Gift Boxes"];
-const SORT_OPTIONS = [
-  { label:"Newest First",    value:"newest"     },
-  { label:"Price: Low→High", value:"price_asc"  },
-  { label:"Price: High→Low", value:"price_desc" },
-  { label:"Top Rated",       value:"rating"     },
-];
 
 const DEMO_PRODUCTS = [
   { _id:"1",  name:"Golden Sparklers Pack", stock:45,      category:"Sparklers",   price:299,  originalPrice:399,  rating:4.8, numReviews:124, isSafeForKids:true,  image:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&q=80" },
@@ -33,6 +28,12 @@ const DEMO_PRODUCTS = [
 
 function ProductCard({ product, wishlist, onWishlist }) {
   const dispatch  = useDispatch();
+  const { t } = useLang();
+  const CAT_MAP = {
+    "Sparklers":"catSparklers","Rockets":"catRockets","Bombs":"catBombs",
+    "Flower Pots":"catFlowerPots","Sky Shots":"catSkyShots","Kids Special":"catKidsSpecial",
+    "Combo Packs":"catComboPacks","Gift Boxes":"catGiftBoxes",
+  };
   const cartItems = useSelector(s => s.cart.items);
   const cartItem  = cartItems.find(i => i._id === product._id);
   const qty       = cartItem ? cartItem.quantity : 0;
@@ -80,8 +81,7 @@ function ProductCard({ product, wishlist, onWishlist }) {
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:"0.25rem" }}>
           <div style={{ minWidth:0, flex:1 }}>
             <div className="prod-cat-line" style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.06em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem", flexWrap:"nowrap", overflow:"hidden" }}>
-              {product.category}
-              
+              {t[CAT_MAP[product.category]] || product.category}
             </div>
             <Link to={`/products/${toSlug(product.name)}`} style={{ textDecoration:"none" }}>
               <div className="prod-name" style={{ fontSize:"1.05rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
@@ -99,7 +99,7 @@ function ProductCard({ product, wishlist, onWishlist }) {
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.25rem", marginBottom:"0.18rem" }}>
               {product.stock <= 20
-                ? <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 {product.stock} left</span>
+                ? <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 Only {product.stock} left</span>
                 : <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
               }
             </div>
@@ -166,7 +166,12 @@ function WishlistView({ wishlist, onWishlist }) {
 export default function Products() {
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
-
+  const SORT_OPTIONS = [
+    { label:"Newest First",    value:"newest"     },
+    { label:"Price: Low→High", value:"price_asc"  },
+    { label:"Price: High→Low", value:"price_desc" },
+    { label:"Top Rated",       value:"rating"     },
+  ];
   const [products]  = useState(DEMO_PRODUCTS);
   const [loading]   = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -244,7 +249,7 @@ export default function Products() {
     return (
       <>
         <div style={{ marginBottom:"1.5rem" }}>
-          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, fontFamily:"'Nunito Sans',sans-serif", marginBottom:"0.75rem" }}>Category</p>
+          <p style={{ fontSize:"1rem", letterSpacing:"0.12em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, fontFamily:"'Nunito Sans',sans-serif", marginBottom:"0.75rem" }}>Categories</p>
           {CATEGORIES.map(cat => (
             <label key={cat} className={`filter-check${cats.includes(cat) ? " active" : ""}`}>
               <input type="checkbox" checked={cats.includes(cat)} onChange={() => toggle(cat)} />{cat}
@@ -257,12 +262,35 @@ export default function Products() {
             <span style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700 }}>₹{price[0]}</span>
             <span style={{ fontSize:"1.05rem", color:"#FF6B00", fontWeight:700 }}>₹{price[1]}</span>
           </div>
-          <input type="range" className="range-input" min={0} max={2000} step={50}
-            value={price[1]} style={{ "--val":`${(price[1]/2000)*100}%` }}
-            onChange={e => setPrice([price[0], Number(e.target.value)])} />
-          <div style={{ display:"flex", justifyContent:"space-between", marginTop:"0.25rem" }}>
-            <span style={{ fontSize:"1.05rem", color:"rgba(26,8,0,0.55)" }}>₹0</span>
-            <span style={{ fontSize:"1.05rem", color:"rgba(26,8,0,0.55)" }}>₹2000</span>
+          <div style={{ position:"relative", height:34, marginBottom:"0.5rem" }}>
+            {/* Track background */}
+            <div style={{ position:"absolute", top:"50%", left:0, right:0, height:5, borderRadius:5,
+              background:"rgba(255,245,230,0.1)", transform:"translateY(-50%)" }} />
+            {/* Active track */}
+            <div style={{ position:"absolute", top:"50%", transform:"translateY(-50%)", height:5, borderRadius:5,
+              background:"linear-gradient(to right,#FF6B00,#FFD700)",
+              left:`${(price[0]/2000)*100}%`,
+              right:`${100-(price[1]/2000)*100}%` }} />
+            {/* Min thumb */}
+            <input type="range" min={0} max={2000} step={50} value={price[0]}
+              onChange={e => { const v = Math.min(Number(e.target.value), price[1]-50); setPrice([v, price[1]]); }}
+              style={{ position:"absolute", width:"100%", height:"100%", opacity:0, cursor:"pointer", zIndex: price[0] > 1900 ? 5 : 3, top:0, left:0, margin:0 }} />
+            {/* Max thumb */}
+            <input type="range" min={0} max={2000} step={50} value={price[1]}
+              onChange={e => { const v = Math.max(Number(e.target.value), price[0]+50); setPrice([price[0], v]); }}
+              style={{ position:"absolute", width:"100%", height:"100%", opacity:0, cursor:"pointer", zIndex:4, top:0, left:0, margin:0 }} />
+            {/* Min thumb visual */}
+            <div style={{ position:"absolute", top:"50%", transform:"translate(-50%,-50%)",
+              left:`${(price[0]/2000)*100}%`, width:18, height:18, borderRadius:"50%",
+              background:"#FF6B00", border:"2.5px solid #fff", boxShadow:"0 0 0 3px rgba(255,107,0,0.3)", pointerEvents:"none", zIndex:6 }} />
+            {/* Max thumb visual */}
+            <div style={{ position:"absolute", top:"50%", transform:"translate(-50%,-50%)",
+              left:`${(price[1]/2000)*100}%`, width:18, height:18, borderRadius:"50%",
+              background:"#FFD700", border:"2.5px solid #fff", boxShadow:"0 0 0 3px rgba(255,215,0,0.3)", pointerEvents:"none", zIndex:6 }} />
+          </div>
+          <div style={{ display:"flex", justifyContent:"space-between", marginTop:"0.1rem" }}>
+            <span style={{ fontSize:"0.82rem", color:"rgba(26,8,0,0.45)" }}>₹0</span>
+            <span style={{ fontSize:"0.82rem", color:"rgba(26,8,0,0.45)" }}>₹2000</span>
           </div>
         </div>
         <div style={{ marginBottom:"1.2rem" }}>
@@ -333,15 +361,7 @@ export default function Products() {
         .search-bar::placeholder { color: rgba(255,245,230,0.65); }
         .search-bar:focus { border-color: rgba(255,107,0,0.5); box-shadow: 0 0 0 3px rgba(255,107,0,0.08); }
 
-        .range-input {
-          -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
-          border-radius: 4px; outline: none; cursor: pointer;
-          background: linear-gradient(to right, #FF6B00 var(--val), rgba(255,245,230,0.1) var(--val));
-        }
-        .range-input::-webkit-slider-thumb {
-          -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%;
-          background: #FF6B00; cursor: pointer; box-shadow: 0 0 0 3px rgba(255,107,0,0.2); border: 2px solid #fff;
-        }
+
 
         .kids-toggle {
           position:relative; width:42px; height:23px;
@@ -488,7 +508,7 @@ export default function Products() {
                 <div className="toolbar-wrap" style={{ display:"flex", gap:"0.65rem", marginBottom:"1.2rem", alignItems:"center" }}>
                   <div className="toolbar-search" style={{ position:"relative", flex:1, minWidth:160 }}>
                     <Search size={14} color="rgba(255,245,230,0.55)" style={{ position:"absolute", left:"0.85rem", top:"50%", transform:"translateY(-50%)", pointerEvents:"none" }} />
-                    <input className="search-bar" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)} />
+                    <input className="search-bar" placeholder="Search crackers…" value={search} onChange={e => setSearch(e.target.value)} />
                   </div>
 
                   <div className="toolbar-row2" style={{ display:"contents" }}>

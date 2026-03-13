@@ -27,13 +27,11 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  // Close menu + restore scroll on route change
   useEffect(() => {
     setMenuOpen(false);
     document.body.style.overflow = "";
   }, [location.pathname]);
 
-  // Lock/unlock body scroll when menu opens/closes
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -58,7 +56,6 @@ export default function Navbar() {
           from { opacity:0; }
           to   { opacity:1; }
         }
-
         .nav-logo-text {
           font-family: 'Libre Baskerville', serif;
           font-size: 1.5rem; font-weight: 900;
@@ -71,20 +68,15 @@ export default function Navbar() {
           text-decoration: none;
           -webkit-font-smoothing: antialiased;
         }
-
         .nav-link {
           position: relative;
           font-size: 0.82rem; font-weight: 700;
           letter-spacing: 0.1em; text-transform: uppercase;
-          text-decoration: none;
-          color: #FFF5E6;
-          padding: 0.35rem 0;
-          transition: color 0.25s;
-          white-space: nowrap;
+          text-decoration: none; color: #FFF5E6;
+          padding: 0.35rem 0; transition: color 0.25s; white-space: nowrap;
         }
         .nav-link::after {
-          content: '';
-          position: absolute; bottom:-3px; left:0;
+          content: ''; position: absolute; bottom:-3px; left:0;
           width:0; height:2px; border-radius:2px;
           background: linear-gradient(90deg,#FFD700,#FF6B00);
           transition: width 0.3s ease;
@@ -93,7 +85,6 @@ export default function Navbar() {
         .nav-link:hover::after       { width:100%; }
         .nav-link.active             { color:#FFD700; }
         .nav-link.active::after      { width:100%; }
-
         @keyframes cart-gradient { 0%{background-position:0% center} 100%{background-position:200% center} }
         @keyframes cart-glow { 0%,100%{box-shadow:0 0 12px rgba(255,107,0,0.65),0 0 24px rgba(255,61,0,0.2)} 50%{box-shadow:0 0 22px rgba(255,215,0,0.6),0 0 40px rgba(255,107,0,0.6)} }
         .cart-btn {
@@ -107,46 +98,17 @@ export default function Navbar() {
           white-space:nowrap; flex-shrink:0; line-height:1;
         }
         .cart-btn:hover { transform:scale(1.06); }
-        .cart-count {
-          position:absolute; top:-8px; right:-8px;
-          background:linear-gradient(135deg,#FF6B00,#FF3D00);
-          color:#fff; font-size:0.9rem; font-weight:800;
-          width:18px; height:18px; border-radius:50%;
-          display:flex; align-items:center; justify-content:center;
-          box-shadow: 0 0 10px rgba(255,107,0,.6);
-        }
-
-        .login-btn {
-          background:linear-gradient(135deg,#FFD700,#FF6B00,#FF3D00);
-          background-size:200% auto;
-          animation:shimmer-logo 2.5s linear infinite;
-          color:#1A0500 !important;
-          padding:0.5rem 1.4rem; border-radius:100px;
-          font-size:1rem; font-weight:800;
-          text-decoration:none; white-space:nowrap;
-          box-shadow:0 4px 16px rgba(255,107,0,.4);
-          transition:transform .2s, box-shadow .2s;
-          letter-spacing:0.04em;
-        }
-        .login-btn:hover { transform:scale(1.06); box-shadow:0 6px 24px rgba(255,107,0,.6); }
-
         .hamburger {
-          background:rgba(255,255,255,.05);
-          border:1px solid rgba(255,215,0,.25);
-          border-radius:10px; padding:0.45rem;
-          cursor:pointer; color:#FFD700;
+          background:rgba(255,255,255,.05); border:1px solid rgba(255,215,0,.25);
+          border-radius:10px; padding:0.45rem; cursor:pointer; color:#FFD700;
           display:flex; align-items:center; justify-content:center;
           transition:background .2s, border-color .2s;
         }
         .hamburger:hover { background:rgba(255,215,0,.1); border-color:rgba(255,215,0,.5); }
-
         .mobile-overlay {
-          position:fixed; inset:0; z-index:998;
-          background:rgba(0,0,0,.65);
-          backdrop-filter:blur(4px);
-          animation:fadeOverlay .25s ease;
+          position:fixed; inset:0; z-index:998; background:rgba(0,0,0,.65);
+          backdrop-filter:blur(4px); animation:fadeOverlay .25s ease;
         }
-
         .mobile-drawer {
           position:fixed; top:0; left:0; z-index:999;
           width:min(300px,82vw); height:100vh;
@@ -156,28 +118,14 @@ export default function Navbar() {
           animation:slideInLeft .3s cubic-bezier(.22,1,.36,1);
           display:flex; flex-direction:column; overflow:hidden;
         }
-
         .mobile-link {
-          display:flex; align-items:center; gap:0.9rem;
-          padding:1rem 1.6rem;
-          font-size:1rem; font-weight:700; text-decoration:none;
-          color:#FFF5E6;
+          display:flex; align-items:center; gap:0.9rem; padding:1rem 1.6rem;
+          font-size:1rem; font-weight:700; text-decoration:none; color:#FFF5E6;
           border-bottom:1px solid rgba(255,255,255,.04);
-          transition:background .2s, color .2s, padding-left .2s;
-          letter-spacing:0.05em;
+          transition:background .2s, color .2s, padding-left .2s; letter-spacing:0.05em;
         }
-        .mobile-link:hover {
-          background:rgba(255,215,0,.06);
-          color:#FFD700;
-          padding-left:2rem;
-        }
-        .mobile-link.active {
-          color:#FFD700;
-          background:rgba(255,215,0,.08);
-          border-left:3px solid #FFD700;
-        }
-
-
+        .mobile-link:hover { background:rgba(255,215,0,.06); color:#FFD700; padding-left:2rem; }
+        .mobile-link.active { color:#FFD700; background:rgba(255,215,0,.08); border-left:3px solid #FFD700; }
         @media(max-width:768px) {
           .desktop-links { display:none !important; }
           .desktop-auth  { display:none !important; }
@@ -191,8 +139,7 @@ export default function Navbar() {
       {/* ── NAVBAR ── */}
       <nav style={{
         position:"fixed", top:0, left:0, right:0, zIndex:100,
-        padding:"0 clamp(1.5rem, 5vw, 4rem)",
-        height:68,
+        padding:"0 clamp(1.5rem, 5vw, 4rem)", height:68,
         display:"flex", alignItems:"center", justifyContent:"space-between",
         background: "rgba(8,4,0,0.95)",
         backdropFilter: "blur(20px) saturate(180%)",
@@ -202,7 +149,6 @@ export default function Navbar() {
         transition:"background .35s, backdrop-filter .35s, border-color .35s, box-shadow .35s",
       }}>
 
-        {/* Logo */}
         <Link to="/" className="nav-logo-text">SparkNest</Link>
 
         {/* Desktop Links */}
@@ -214,30 +160,24 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Auth + Cart */}
+        {/* Desktop: Cart */}
         <div className="desktop-auth" style={{ display:"flex", alignItems:"center", gap:"1.2rem" }}>
           <button onClick={() => setCartOpen(true)} className="cart-btn">
             <ShoppingCart size={17} />
             <span>Cart</span>
             {cartCount > 0 && (
-              <span style={{ color:"#fff", fontSize:"1.05rem", fontWeight:800 }}>
-                {cartCount}
-              </span>
+              <span style={{ color:"#fff", fontSize:"1.05rem", fontWeight:800 }}>{cartCount}</span>
             )}
           </button>
-
-
         </div>
 
-        {/* Mobile: cart + hamburger */}
+        {/* Mobile: Cart + Hamburger */}
         <div className="hamburger-wrap" style={{ display:"flex", alignItems:"center", gap:"1rem" }}>
           <button onClick={() => setCartOpen(true)} className="cart-btn">
             <ShoppingCart size={17} />
             <span>Cart</span>
             {cartCount > 0 && (
-              <span style={{ color:"#fff", fontSize:"1.05rem", fontWeight:800 }}>
-                {cartCount}
-              </span>
+              <span style={{ color:"#fff", fontSize:"1.05rem", fontWeight:800 }}>{cartCount}</span>
             )}
           </button>
           <button className="hamburger" onClick={() => setMenuOpen(true)}>
@@ -254,15 +194,14 @@ export default function Navbar() {
       {/* ── MOBILE DRAWER ── */}
       {menuOpen && (
         <div className="mobile-drawer">
-          {/* Drawer header — no emoji */}
           <div style={{
             padding:"1.2rem 1.6rem",
             display:"flex", alignItems:"center", justifyContent:"space-between",
-            borderBottom:"1px solid rgba(255,215,0,.15)",
-            background:"rgba(255,215,0,.03)",
+            borderBottom:"1px solid rgba(255,215,0,.15)", background:"rgba(255,215,0,.03)",
           }}>
             <span style={{
-              fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"1.2rem", fontWeight:900,
+              fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase",
+              letterSpacing:"0.05em", fontSize:"1.2rem", fontWeight:900,
               background:"linear-gradient(90deg,#FFD700,#FF6B00,#FF1493)",
               WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
             }}>SparkNest</span>
@@ -271,7 +210,6 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Diwali greeting */}
           <div style={{
             padding:"0.8rem 1.6rem",
             background:"linear-gradient(135deg,rgba(255,215,0,.06),rgba(255,107,0,.04))",
@@ -282,19 +220,12 @@ export default function Navbar() {
             </p>
           </div>
 
-          {/* Links */}
           <div style={{ flex:1, overflowY:"auto" }}>
             {navLinks.map(({ label, path }) => (
-              <Link
-                key={path}
-                to={path}
-                className={`mobile-link${isActive(path) ? " active" : ""}`}
-              >
+              <Link key={path} to={path} className={`mobile-link${isActive(path) ? " active" : ""}`}>
                 {label}
               </Link>
             ))}
-
-
           </div>
         </div>
       )}

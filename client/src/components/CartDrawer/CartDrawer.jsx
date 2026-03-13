@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useLang } from "../LangContext/LangContext";
 import { removeFromCart, updateQty, clearCart } from "../../redux/slices/cartSlice";
 import { ShoppingBag, X, Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
 
@@ -40,6 +41,7 @@ function CartQtyInput({ item }) {
 export default function CartDrawer({ open, onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useLang();
   const items = useSelector(s => s.cart.items);
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -89,7 +91,7 @@ export default function CartDrawer({ open, onClose }) {
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
             <ShoppingBag size={20} color="#FF6B00" />
             <span style={{ fontWeight: 800, fontSize: "1.05rem", color: "#FFF5E6" }}>
-              Your Cart
+              {t.yourCart}
             </span>
             {totalItems > 0 && (
               <span style={{
@@ -97,7 +99,7 @@ export default function CartDrawer({ open, onClose }) {
                 color: "#fff", fontSize: "0.7rem", fontWeight: 800,
                 padding: "0.15rem 0.5rem", borderRadius: 100,
               }}>
-                {totalItems} {totalItems === 1 ? "item" : "items"}
+                {totalItems} {totalItems === 1 ? t.item : t.items}
               </span>
             )}
           </div>
@@ -197,7 +199,7 @@ export default function CartDrawer({ open, onClose }) {
             )}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               <span style={{ fontSize: "1.05rem", color: "rgba(255,245,230,0.6)", fontWeight: 500 }}>
-                Total ({totalItems} {totalItems === 1 ? "item" : "items"})
+                Total ({totalItems} {totalItems === 1 ? t.item : t.items})
               </span>
               <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#FFD700" }}>
                 ₹{total.toLocaleString()}
@@ -216,10 +218,10 @@ export default function CartDrawer({ open, onClose }) {
               onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 6px 28px rgba(255,107,0,0.6)"; }}
               onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(255,107,0,0.7)"; }}
             >
-              Proceed to Checkout →
+              {t.proceedCheckout}
             </button>
             <p style={{ textAlign: "center", fontSize: "0.7rem", color: "rgba(255,245,230,0.55)", marginTop: "0.6rem" }}>
-              Free delivery on orders above ₹999
+              {t.freeDeliveryCart}
             </p>
           </div>
         )}

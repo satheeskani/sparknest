@@ -45,13 +45,14 @@ function CopyBtn({ text }) {
   return (
     <button onClick={handleCopy} style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 8px", borderRadius: 6, color: copied ? "#2ECC71" : "#FF6B00", display: "flex", alignItems: "center", gap: 3, fontSize: "0.7rem", fontWeight: 700, transition: "color .2s", flexShrink: 0 }}>
       {copied ? <CheckCircle2 size={13} /> : <Copy size={13} />}
-      {copied ? "Copied" : "Copy"}
+      {copied ? t.copied : t.copy}
     </button>
   );
 }
 
 export default function Checkout() {
   const dispatch = useDispatch();
+  const { t } = useLang();
   const navigate = useNavigate();
   const items = useSelector(s => s.cart.items);
   const total = items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -222,9 +223,9 @@ Please verify payment screenshot from customer and confirm dispatch.`
       <div style={{ minHeight: "100vh", background: "#0D0600", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Source Sans 3',sans-serif", gap: "1.2rem", padding: "2rem", textAlign: "center" }}>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');`}</style>
         <div style={{ fontSize: "5rem", lineHeight: 1 }}>🎆</div>
-        <h1 style={{ color: "#FFD700", fontFamily: "'Libre Baskerville',serif", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "clamp(1.2rem,4vw,1.8rem)", margin: 0 }}>Order Placed!</h1>
+        <h1 style={{ color: "#FFD700", fontFamily: "'Libre Baskerville',serif", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "clamp(1.2rem,4vw,1.8rem)", margin: 0 }}>{t.orderPlaced}</h1>
         <div style={{ background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 12, padding: "0.7rem 1.4rem", marginTop: "-0.3rem" }}>
-          <p style={{ color: "rgba(255,245,230,0.72)", fontSize: "1.05rem", margin: "0 0 0.2rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>Order ID</p>
+          <p style={{ color: "rgba(255,245,230,0.72)", fontSize: "1.05rem", margin: "0 0 0.2rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>{t.orderId}</p>
           <p style={{ color: "#FFD700", fontWeight: 800, fontSize: "1.1rem", margin: 0, fontFamily: "monospace" }}>#{orderId}</p>
         </div>
         <p style={{ color: "rgba(255,245,230,0.7)", fontSize: "1.05rem", maxWidth: 420, lineHeight: 1.7, margin: 0 }}>
@@ -234,10 +235,10 @@ Please verify payment screenshot from customer and confirm dispatch.`
         </p>
         <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", justifyContent: "center", marginTop: "0.5rem" }}>
           <button onClick={() => window.open(`https://wa.me/91${ADMIN_WHATSAPP}?text=${buildOrderMessage("admin", orderSnapshot)}`, "_blank")} style={{ background: "#25D366", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <MessageCircle size={18} /> Send Order on WhatsApp
+            <MessageCircle size={18} /> {t.sendWhatsapp}
           </button>
           <button onClick={() => navigate("/products")} style={{ background: "rgba(255,107,0,0.1)", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 12, color: "#FF6B00", fontWeight: 700, padding: "0.75rem 1.5rem", cursor: "pointer", fontSize: "0.9rem" }}>
-            Continue Shopping
+            {t.continueShopping}
           </button>
         </div>
       </div>
@@ -291,7 +292,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
         <div>
           {/* Steps */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.6rem" }}>
-            {["Delivery Address", "Payment & Summary"].map((s, i) => (
+            {[t.deliveryAddress, t.paymentSummary].map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                 <div onClick={() => i === 0 && step === 2 && setStep(1)} style={{ width: 28, height: 28, borderRadius: "50%", background: step > i ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : step === i + 1 ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.05rem", fontWeight: 800, color: "#fff", cursor: i === 0 && step === 2 ? "pointer" : "default", flexShrink: 0 }}>
                   {step > i + 1 ? "✓" : i + 1}
@@ -310,38 +311,38 @@ Please verify payment screenshot from customer and confirm dispatch.`
               </h2>
               <div className="co-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
-                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>Full Name *</label>
+                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>{t.fullName}</label>
                   <input name="name" value={form.name} onChange={onChange} className="co-input" />
                 </div>
                 <div>
-                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>Phone *</label>
+                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>{t.phone}</label>
                   <input name="phone" value={form.phone} onChange={onChange} className="co-input" maxLength={10} type="tel" />
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
-                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>Email (optional)</label>
+                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>{t.emailOpt}</label>
                   <input name="email" value={form.email} onChange={onChange} className="co-input" type="email" />
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
-                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>Address *</label>
+                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>{t.address}</label>
                   <input name="address" value={form.address} onChange={onChange} className="co-input" />
                 </div>
                 <div>
-                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>City *</label>
+                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>{t.city}</label>
                   <input name="city" value={form.city} onChange={onChange} className="co-input" />
                 </div>
                 <div>
-                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>Pincode *</label>
+                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>{t.pincode}</label>
                   <input name="pincode" value={form.pincode} onChange={onChange} className="co-input" maxLength={6} type="tel" />
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
-                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>State *</label>
+                  <label className="co-label" style={{ display: "block", marginBottom: "0.5rem" }}>{t.state}</label>
                   <select name="state" value={form.state} onChange={onChange} className="co-input">
                     {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               </div>
               <button onClick={handleNext} style={{ marginTop: "1.4rem", width: "100%", padding: "0.85rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 12, color: "#fff", fontWeight: 800, fontSize: "1.05rem", cursor: "pointer", boxShadow: "0 4px 20px rgba(255,107,0,0.65)", fontFamily: "'Source Sans 3',sans-serif" }}>
-                Continue to Payment →
+                {t.continuePayment}
               </button>
             </div>
           )}
@@ -376,7 +377,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
                   ))}
                 </div>
                 <div style={{ borderTop: "1px solid rgba(255,107,0,0.1)", marginTop: "0.8rem", paddingTop: "0.8rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span className="co-total-label" style={{ color: "#FFF5E6", fontWeight: 800, fontSize: "1.05rem" }}>Total Payable</span>
+                  <span className="co-total-label" style={{ color: "#FFF5E6", fontWeight: 800, fontSize: "1.05rem" }}>{t.totalPayableChk}</span>
                   <span style={{ fontWeight: 800, fontSize: "1.1rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>₹{grandTotal.toLocaleString()}</span>
                 </div>
               </div>
@@ -389,7 +390,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
                 <div style={{ background: "rgba(37,211,102,0.06)", border: "1px solid rgba(37,211,102,0.2)", borderRadius: 12, padding: "0.9rem 1rem", marginBottom: "1rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
                     <div>
-                      <p className="co-upi-label" style={{ color: "rgba(255,245,230,0.7)", fontSize: "0.7rem", fontWeight: 700, margin: "0 0 0.2rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>UPI ID</p>
+                      <p className="co-upi-label" style={{ color: "rgba(255,245,230,0.7)", fontSize: "0.7rem", fontWeight: 700, margin: "0 0 0.2rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>{t.upiId}</p>
                       <p className="co-upi-value" style={{ color: "#FFF5E6", fontWeight: 800, fontSize: "1rem", margin: 0 }}>{UPI_ID}</p>
                     </div>
                     <CopyBtn text={UPI_ID} />
@@ -399,7 +400,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
 
                 {/* Bank transfer */}
                 <div>
-                  <p style={{ color: "rgba(255,245,230,0.7)", fontSize: "1rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 0.6rem" }}>Bank Transfer</p>
+                  <p style={{ color: "rgba(255,245,230,0.7)", fontSize: "1rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 0.6rem" }}>{t.bankTransfer}</p>
                   <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.8rem", flexWrap: "wrap" }}>
                     {BANK_ACCOUNTS.map((b, i) => (
                       <button key={b.id} className={`bank-tab${activeBank === i ? " active" : ""}`} onClick={() => setActiveBank(i)}>
@@ -412,11 +413,11 @@ Please verify payment screenshot from customer and confirm dispatch.`
                     return (
                       <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,107,0,0.1)", borderRadius: 12, padding: "0.9rem 1rem", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
                         {[
-                          ["Bank Name", b.bank],
-                          ["Account Name", b.name],
-                          ["Account Number", b.accountNo],
-                          ["IFSC Code", b.ifsc],
-                          ["Branch", b.branch],
+                          [t.bankName, b.bank],
+                          [t.acctName, b.name],
+                          [t.acctNo, b.accountNo],
+                          [t.ifsc, b.ifsc],
+                          [t.branch, b.branch],
                         ].map(([label, value]) => (
                           <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
                             <div style={{ minWidth: 0 }}>
@@ -439,7 +440,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
               {/* Single WhatsApp CTA */}
               {!whatsappSent ? (
                 <button onClick={handleSendWhatsapp} style={{ width: "100%", padding: "1rem", background: "#25D366", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1.05rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(37,211,102,0.4)", fontFamily: "'Source Sans 3',sans-serif" }}>
-                  <MessageCircle size={20} /> Send Order on WhatsApp
+                  <MessageCircle size={20} /> {t.sendWhatsapp}
                 </button>
               ) : (
                 <div style={{ background: "rgba(37,211,102,0.07)", border: "1px solid rgba(37,211,102,0.22)", borderRadius: 14, padding: "1.1rem", textAlign: "center" }}>
@@ -492,7 +493,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
 
           {/* Trust badges */}
           <div className="price-trust-badges" style={{ marginTop: "1rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
-            {[["🔒","Secure","100% safe"],["🚚","Fast Ship","2–5 days"],["✅","Verified","Trusted store"],["💬","Support","WhatsApp help"]].map(([icon, title, sub]) => (
+            {[["🔒",t.secure,t.safe],["🚚",t.fastShip,t.days],["✅",t.verified,t.trusted],["💬",t.support,t.whatsappHelp]].map(([icon, title, sub]) => (
               <div key={title} style={{ background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.1)", borderRadius: 10, padding: "0.65rem", textAlign: "center" }}>
                 <div style={{ fontSize: "1.2rem" }}>{icon}</div>
                 <p style={{ color: "#FFF5E6", fontWeight: 700, fontSize: "0.7rem", margin: "0.2rem 0 0.1rem" }}>{title}</p>

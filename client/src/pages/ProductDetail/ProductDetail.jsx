@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useLang } from "../../components/LangContext/LangContext";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart, updateQty } from "../../redux/slices/cartSlice";
 import { ShoppingCart, Star, Baby, Shield, Truck, Flame, Plus, Minus, ChevronRight } from "lucide-react";
@@ -121,6 +122,7 @@ function ProductCard({ product }) {
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate  = useNavigate();
+  const { t } = useLang();
   const dispatch  = useDispatch();
   const { items } = useSelector(s => s.cart);
 
@@ -156,7 +158,7 @@ export default function ProductDetail() {
       <div style={{ textAlign:"center", color:"rgba(255,245,230,0.65)" }}>
         <div style={{ fontSize:"4rem", marginBottom:"1rem" }}>🎆</div>
         <p>Product not found</p>
-        <Link to="/products" style={{ color:"#FF6B00", textDecoration:"none", fontWeight:700 }}>← Back to Shop</Link>
+        <Link to="/products" style={{ color:"#FF6B00", textDecoration:"none", fontWeight:700 }}>{t.backToProducts}</Link>
       </div>
     </div>
   );
@@ -256,7 +258,7 @@ export default function ProductDetail() {
                 <span style={{ fontSize:"0.9rem", color:"rgba(26,8,0,0.55)" }}>({product.numReviews})</span>
                 <span style={{ color:"rgba(26,8,0,0.18)" }}>|</span>
                 <span style={{ fontSize:"0.76rem", color: product.stock > 20 ? "#1a7a4a" : "#FF6B00", fontWeight:700 }}>
-                  {product.stock > 0 ? `✓ In Stock (${product.stock})` : "✗ Out of Stock"}
+                  {product.stock > 0 ? `✓ ${t.inStock} (${product.stock})` : t.outOfStock}
                 </span>
               </div>
 
@@ -295,7 +297,7 @@ export default function ProductDetail() {
                 </div>
                 <button className="add-cart-btn-main" onClick={handleAddToCart} disabled={product.stock === 0}>
                   <ShoppingCart size={16} strokeWidth={2.2}/>
-                  Add {qty > 1 ? `${qty} to Cart` : "to Cart"}
+                  {qty > 1 ? `${qty} ${t.addToCart}` : t.addToCart}
                 </button>
               </div>
 
@@ -308,10 +310,10 @@ export default function ProductDetail() {
               {/* Trust badges — 2x2 grid, equal width */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
                 {[
-                  { icon:Shield, color:"#2ECC71", text:"100% Certified" },
-                  { icon:Truck,  color:"#3498DB", text:"Free Ship ₹999+" },
-                  { icon:Flame,  color:"#FF6B00", text:"From Sivakasi" },
-                  { icon:Baby,   color:"#1ABC9C", text:"BIS Certified" },
+                  { icon:Shield, color:"#2ECC71", text:t.certified },
+                  { icon:Truck,  color:"#3498DB", text:t.freeDelivery },
+                  { icon:Flame,  color:"#FF6B00", text:t.sivakasiFresh },
+                  { icon:Baby,   color:"#1ABC9C", text:t.certified },
                 ].map(({ icon:Icon, color, text }) => (
                   <div key={text} className="trust-badge">
                     <Icon size={12} color={color} strokeWidth={2}/>

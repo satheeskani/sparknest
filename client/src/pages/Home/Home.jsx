@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useLang } from "../../components/LangContext/LangContext";
 import { useState, useEffect, useRef } from "react";
 import {
   Factory, ShieldCheck, Truck,
@@ -8,14 +9,14 @@ import {
 import AISearch from "../../components/AISearch/AISearch";
 
 const categories = [
-  { name:"Sparklers",   img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", count:24, color:"#B34500", bg:"#FDDBB4" },
-  { name:"Rockets",     img:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=600&q=80", count:18, color:"#8B1A1A", bg:"#F5BFBF" },
-  { name:"Bombs",       img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
-  { name:"Flower Pots", img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:21, color:"#004F80", bg:"#B3D9F5" },
-  { name:"Sky Shots",   img:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=600&q=80", count:12, color:"#0D5C30", bg:"#B3E8CC" },
-  { name:"Kids Special",img:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=600&q=80", count:32, color:"#7A3000", bg:"#FECFA0" },
-  { name:"Combo Packs", img:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
-  { name:"Gift Boxes",  img:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", count: 9, color:"#004F80", bg:"#B3D9F5" },
+  { name:"Sparklers",   tKey:"catSparklers",  img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", count:24, color:"#B34500", bg:"#FDDBB4" },
+  { name:"Rockets",     tKey:"catRockets",    img:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=600&q=80", count:18, color:"#8B1A1A", bg:"#F5BFBF" },
+  { name:"Bombs",       tKey:"catBombs",      img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
+  { name:"Flower Pots", tKey:"catFlowerPots", img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:21, color:"#004F80", bg:"#B3D9F5" },
+  { name:"Sky Shots",   tKey:"catSkyShots",   img:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=600&q=80", count:12, color:"#0D5C30", bg:"#B3E8CC" },
+  { name:"Kids Special",tKey:"catKidsSpecial",img:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=600&q=80", count:32, color:"#7A3000", bg:"#FECFA0" },
+  { name:"Combo Packs", tKey:"catComboPacks", img:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
+  { name:"Gift Boxes",  tKey:"catGiftBoxes",  img:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", count: 9, color:"#004F80", bg:"#B3D9F5" },
 ];
 
 const marqueeItems = [
@@ -34,6 +35,9 @@ const marqueeItems = [
 
 export default function Home() {
   const [aiResults, setAiResults] = useState(null);
+  const { lang, setLang, t, LANGS } = useLang();
+
+  useEffect(() => { localStorage.setItem("sparknest_lang", lang); }, [lang]);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -403,32 +407,32 @@ export default function Home() {
             padding:"0.5rem 1.4rem", fontSize:"1.05rem", letterSpacing:"0.15em",
             textTransform:"uppercase", color:"#FFD700", marginBottom:"2rem",
           }}>
-            ✨ Premium Crackers from Sivakasi
+            {t.badge}
           </div>
           <h1 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.5rem,5vw,3rem)", fontWeight:900, lineHeight:1.15, marginBottom:"1.2rem" }}>
-            <span style={{ display:"block", color:"#FFF5E6", textShadow:"0 0 40px rgba(255,215,0,.4)" }}>Spark the Joy of Every</span>
-            <span className="hero-shimmer" style={{ display:"block" }}>Festival</span>
+            <span style={{ display:"block", color:"#FFF5E6", textShadow:"0 0 40px rgba(255,215,0,.4)" }}>{t.h1a}</span>
+            <span className="hero-shimmer" style={{ display:"block" }}>{t.h1b}</span>
           </h1>
           <p style={{ fontSize:"clamp(0.88rem,2.5vw,1.05rem)", color:"rgba(255,245,230,.75)", maxWidth:520, margin:"0 auto 1.2rem", lineHeight:1.8, fontWeight:300 }}>
-            Premium crackers from <span style={{ color:"#FFD700", fontWeight:700 }}>Sivakasi</span> 🏭 &nbsp;·&nbsp; Pan India delivery 🚚
+            {t.subtext} 🏭 &nbsp;·&nbsp; {t.subtext2} 🚚
           </p>
           <div className="desktop-ai-search">
             <AISearch onResults={(r) => setAiResults(r)} />
           </div>
           <div className="cta-row" style={{ display:"flex", gap:"1rem", justifyContent:"center", flexWrap:"wrap", marginTop:"1.2rem" }}>
             <Link to="/products" className="shop-btn" style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem" }}>
-              Shop Now <Flame size={18} strokeWidth={2} />
+              {t.shopNow} <Flame size={18} strokeWidth={2} />
             </Link>
             <Link to="/products?isSafeForKids=true" className="kids-btn" style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem" }}>
-              Kids Safe <Baby size={18} strokeWidth={2} />
+              {t.kidsSafe} <Baby size={18} strokeWidth={2} />
             </Link>
           </div>
           <div className="stats-row" style={{ display:"flex", justifyContent:"center", gap:"3rem", flexWrap:"wrap", marginTop:"3.5rem", paddingTop:"2rem", borderTop:"1px solid rgba(255,255,255,.07)" }}>
             {[
-              { Icon:Users,   num:"10,000+", label:"Happy Customers", color:"#FFD700" },
-              { Icon:Package, num:"500+",    label:"Products",        color:"#FF6B9D" },
-              { Icon:Star,    num:"4.9",     label:"Rating",          color:"#2ECC71" },
-              { Icon:Truck,   num:"Free",    label:"Shipping ₹999+",  color:"#00BFFF" },
+              { Icon:Users,   num:"10,000+", label:t.happyCust, color:"#FFD700" },
+              { Icon:Package, num:"500+",    label:t.products,        color:"#FF6B9D" },
+              { Icon:Star,    num:"4.9",     label:t.rating,          color:"#2ECC71" },
+              { Icon:Truck,   num:"Free",    label:t.shipping,  color:"#00BFFF" },
             ].map(s=>(
               <div key={s.label} style={{ textAlign:"center" }}>
                 <div style={{ display:"flex", justifyContent:"center", marginBottom:"0.4rem" }}>
@@ -459,16 +463,16 @@ export default function Home() {
         <div className="cat-section-inner">
           <div style={{ textAlign:"center", marginBottom:"2.8rem" }}>
             <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
-              <Tag size={11} color="#FF6B00" strokeWidth={2.5} /> Browse Categories
+              <Tag size={11} color="#FF6B00" strokeWidth={2.5} /> {t.browseLabel}
             </p>
             <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.4rem,3vw,2.6rem)", color:"#1a0a00", fontWeight:900, lineHeight:1.2 }}>
-              Product{" "}
+              {t.catTitle1}{" "}
               <span style={{ background:"linear-gradient(135deg,#FF6B00,#FF1493,#9B59B6,#00BFFF)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-                Categories
+                {t.catTitle2}
               </span>
             </h2>
             <p style={{ marginTop:"0.6rem", color:"#999", fontSize:"1rem" }}>
-              8 categories · 144+ products · direct from Sivakasi
+              {t.catSub}
             </p>
           </div>
 
@@ -485,9 +489,9 @@ export default function Home() {
                 >
                   {/* Text side */}
                   <div className="bento-text">
-                    <span className="bento-label">{cat.name}</span>
-                    <h3 className="bento-name">{cat.name.toUpperCase()}</h3>
-                    <div className="bento-count">{cat.count} products</div>
+                    <span className="bento-label">{t[cat.tKey] || cat.name}</span>
+                    <h3 className="bento-name">{(t[cat.tKey] || cat.name).toUpperCase()}</h3>
+                    <div className="bento-count">{cat.count} {t.products}</div>
 
                   </div>
                   {/* Image side */}
@@ -517,25 +521,24 @@ export default function Home() {
             {/* Left — text */}
             <div>
               <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.6rem", display:"flex", alignItems:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
-                <MapPin size={11} color="#FF6B00" strokeWidth={2.5} /> About SparkNest
+                <MapPin size={11} color="#FF6B00" strokeWidth={2.5} /> {t.aboutLabel}
               </p>
               <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#FFF5E6", fontWeight:900, lineHeight:1.25, marginBottom:"1.2rem" }}>
-                Born in{" "}
                 <span style={{ background:"linear-gradient(135deg,#FF6B00,#FFD700)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-                  Sivakasi
+                  {t.aboutH2a}
                 </span>
-                , Delivered Across India
+                {t.aboutH2b}
               </h2>
               <p style={{ color:"rgba(255,245,230,0.65)", fontSize:"1rem", lineHeight:1.85, marginBottom:"1rem" }}>
-                SparkNest was founded with one mission — to bring the finest crackers straight from Sivakasi's legendary factories to your doorstep. Every product is handpicked, safety-certified, and packed with care.
+                {t.aboutP1}
               </p>
               <p style={{ color:"rgba(255,245,230,0.72)", fontSize:"1.05rem", lineHeight:1.85, marginBottom:"1.8rem" }}>
-                Sivakasi, Tamil Nadu has been India's fireworks capital since 1923. We partner directly with trusted manufacturers to bring you the best quality at the best prices — cutting out the middlemen.
+                {t.aboutP2}
               </p>
               <div className="about-stats" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem" }}>
                 {[
-                  { num:"500+", label:"Products" },
-                  { num:"10K+", label:"Happy Customers" },
+                  { num:"500+", label:t.products },
+                  { num:"10K+", label:t.happyCust },
                   { num:"28",   label:"States Delivered" },
                 ].map(s => (
                   <div key={s.label} style={{ textAlign:"center", padding:"0.8rem 0.5rem", background:"rgba(255,107,0,0.06)", borderRadius:12, border:"1px solid rgba(255,107,0,0.12)" }}>
@@ -572,12 +575,12 @@ export default function Home() {
           <div>
             <div style={{ textAlign:"center", marginBottom:"2.8rem" }}>
               <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FF6B00", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
-                <Star size={11} color="#FF6B00" strokeWidth={2.5} fill="#FF6B00" /> Customer Reviews
+                <Star size={11} color="#FF6B00" strokeWidth={2.5} fill="#FF6B00" /> {t.reviewsLabel}
               </p>
               <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.3rem,2.5vw,2.2rem)", color:"#1a0a00", fontWeight:900 }}>
-                What Our{" "}
+                {t.reviewsH2a}{" "}
                 <span style={{ background:"linear-gradient(135deg,#FF6B00,#C0392B)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
-                  Customers Say
+                  {t.reviewsH2b}
                 </span>
               </h2>
             </div>
@@ -622,17 +625,17 @@ export default function Home() {
       <section className="trust-section" style={{ position:"relative", zIndex:2, padding:"4rem clamp(1.2rem,4vw,4rem) 4.5rem" }}>
         <div style={{ textAlign:"center", marginBottom:"2rem" }}>
           <p style={{ fontSize:"0.8rem", letterSpacing:"0.18em", textTransform:"uppercase", color:"#FFD700", fontWeight:700, marginBottom:"0.5rem", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", fontFamily:"'Nunito Sans',sans-serif" }}>
-            <MapPin size={12} color="#FFD700" strokeWidth={2} /> Why SparkNest?
+            <MapPin size={12} color="#FFD700" strokeWidth={2} /> {t.whyLabel}
           </p>
           <h2 style={{ fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.05em", fontSize:"clamp(1.1rem,2.5vw,2rem)", color:"#FFF5E6", fontWeight:900 }}>
-            Trusted by <span style={{ color:"#FFD700" }}>10,000+</span> Happy Customers
+            {t.whyH2} <span style={{ color:"#FFD700" }}>10,000+</span> {t.whyH2b}
           </h2>
         </div>
         <div className="trust-grid" style={{ maxWidth:960, margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1.2rem" }}>
           {[
-            { Icon: Factory,     title:"Direct from Sivakasi", desc:"Sourced directly from India\'s cracker capital — freshest stock every season.", color:"#FFD700" },
-            { Icon: ShieldCheck, title:"Safety Certified",     desc:"All products comply with Govt. safety standards. Kids & family safe.",       color:"#2ECC71" },
-            { Icon: Truck,       title:"Pan India Delivery",   desc:"Fast & secure delivery across all 28 states. Free above ₹999.",              color:"#00BFFF" },
+            { Icon: Factory,     title:t.trust1title, desc:t.trust1desc, color:"#FFD700" },
+            { Icon: ShieldCheck, title:t.trust2title,     desc:t.trust2desc,       color:"#2ECC71" },
+            { Icon: Truck,       title:t.trust3title,   desc:t.trust3desc,              color:"#00BFFF" },
           ].map(({ Icon, title, desc, color }) => (
             <div key={title} className="trust-card">
               <div style={{ width:80, height:80, background:`linear-gradient(135deg,${color}18,${color}08)`, border:`1.5px solid ${color}44`, borderRadius:22, display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 1.4rem", boxShadow:`0 0 30px ${color}22, 0 8px 24px rgba(0,0,0,0.4)` }}>
@@ -644,6 +647,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+
 
     </div>
   );
