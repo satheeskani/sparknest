@@ -13,8 +13,5 @@
         { "key": "Permissions-Policy", "value": "interest-cohort=()" }
       ]
     }
-  ],
-  "toolbarSettings": {
-    "enabled": false
-  }
+  ]
 }
