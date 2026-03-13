@@ -6,7 +6,9 @@ import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import { connectDB } from "./config/db.js";
 import productRoutes from "./routes/product.routes.js";
-import orderRoutes from "./routes/order.routes.js";
+import orderRoutes   from "./routes/order.routes.js";
+import authRoutes    from "./routes/auth.routes.js";
+import adminRoutes   from "./routes/admin.routes.js";
 
 dotenv.config();
 
@@ -15,11 +17,9 @@ const PORT = process.env.PORT || 5000;
 
 connectDB();
 
-// Security
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true }));
 
-// CORS — allow all Vercel deployments (production + previews) + localhost
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
@@ -38,10 +38,10 @@ app.use(express.urlencoded({ extended: true }));
 // ── Routes ──────────────────────────────────────────────────────────────────
 app.use("/api/products", productRoutes);
 app.use("/api/orders",   orderRoutes);
+app.use("/api/auth",     authRoutes);
+app.use("/api/admin",    adminRoutes);
 
 // ── Health / keep-alive ────────────────────────────────────────────────────
-// cron-job.org pings GET https://sparknest-kaml.onrender.com/api/ping every 5 min
-// to prevent Render's free-tier spin-down.
 app.get("/api/ping", (_req, res) => {
   res.json({ success: true, message: "pong 🏓", ts: new Date().toISOString() });
 });

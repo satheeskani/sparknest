@@ -1,0 +1,138 @@
+import Order   from "../models/Order.model.js";
+import User    from "../models/User.model.js";
+import Product from "../models/Product.model.js";
+
+// GET /api/admin/dashboard
+export const getDashboard = async (req, res) => {
+  try {
+    const [
+      totalOrders,
+      totalUsers,
+      totalProducts,
+      recentOrders,
+      ordersByStatus,
+      allOrders,
+    ] = await Promise.all([
+      Order.countDocuments(),
+      User.countDocuments(),
+      Product.countDocuments(),
+      Order.find().sort({ createdAt: -1 }).limit(5),
+      Order.aggregate([{ $group: { _id: "$orderStatus", count: { $sum: 1 } } }]),
+      Order.find({}, "pricing.grandTotal createdAt"),
+    ]);
+
+    const totalRevenue = allOrders
+      .filter(o => o.pricing?.grandTotal)
+      .reduce((sum, o) => sum + o.pricing.grandTotal, 0);
+
+    // Revenue by month (last 6 months)
+    const now = new Date();
+    const monthlyRevenue = Array.from({ length: 6 }, (_, i) => {
+      const d     = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+      const label = d.toLocaleString("en-IN", { month: "short" });
+      const total = allOrders
+        .filter(o => {
+          const od = new Date(o.createdAt);
+          return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth();
+        })
+        .reduce((sum, o) => sum + (o.pricing?.grandTotal || 0), 0);
+      return { label, total };
+    });
+
+    // Category breakdown
+    const categoryBreakdown = await Product.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 }, totalStock: { $sum: "$stock" } } },
+      { $sort: { count: -1 } },
+    ]);
+
+    res.json({
+      success: true,
+      stats: { totalOrders, totalUsers, totalProducts, totalRevenue },
+      recentOrders,
+      ordersByStatus,
+      monthlyRevenue,
+      categoryBreakdown,
+    });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// GET /api/admin/users
+export const getUsers = async (req, res) => {
+  try {
+    const { search, page = 1, limit = 20 } = req.query;
+    const filter = search
+      ? { $or: [{ name: { $regex: search, $options: "i" } }, { email: { $regex: search, $options: "i" } }] }
+      : {};
+    const skip  = (Number(page) - 1) * Number(limit);
+    const total = await User.countDocuments(filter);
+    const users = await User.find(filter, "-password")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+    res.json({ success: true, users, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// PATCH /api/admin/users/:id/role
+export const updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    if (!["user","admin"].includes(role))
+      return res.status(400).json({ success: false, message: "Invalid role" });
+    const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true, select: "-password" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    res.json({ success: true, user });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// GET /api/admin/orders
+export const getAdminOrders = async (req, res) => {
+  try {
+    const { status, paymentStatus, search, page = 1, limit = 20 } = req.query;
+    const filter = {};
+    if (status)        filter.orderStatus   = status;
+    if (paymentStatus) filter.paymentStatus = paymentStatus;
+    if (search) filter.$or = [
+      { orderId:           { $regex: search, $options: "i" } },
+      { "customer.name":   { $regex: search, $options: "i" } },
+      { "customer.phone":  { $regex: search, $options: "i" } },
+    ];
+    const skip   = (Number(page) - 1) * Number(limit);
+    const total  = await Order.countDocuments(filter);
+    const orders = await Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit));
+    res.json({ success: true, orders, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// PATCH /api/admin/orders/:orderId/status
+export const updateAdminOrderStatus = async (req, res) => {
+  try {
+    const { orderStatus, paymentStatus } = req.body;
+    const order = await Order.findOne({ orderId: req.params.orderId });
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    if (orderStatus)   order.orderStatus   = orderStatus;
+    if (paymentStatus) order.paymentStatus = paymentStatus;
+    await order.save();
+    res.json({ success: true, order });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// GET /api/admin/categories
+export const getCategories = async (req, res) => {
+  try {
+    const breakdown = await Product.aggregate([
+      {
+        $group: {
+          _id:        "$category",
+          count:      { $sum: 1 },
+          totalStock: { $sum: "$stock" },
+          avgPrice:   { $avg: "$price" },
+          featured:   { $sum: { $cond: ["$isFeatured", 1, 0] } },
+          kidsSafe:   { $sum: { $cond: ["$isSafeForKids", 1, 0] } },
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
+    res.json({ success: true, categories: breakdown });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
