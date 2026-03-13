@@ -46,7 +46,10 @@ export const getProductBySlug = async (req, res) => {
 
     const related = await Product.find({
       _id: { $ne: product._id },
-      category: product.category,
+      $or: [
+        { category: product.category },
+        { isSafeForKids: product.isSafeForKids },
+      ],
     }).limit(4);
 
     res.json({ success: true, product, related });
