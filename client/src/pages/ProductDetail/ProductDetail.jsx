@@ -321,15 +321,15 @@ export default function ProductDetail() {
                 </p>
               )}
 
-              {/* Trust badges — 2x2 grid, equal width */}
+              {/* Trust badges — hardcoded English + translate="no" prevents browser auto-translation */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
                 {[
-                  { icon:Shield, color:"#2ECC71", text:t.certified },
-                  { icon:Truck,  color:"#3498DB", text:t.freeDelivery },
-                  { icon:Flame,  color:"#FF6B00", text:t.sivakasiFresh },
-                  { icon:Baby,   color:"#1ABC9C", text:t.certified },
+                  { icon:Shield, color:"#2ECC71", text:"Safety Certified" },
+                  { icon:Truck,  color:"#3498DB", text:"Free Delivery above ₹999" },
+                  { icon:Flame,  color:"#FF6B00", text:"Direct from Sivakasi" },
+                  { icon:Baby,   color:"#1ABC9C", text:"Safety Certified" },
                 ].map(({ icon:Icon, color, text }) => (
-                  <div key={text} className="trust-badge">
+                  <div key={text} className="trust-badge" translate="no">
                     <Icon size={12} color={color} strokeWidth={2}/>
                     <span style={{ fontSize:"1rem", color:"rgba(26,8,0,0.7)", fontWeight:600 }}>{text}</span>
                   </div>

@@ -10,7 +10,7 @@ import orderRoutes from "./routes/order.routes.js";
 
 dotenv.config();
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 5000;
 
 connectDB();
@@ -22,13 +22,9 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true })
 // CORS — allow all Vercel deployments (production + previews) + localhost
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow requests with no origin (mobile browsers, curl, Postman)
     if (!origin) return cb(null, true);
-    // Allow localhost dev
     if (origin.startsWith("http://localhost")) return cb(null, true);
-    // Allow all Vercel deployments (production + preview URLs)
     if (origin.endsWith(".vercel.app")) return cb(null, true);
-    // Allow custom domain if set
     if (process.env.CLIENT_URL && origin === process.env.CLIENT_URL) return cb(null, true);
     cb(new Error("Not allowed by CORS"));
   },
@@ -39,12 +35,18 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// ── Routes ──────────────────────────────────────────────────────────────────
 app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/orders",   orderRoutes);
 
-// Health check
-app.get("/", (req, res) => {
+// ── Health / keep-alive ────────────────────────────────────────────────────
+// cron-job.org pings GET https://sparknest-kaml.onrender.com/api/ping every 5 min
+// to prevent Render's free-tier spin-down.
+app.get("/api/ping", (_req, res) => {
+  res.json({ success: true, message: "pong 🏓", ts: new Date().toISOString() });
+});
+
+app.get("/", (_req, res) => {
   res.json({ success: true, message: "🎆 SparkNest API is running!" });
 });
 
@@ -54,7 +56,7 @@ app.use((req, res) => {
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({
     success: false,
