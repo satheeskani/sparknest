@@ -42,6 +42,11 @@ export default function CartDrawer({ open, onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t } = useLang();
+  const CAT_MAP = {
+    "Sparklers":"catSparklers","Rockets":"catRockets","Bombs":"catBombs",
+    "Flower Pots":"catFlowerPots","Sky Shots":"catSkyShots","Kids Special":"catKidsSpecial",
+    "Combo Packs":"catComboPacks","Gift Boxes":"catGiftBoxes",
+  };
   const items = useSelector(s => s.cart.items);
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -91,7 +96,7 @@ export default function CartDrawer({ open, onClose }) {
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
             <ShoppingBag size={20} color="#FF6B00" />
             <span style={{ fontWeight: 800, fontSize: "1.05rem", color: "#FFF5E6" }}>
-              {t.yourCart}
+              Your Cart
             </span>
             {totalItems > 0 && (
               <span style={{
@@ -99,7 +104,7 @@ export default function CartDrawer({ open, onClose }) {
                 color: "#fff", fontSize: "0.7rem", fontWeight: 800,
                 padding: "0.15rem 0.5rem", borderRadius: 100,
               }}>
-                {totalItems} {totalItems === 1 ? t.item : t.items}
+                {totalItems} {totalItems === 1 ? "item" : "items"}
               </span>
             )}
           </div>
@@ -150,6 +155,9 @@ export default function CartDrawer({ open, onClose }) {
                   />
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#FF6B00", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: "0.15rem" }}>
+                      {t[CAT_MAP[item.category]] || item.category}
+                    </div>
                     <div style={{ fontSize: "1rem", fontWeight: 700, color: "#FFF5E6", lineHeight: 1.3, marginBottom: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.name}
                     </div>
@@ -199,7 +207,7 @@ export default function CartDrawer({ open, onClose }) {
             )}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               <span style={{ fontSize: "1.05rem", color: "rgba(255,245,230,0.6)", fontWeight: 500 }}>
-                Total ({totalItems} {totalItems === 1 ? t.item : t.items})
+                Total ({totalItems} {totalItems === 1 ? "item" : "items"})
               </span>
               <span style={{ fontSize: "1.3rem", fontWeight: 800, color: "#FFD700" }}>
                 ₹{total.toLocaleString()}

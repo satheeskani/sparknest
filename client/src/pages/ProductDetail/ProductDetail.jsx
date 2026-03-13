@@ -40,6 +40,12 @@ function StarRating({ rating, size = 13 }) {
 function ProductCard({ product }) {
   const dispatch  = useDispatch();
   const navigate  = useNavigate();
+  const { t } = useLang();
+  const CAT_MAP = {
+    "Sparklers":"catSparklers","Rockets":"catRockets","Bombs":"catBombs",
+    "Flower Pots":"catFlowerPots","Sky Shots":"catSkyShots","Kids Special":"catKidsSpecial",
+    "Combo Packs":"catComboPacks","Gift Boxes":"catGiftBoxes",
+  };
   const cartItems = useSelector(s => s.cart.items);
   const cartItem  = cartItems.find(i => i._id === product._id);
   const qty       = cartItem ? cartItem.quantity : 0;
@@ -79,8 +85,8 @@ function ProductCard({ product }) {
       </div>
       <div style={{ flex:1, padding:"0.6rem 0.7rem", display:"flex", flexDirection:"column", justifyContent:"space-between", minWidth:0 }}>
         <div>
-          <div style={{ fontSize:"0.54rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
-            {product.category}{product.isSafeForKids && <span style={{ color:"#1ABC9C" }}>✦ Kids Safe</span>}
+          <div style={{ fontSize:"0.72rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
+            {t[CAT_MAP[product.category]] || product.category}{product.isSafeForKids && <span style={{ color:"#1ABC9C" }}>✦ Kids Safe</span>}
           </div>
           <div style={{ fontSize:"0.9rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{product.name}</div>
         </div>
@@ -123,6 +129,11 @@ export default function ProductDetail() {
   const { slug } = useParams();
   const navigate  = useNavigate();
   const { t } = useLang();
+  const CAT_MAP = {
+    "Sparklers":"catSparklers","Rockets":"catRockets","Bombs":"catBombs",
+    "Flower Pots":"catFlowerPots","Sky Shots":"catSkyShots","Kids Special":"catKidsSpecial",
+    "Combo Packs":"catComboPacks","Gift Boxes":"catGiftBoxes",
+  };
   const dispatch  = useDispatch();
   const { items } = useSelector(s => s.cart);
 
@@ -158,7 +169,7 @@ export default function ProductDetail() {
       <div style={{ textAlign:"center", color:"rgba(255,245,230,0.65)" }}>
         <div style={{ fontSize:"4rem", marginBottom:"1rem" }}>🎆</div>
         <p>Product not found</p>
-        <Link to="/products" style={{ color:"#FF6B00", textDecoration:"none", fontWeight:700 }}>{t.backToProducts}</Link>
+        <Link to="/products" style={{ color:"#FF6B00", textDecoration:"none", fontWeight:700 }}>← Back to Products</Link>
       </div>
     </div>
   );
@@ -243,7 +254,7 @@ export default function ProductDetail() {
 
               {/* Category + badges row */}
               <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.45rem", flexWrap:"wrap" }}>
-                <span style={{ fontSize:"1rem", color:"#FF6B00", fontWeight:800, letterSpacing:"0.1em", textTransform:"uppercase" }}>{product.category}</span>
+                <span style={{ fontSize:"1rem", color:"#FF6B00", fontWeight:800, letterSpacing:"0.1em", textTransform:"uppercase" }}>{t[CAT_MAP[product.category]] || product.category}</span>
                 {product.isSafeForKids && <span style={{ background:"rgba(46,204,113,0.15)", border:"1px solid rgba(46,204,113,0.3)", color:"#2ECC71", fontSize:"0.6rem", fontWeight:700, padding:"0.12rem 0.5rem", borderRadius:100, display:"flex", alignItems:"center", gap:"0.2rem" }}><Baby size={9}/> Kids Safe</span>}
                 {product.stock <= 20 && <span style={{ background:"rgba(255,61,0,0.12)", border:"1px solid rgba(255,61,0,0.25)", color:"#FF3D00", fontSize:"0.6rem", fontWeight:700, padding:"0.12rem 0.5rem", borderRadius:100, animation:"pulse 2s infinite" }}>Only {product.stock} left!</span>}
               </div>
@@ -258,7 +269,7 @@ export default function ProductDetail() {
                 <span style={{ fontSize:"0.9rem", color:"rgba(26,8,0,0.55)" }}>({product.numReviews})</span>
                 <span style={{ color:"rgba(26,8,0,0.18)" }}>|</span>
                 <span style={{ fontSize:"0.76rem", color: product.stock > 20 ? "#1a7a4a" : "#FF6B00", fontWeight:700 }}>
-                  {product.stock > 0 ? `✓ ${t.inStock} (${product.stock})` : t.outOfStock}
+                  {product.stock > 0 ? `✓ In Stock (${product.stock})` : "Out of Stock"}
                 </span>
               </div>
 
@@ -297,7 +308,7 @@ export default function ProductDetail() {
                 </div>
                 <button className="add-cart-btn-main" onClick={handleAddToCart} disabled={product.stock === 0}>
                   <ShoppingCart size={16} strokeWidth={2.2}/>
-                  {qty > 1 ? `${qty} ${t.addToCart}` : t.addToCart}
+                  {qty > 1 ? `Add ${qty} to Cart` : "Add to Cart"}
                 </button>
               </div>
 
