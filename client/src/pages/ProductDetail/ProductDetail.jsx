@@ -6,7 +6,7 @@ import { addToCart, removeFromCart, updateQty } from "../../redux/slices/cartSli
 import { ShoppingCart, Star, Baby, Shield, Truck, Flame, Plus, Minus, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.PROD ? "" : "http://localhost:5000";
 
 const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
@@ -74,7 +74,7 @@ function ProductCard({ product }) {
           <div style={{ fontSize:"0.72rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
             {t[CAT_MAP[product.category]] || product.category}{product.isSafeForKids && <span style={{ color:"#1ABC9C" }}>✦ Kids Safe</span>}
           </div>
-          <div style={{ fontSize:"0.9rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{product.name}</div>
+          <div style={{ fontSize:"0.80rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{product.name}</div>
         </div>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.3rem", marginTop:"0.35rem" }}>
           <div>

@@ -6,7 +6,7 @@ import { ShoppingCart, SlidersHorizontal, X, Baby, ChevronDown, ChevronLeft, Che
 import toast from "react-hot-toast";
 import { useLang } from "../../components/LangContext/LangContext";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = import.meta.env.PROD ? "" : "http://localhost:5000";
 
 const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
@@ -70,7 +70,7 @@ function ProductCard({ product, wishlist, onWishlist }) {
               {t[CAT_MAP[product.category]] || product.category}
             </div>
             <Link to={`/products/${toSlug(product.name)}`} style={{ textDecoration:"none" }}>
-              <div className="prod-name" style={{ fontSize:"1.05rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
+              <div className="prod-name" style={{ fontSize:"0.80rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
                 {product.name}
               </div>
             </Link>
