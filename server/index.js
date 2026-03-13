@@ -19,17 +19,18 @@ connectDB();
 app.use(helmet());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100, standardHeaders: true }));
 
-// CORS — allow Vercel frontend + localhost dev
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://sparknest-one.vercel.app",
-  process.env.CLIENT_URL,
-].filter(Boolean);
-
+// CORS — allow all Vercel deployments (production + previews) + localhost
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
-    else cb(new Error("Not allowed by CORS"));
+    // Allow requests with no origin (mobile browsers, curl, Postman)
+    if (!origin) return cb(null, true);
+    // Allow localhost dev
+    if (origin.startsWith("http://localhost")) return cb(null, true);
+    // Allow all Vercel deployments (production + preview URLs)
+    if (origin.endsWith(".vercel.app")) return cb(null, true);
+    // Allow custom domain if set
+    if (process.env.CLIENT_URL && origin === process.env.CLIENT_URL) return cb(null, true);
+    cb(new Error("Not allowed by CORS"));
   },
   credentials: true,
 }));
