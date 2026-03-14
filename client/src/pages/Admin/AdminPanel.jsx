@@ -431,7 +431,7 @@ function CategoryModal({ category, onClose, onSaved, token }) {
               <div style={{ display:"flex", gap:"0.75rem", alignItems:"flex-start" }}>
                 {form.image && <img src={form.image} alt="preview" style={{ width:60, height:60, objectFit:"cover", borderRadius:10, border:"1px solid rgba(255,107,0,0.2)", flexShrink:0 }} />}
                 <div style={{ flex:1 }}>
-                  <input type="file" accept="image/*" id="cat-img-upload" style={{ display:"none" }} onChange={async e => {
+                  <input type="file" accept="image/*" id={`cat-img-upload-${category?._id||"new"}`} style={{ display:"none" }} onChange={async e => {
                     const file = e.target.files[0];
                     if (!file) return;
                     if (file.size > 5*1024*1024) { toast.error("Max 5MB"); return; }
@@ -444,7 +444,7 @@ function CategoryModal({ category, onClose, onSaved, token }) {
                       setForm(f => ({ ...f, image: data.url })); toast.success("Uploaded!");
                     } catch(err) { toast.error(err.message); } finally { setUploading(false); }
                   }} />
-                  <label htmlFor="cat-img-upload" style={{ display:"flex", alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.06)", border:"1.5px dashed rgba(255,107,0,0.25)", borderRadius:10, padding:"0.6rem 1rem", cursor:uploading?"not-allowed":"pointer", color:"rgba(255,245,230,0.6)", fontSize:"0.82rem", fontWeight:600 }}>
+                  <label htmlFor={`cat-img-upload-${category?._id||"new"}`} style={{ display:"flex", alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.06)", border:"1.5px dashed rgba(255,107,0,0.25)", borderRadius:10, padding:"0.6rem 1rem", cursor:uploading?"not-allowed":"pointer", color:"rgba(255,245,230,0.6)", fontSize:"0.82rem", fontWeight:600 }}>
                     {uploading ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} /> Uploading…</> : <><Upload size={14} /> {form.image ? "Change Image" : "Upload Image"}</>}
                   </label>
                   {form.image && <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.68rem", margin:"0.3rem 0 0" }}>JPG, PNG, WebP · Max 5MB</p>}
