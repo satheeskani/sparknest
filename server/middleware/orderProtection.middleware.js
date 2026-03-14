@@ -1,10 +1,10 @@
 // ── Layer 1: Lightweight payload sanity check ────────────────────────────────
 // Only blocks clearly malicious/malformed requests — not real customers
 export const validateOrder = (req, res, next) => {
-  const { orderId, customer, items, pricing } = req.body;
+  const { customer, items, pricing } = req.body;
 
-  // Must have all top-level fields
-  if (!orderId || !customer || !items || !pricing) {
+  // Must have all top-level fields (orderId now generated server-side)
+  if (!customer || !items || !pricing) {
     return res.status(400).json({ success: false, message: "Invalid order payload" });
   }
 

@@ -11,6 +11,7 @@ export const getDashboard = async (req, res) => {
       totalOrders,
       totalUsers,
       totalProducts,
+      totalCustomers,
       recentOrders,
       ordersByStatus,
       allOrders,
@@ -18,6 +19,7 @@ export const getDashboard = async (req, res) => {
       Order.countDocuments(),
       User.countDocuments(),
       Product.countDocuments(),
+      Customer.countDocuments(),
       Order.find().sort({ createdAt: -1 }).limit(5),
       Order.aggregate([{ $group: { _id: "$orderStatus", count: { $sum: 1 } } }]),
       Order.find({}, "pricing.grandTotal createdAt"),
@@ -49,7 +51,7 @@ export const getDashboard = async (req, res) => {
 
     res.json({
       success: true,
-      stats: { totalOrders, totalUsers, totalProducts, totalRevenue },
+      stats: { totalOrders, totalUsers, totalProducts, totalRevenue, totalCustomers },
       recentOrders,
       ordersByStatus,
       monthlyRevenue,

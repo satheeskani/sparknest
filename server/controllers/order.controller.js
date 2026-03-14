@@ -1,12 +1,13 @@
 import Order    from "../models/Order.model.js";
 import Customer from "../models/Customer.model.js";
+import Counter  from "../models/Counter.model.js";
 
 // POST /api/orders  — create order
 export const createOrder = async (req, res) => {
   try {
-    const { orderId, customer, items, pricing } = req.body;
+    const { customer, items, pricing } = req.body;
 
-    if (!orderId || !customer || !items?.length || !pricing) {
+    if (!customer || !items?.length || !pricing) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
@@ -15,7 +16,15 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Incomplete customer details" });
     }
 
-    // ── 1. Save order ────────────────────────────────────────────────────────
+    // ── 1. Generate sequential order ID ──────────────────────────────────────
+    const counter = await Counter.findByIdAndUpdate(
+      "orderId",
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
+    const orderId = `SN${999 + counter.seq}`; // starts at SN1000
+
+    // ── 2. Save order ────────────────────────────────────────────────────────
     const order = await Order.create({ orderId, customer, items, pricing });
 
     // ── 2. Upsert customer record (non-blocking) ─────────────────────────────

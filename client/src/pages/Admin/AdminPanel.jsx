@@ -284,7 +284,7 @@ function DashboardTab({ token, data, loading, onRefresh }) {
       <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"1rem" }}>
         <StatCard icon={<ShoppingBag size={20} color="#FF6B00" />} label="Total Orders"  value={stats.totalOrders}            color="#FF6B00" />
         <StatCard icon={<TrendingUp  size={20} color="#FFD700" />} label="Total Revenue" value={fmtPrice(stats.totalRevenue)} color="#FFD700" />
-        <StatCard icon={<Users       size={20} color="#2ECC71" />} label="Users"         value={stats.totalUsers}             color="#2ECC71" />
+        <StatCard icon={<ContactRound size={20} color="#2ECC71" />} label="Customers"     value={stats.totalCustomers||0}      color="#2ECC71" />
         <StatCard icon={<Package     size={20} color="#00BFFF" />} label="Products"      value={stats.totalProducts}          color="#00BFFF" />
       </div>
       <div style={{ display:"grid",gridTemplateColumns:"3fr 2fr",gap:"1.2rem" }}>
@@ -321,22 +321,7 @@ function DashboardTab({ token, data, loading, onRefresh }) {
           </div>
         </div>
       </div>
-      <div style={S.card}>
-        <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.92rem",margin:"0 0 1rem" }}>Products by Category</h3>
-        <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"0.75rem" }}>
-          {(categoryBreakdown||[]).map(c=>{
-            const color = CAT_COLORS[c._id]||"#FF6B00";
-            return (
-              <div key={c._id} style={{ background:"rgba(255,255,255,0.025)",border:`1px solid ${color}20`,borderRadius:12,padding:"0.9rem",textAlign:"center" }}>
-                <p style={{ fontSize:"1.5rem",margin:"0 0 0.3rem" }}>{CAT_EMOJI[c._id]||"🎇"}</p>
-                <p style={{ color,fontWeight:800,fontSize:"0.78rem",margin:"0 0 0.2rem" }}>{c._id}</p>
-                <p style={{ color:"#FFF5E6",fontWeight:900,fontSize:"1.15rem",margin:"0 0 0.1rem" }}>{c.count}</p>
-                <p style={{ color:"rgba(255,245,230,0.35)",fontSize:"0.68rem",margin:0 }}>products</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+
     </div>
   );
 }

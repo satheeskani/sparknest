@@ -64,7 +64,7 @@ export default function Checkout() {
   const honeypotRef = useRef(null); // bot trap — must stay empty
   const [step, setStep]               = useState(1);
   const [submitting, setSubmitting]   = useState(false);
-  const [orderId] = useState(() => "SN" + Date.now().toString().slice(-6));
+  const [orderId, setOrderId] = useState("SN1000"); // will be set by server
   const [orderSnapshot, setOrderSnapshot] = useState(null);
 
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -163,7 +163,6 @@ Please verify payment screenshot from customer and confirm dispatch.`
   // ── POST order to /api/orders ──────────────────────────────────────────────
   const postOrder = async (snap) => {
     const payload = {
-      orderId,
       customer: {
         name:    snap.form.name,
         phone:   snap.form.phone,
@@ -197,6 +196,8 @@ Please verify payment screenshot from customer and confirm dispatch.`
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to save order");
+    // Use server-generated sequential order ID
+    if (data.order?.orderId) setOrderId(data.order.orderId);
     return data;
   };
 
@@ -379,15 +380,15 @@ Please verify payment screenshot from customer and confirm dispatch.`
               <div className="co-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label className="co-label">{t.fullName}</label>
-                  <input name="name" value={form.name} onChange={onChange} className="co-input" autoComplete="off" />
+                  <input name="sn_fullname" value={form.name} onChange={e=>onChange({target:{name:"name",value:e.target.value}})} className="co-input" autoComplete="new-password" />
                 </div>
                 <div>
                   <label className="co-label">{t.phone}</label>
-                  <input name="phone" value={form.phone} onChange={onChange} className="co-input" maxLength={10} type="tel" autoComplete="off" />
+                  <input name="phone" value={form.phone} onChange={onChange} className="co-input" maxLength={10} type="text" inputMode="numeric" pattern="[0-9]*" autoComplete="off" />
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.emailOpt}</label>
-                  <input name="email" value={form.email} onChange={onChange} className="co-input" type="email" autoComplete="off" />
+                  <input name="sn_email" value={form.email} onChange={e=>onChange({target:{name:"email",value:e.target.value}})} className="co-input" type="text" inputMode="email" autoComplete="new-password" />
                   {/* ── Honeypot — hidden from humans, bots auto-fill this ── */}
                   <div style={{ position:"absolute", left:"-9999px", top:"-9999px", opacity:0, pointerEvents:"none", height:0, overflow:"hidden" }} aria-hidden="true">
                     <input
@@ -402,15 +403,15 @@ Please verify payment screenshot from customer and confirm dispatch.`
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.address}</label>
-                  <input name="address" value={form.address} onChange={onChange} className="co-input" autoComplete="off" />
+                  <input name="sn_addr" value={form.address} onChange={e=>onChange({target:{name:"address",value:e.target.value}})} className="co-input" autoComplete="new-password" />
                 </div>
                 <div>
                   <label className="co-label">{t.city}</label>
-                  <input name="city" value={form.city} onChange={onChange} className="co-input" autoComplete="off" />
+                  <input name="sn_city" value={form.city} onChange={e=>onChange({target:{name:"city",value:e.target.value}})} className="co-input" autoComplete="new-password" />
                 </div>
                 <div>
                   <label className="co-label">{t.pincode}</label>
-                  <input name="pincode" value={form.pincode} onChange={onChange} className="co-input" maxLength={6} type="tel" autoComplete="off" />
+                  <input name="sn_pin" value={form.pincode} onChange={e=>onChange({target:{name:"pincode",value:e.target.value}})} className="co-input" maxLength={6} type="text" inputMode="numeric" pattern="[0-9]*" autoComplete="new-password" />
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.state}</label>

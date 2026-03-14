@@ -494,7 +494,7 @@ export default function Home() {
               </span>
             </h2>
             <p style={{ marginTop:"0.6rem", color:"#999", fontSize:"1rem" }}>
-              {t.catSub}
+              {categories.length} categories · {categories.reduce((sum, c) => sum + (c.count||0), 0)}+ products · direct from Sivakasi
             </p>
           </div>
 
