@@ -22,9 +22,10 @@ export const getDashboard = async (req, res) => {
       Customer.countDocuments(),
       Order.find().sort({ createdAt: -1 }).limit(5),
       Order.aggregate([{ $group: { _id: "$orderStatus", count: { $sum: 1 } } }]),
-      Order.find({}, "pricing.grandTotal createdAt"),
+      Order.find({ orderStatus: "Delivered" }, "pricing.grandTotal createdAt orderStatus"),
     ]);
 
+    // Only count revenue from Delivered orders — confirmed payment + dispatch
     const totalRevenue = allOrders
       .filter(o => o.pricing?.grandTotal)
       .reduce((sum, o) => sum + o.pricing.grandTotal, 0);

@@ -283,13 +283,13 @@ function DashboardTab({ token, data, loading, onRefresh }) {
     <div style={{ display:"flex",flexDirection:"column",gap:"1.4rem" }}>
       <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"1rem" }}>
         <StatCard icon={<ShoppingBag size={20} color="#FF6B00" />} label="Total Orders"  value={stats.totalOrders}            color="#FF6B00" />
-        <StatCard icon={<TrendingUp  size={20} color="#FFD700" />} label="Total Revenue" value={fmtPrice(stats.totalRevenue)} color="#FFD700" />
+        <StatCard icon={<TrendingUp  size={20} color="#FFD700" />} label="Revenue (Delivered)" value={fmtPrice(stats.totalRevenue)} color="#FFD700" />
         <StatCard icon={<ContactRound size={20} color="#2ECC71" />} label="Customers"     value={stats.totalCustomers||0}      color="#2ECC71" />
         <StatCard icon={<Package     size={20} color="#00BFFF" />} label="Products"      value={stats.totalProducts}          color="#00BFFF" />
       </div>
       <div style={{ display:"grid",gridTemplateColumns:"3fr 2fr",gap:"1.2rem" }}>
         <div style={S.card}>
-          <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.92rem",margin:"0 0 1.2rem" }}>Monthly Revenue — Last 6 Months</h3>
+          <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.92rem",margin:"0 0 1.2rem" }}>Monthly Revenue — Delivered Orders</h3>
           <div style={{ display:"flex",alignItems:"flex-end",gap:"0.6rem",height:110 }}>
             {(monthlyRevenue||[]).map((m,i)=>(
               <div key={i} style={{ flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"0.35rem",height:"100%" }}>
