@@ -1196,7 +1196,7 @@ function useAdminData(token) {
         if (lastOrderCount.current !== null && count > lastOrderCount.current) {
           const newCount = count - lastOrderCount.current;
           playSound();
-          toast.success(`🎆 ${newCount} new order${newCount > 1 ? "s" : ""} received!`, { duration: 6000, icon: "🛒" });
+          toast.success(`🛒 ${newCount} new order${newCount > 1 ? "s" : ""} received!`, { duration: 6000 });
           // Update document title
           document.title = `(${newCount} New!) SparkNest Admin`;
           setTimeout(() => { document.title = "SparkNest Admin"; }, 8000);
@@ -1271,7 +1271,12 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
         {TABS.map(t=>(
           <button key={t.id} onClick={()=>setTab(t.id)}
             style={{ display:"flex",alignItems:"center",gap:"0.38rem",padding:"0.8rem 1rem",background:"none",border:"none",borderBottom:`2.5px solid ${tab===t.id?"#FF6B00":"transparent"}`,color:tab===t.id?"#FF6B00":"rgba(255,245,230,0.45)",fontWeight:700,fontSize:"0.83rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Source Sans 3',sans-serif",transition:"color .18s",marginBottom:-1 }}>
-            {t.icon}{t.label}
+            {t.icon} {t.label}
+            {t.id==="orders" && pendingOrders > 0 && (
+              <span style={{ background:"#FF3D00",color:"#fff",borderRadius:"50%",minWidth:17,height:17,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:"0.6rem",fontWeight:900,padding:"0 3px" }}>
+                {pendingOrders}
+              </span>
+            )}
           </button>
         ))}
       </div>

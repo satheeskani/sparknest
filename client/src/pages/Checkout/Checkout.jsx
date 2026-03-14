@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { clearCart } from "../../redux/slices/cartSlice";
 import { useLang } from "../../components/LangContext/LangContext";
 import { MapPin, Truck, ChevronRight, Copy, CheckCircle2, MessageCircle, Loader2 } from "lucide-react";
@@ -243,26 +243,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
       // 1. Save order to MongoDB
       await postOrder(snap);
 
-      // 2. Send confirmation emails (non-blocking — failure won't stop checkout)
-      fetch("/api/send-order-email", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({
-          customerEmail: form.email || null,
-          customerName:  form.name,
-          orderId,
-          items,
-          form,
-          total,
-          savings,
-          shipping,
-          grandTotal,
-        }),
-      }).catch(err => console.error("Email send failed:", err));
-
-      // 3. Clear cart and advance to success screen
-      dispatch(clearCart());
-      setStep(3);
+            setStep(3);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       toast.error(err.message || "Something went wrong. Please try again.");
