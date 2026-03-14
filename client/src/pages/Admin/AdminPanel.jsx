@@ -116,24 +116,9 @@ function openCloudinaryLibrary(onSelect) {
 }
 
 // ── Image Upload ───────────────────────────────────────────────────────────────
-function ImageUpload({ currentImage, onUpload, uploading, setUploading, token }) {
-  const fileRef = useRef();
+function ImageUpload({ currentImage, onUpload, token }) {
   const [preview, setPreview] = useState(currentImage||"");
   useEffect(()=>{ setPreview(currentImage||""); },[currentImage]);
-
-  const handleFile = async (file) => {
-    if (!file||!file.type.startsWith("image/")){ toast.error("Images only"); return; }
-    if (file.size>5*1024*1024){ toast.error("Max 5MB"); return; }
-    setPreview(URL.createObjectURL(file)); setUploading(true);
-    try {
-      const fd = new FormData(); fd.append("image", file);
-      const res  = await authFetch("/api/products/upload-image", { method:"POST", body:fd }, token);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-      setPreview(data.url); onUpload(data.url); toast.success("Uploaded!");
-    } catch(err){ toast.error(err.message); setPreview(currentImage||""); }
-    finally{ setUploading(false); }
-  };
 
   const handleLibrary = () => {
     openCloudinaryLibrary(url => { setPreview(url); onUpload(url); });
@@ -141,20 +126,26 @@ function ImageUpload({ currentImage, onUpload, uploading, setUploading, token })
 
   return (
     <div>
-      <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.35rem" }}>
-        <label style={S.label}>Product Image</label>
+      <label style={{ ...S.label, marginBottom:"0.5rem", display:"block" }}>Product Image</label>
+      <div onClick={handleLibrary}
+        style={{ border:"2px dashed rgba(255,107,0,0.25)", borderRadius:12, padding:"1rem", textAlign:"center", cursor:"pointer", background:"rgba(255,107,0,0.02)", minHeight:110, transition:"border-color .2s" }}
+        onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(255,107,0,0.6)"}
+        onMouseLeave={e=>e.currentTarget.style.borderColor="rgba(255,107,0,0.25)"}>
+        {preview
+          ? <img src={preview} alt="preview" style={{ width:"100%",maxHeight:130,objectFit:"cover",borderRadius:8 }} />
+          : <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:"0.35rem",padding:"0.4rem 0" }}>
+              <ImageIcon size={22} color="rgba(255,107,0,0.45)" />
+              <p style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.8rem",margin:0 }}>Click to open Media Library</p>
+              <p style={{ color:"rgba(255,245,230,0.28)",fontSize:"0.7rem",margin:0 }}>Select from Cloudinary</p>
+            </div>
+        }
+      </div>
+      {preview && (
         <button type="button" onClick={handleLibrary}
-          style={{ background:"none",border:"none",color:"#FF6B00",fontSize:"0.72rem",fontWeight:700,cursor:"pointer",fontFamily:"'Source Sans 3',sans-serif",display:"flex",alignItems:"center",gap:"0.25rem",padding:0 }}>
-          📷 Browse Library
+          style={{ marginTop:"0.4rem",background:"none",border:"none",color:"#FF6B00",fontSize:"0.72rem",fontWeight:700,cursor:"pointer",fontFamily:"'Source Sans 3',sans-serif",padding:0 }}>
+          📷 Change Image
         </button>
-      </div>
-      <div onClick={()=>!uploading&&fileRef.current.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();handleFile(e.dataTransfer.files[0]);}}
-        style={{ border:"2px dashed rgba(255,107,0,0.25)", borderRadius:12, padding:"1rem", textAlign:"center", cursor:uploading?"not-allowed":"pointer", background:"rgba(255,107,0,0.02)", minHeight:110 }}>
-        {uploading ? <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:"0.4rem",padding:"0.8rem 0" }}><Loader2 size={24} color="#FF6B00" style={{ animation:"spin 1s linear infinite" }} /><p style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.8rem",margin:0 }}>Uploading…</p></div>
-          : preview ? <img src={preview} alt="preview" style={{ width:"100%",maxHeight:130,objectFit:"cover",borderRadius:8 }} />
-          : <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:"0.35rem",padding:"0.4rem 0" }}><Upload size={22} color="rgba(255,107,0,0.45)" /><p style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.8rem",margin:0 }}>Click or drag & drop</p><p style={{ color:"rgba(255,245,230,0.28)",fontSize:"0.7rem",margin:0 }}>JPG, PNG, WebP · Max 5MB</p></div>}
-      </div>
-      <input ref={fileRef} type="file" accept="image/*" style={{ display:"none" }} onChange={e=>handleFile(e.target.files[0])} />
+      )}
     </div>
   );
 }
@@ -164,7 +155,6 @@ function ProductModal({ product, onClose, onSaved, token, categoryList=[] }) {
   const isEdit = !!product?._id;
   const [form,setForm]           = useState(isEdit?{...product,price:String(product.price),originalPrice:String(product.originalPrice||""),stock:String(product.stock),tags:(product.tags||[]).join(", ")}:{...EMPTY_FORM, category: categoryList[0]||"Sparklers"});
   const [saving,setSaving]       = useState(false);
-  const [uploading,setUploading] = useState(false);
 
   const onChange = e => { const{name,value,type,checked}=e.target; setForm(f=>({...f,[name]:type==="checkbox"?checked:value,...(name==="name"&&!isEdit?{slug:toSlug(value)}:{})})); };
 
@@ -208,7 +198,7 @@ function ProductModal({ product, onClose, onSaved, token, categoryList=[] }) {
               </label>
             ))}
           </div>
-          <div style={{ gridColumn:"1/-1" }}><ImageUpload currentImage={form.image} onUpload={url=>setForm(f=>({...f,image:url}))} uploading={uploading} setUploading={setUploading} token={token} /></div>
+          <div style={{ gridColumn:"1/-1" }}><ImageUpload currentImage={form.image} onUpload={url=>setForm(f=>({...f,image:url}))} token={token} /></div>
         </div>
         <div style={{ display:"flex",gap:"0.75rem",marginTop:"1.3rem" }}>
           <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
@@ -428,7 +418,6 @@ const EMPTY_CAT = { name:"", image:"", color:"#FF6B00", bg:"#FFE0CC", order:0 };
 function CategoryModal({ category, onClose, onSaved, token }) {
   const isEdit = !!category?._id;
   const [form, setForm] = useState(isEdit ? { name:category.name, image:category.image||"", color:category.color, bg:category.bg, order:category.order||0 } : EMPTY_CAT);
-  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -457,27 +446,12 @@ function CategoryModal({ category, onClose, onSaved, token }) {
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.85rem" }}>
             <div style={{ gridColumn:"1/-1" }}>
               <label style={S.label}>Category Image</label>
-              <div style={{ display:"flex", gap:"0.75rem", alignItems:"flex-start" }}>
+              <div style={{ display:"flex", gap:"0.75rem", alignItems:"center" }}>
                 {form.image && <img src={form.image} alt="preview" style={{ width:60, height:60, objectFit:"cover", borderRadius:10, border:"1px solid rgba(255,107,0,0.2)", flexShrink:0 }} />}
-                <div style={{ flex:1 }}>
-                  <input type="file" accept="image/*" id={`cat-img-upload-${category?._id||"new"}`} style={{ display:"none" }} onChange={async e => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    if (file.size > 5*1024*1024) { toast.error("Max 5MB"); return; }
-                    setUploading(true);
-                    try {
-                      const fd = new FormData(); fd.append("image", file);
-                      const res = await authFetch("/api/products/upload-image", { method:"POST", body:fd }, token);
-                      const data = await res.json();
-                      if (!res.ok) throw new Error(data.message);
-                      setForm(f => ({ ...f, image: data.url })); toast.success("Uploaded!");
-                    } catch(err) { toast.error(err.message); } finally { setUploading(false); }
-                  }} />
-                  <label htmlFor={`cat-img-upload-${category?._id||"new"}`} style={{ display:"flex", alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.06)", border:"1.5px dashed rgba(255,107,0,0.25)", borderRadius:10, padding:"0.6rem 1rem", cursor:uploading?"not-allowed":"pointer", color:"rgba(255,245,230,0.6)", fontSize:"0.82rem", fontWeight:600 }}>
-                    {uploading ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} /> Uploading…</> : <><Upload size={14} /> {form.image ? "Change Image" : "Upload Image"}</>}
-                  </label>
-                  {form.image && <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.68rem", margin:"0.3rem 0 0" }}>JPG, PNG, WebP · Max 5MB</p>}
-                </div>
+                <button type="button" onClick={()=>openCloudinaryLibrary(url=>setForm(f=>({...f,image:url})))}
+                  style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", gap:"0.4rem", background:"rgba(255,107,0,0.06)", border:"1.5px dashed rgba(255,107,0,0.25)", borderRadius:10, padding:"0.6rem 1rem", cursor:"pointer", color:"rgba(255,245,230,0.6)", fontSize:"0.82rem", fontWeight:600, fontFamily:"'Source Sans 3',sans-serif" }}>
+                  <ImageIcon size={14} /> {form.image ? "Change Image" : "Select from Library"}
+                </button>
               </div>
             </div>
             <div><label style={S.label}>Order</label><Input name="order" value={form.order} onChange={onChange} type="number" placeholder="1" /></div>
