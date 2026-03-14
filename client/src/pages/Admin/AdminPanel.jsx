@@ -387,13 +387,20 @@ function ProductsTab({ token, data, loading, onRefresh, catData }) {
     } catch { toast.error("Failed to update stock"); }
   };
 
-  const filtered = products.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.category.toLowerCase().includes(search.toLowerCase()));
+  const [catFilter, setCatFilter] = useState("");
+  const filtered = products
+    .filter(p=>!catFilter||p.category===catFilter)
+    .filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.category.toLowerCase().includes(search.toLowerCase()));
   const { page, setPage, totalPages, paginated, reset } = usePagination(filtered);
-  useEffect(()=>{ reset(); },[search]); // eslint-disable-line
+  useEffect(()=>{ reset(); },[search, catFilter]); // eslint-disable-line
   return (
     <div>
       <div style={{ display:"flex",gap:"0.75rem",marginBottom:"1.2rem",flexWrap:"wrap" }}>
         <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search products…" style={{ flex:1,minWidth:180 }} />
+        <FSelect value={catFilter} onChange={e=>setCatFilter(e.target.value)} style={{ width:"auto",minWidth:150 }}>
+          <option value="">All Categories</option>
+          {catNames.map(c=><option key={c} value={c}>{c}</option>)}
+        </FSelect>
         <Btn onClick={()=>setModal("add")}><Plus size={15} /> Add Product</Btn>
       </div>
       {loading ? <SkeletonTable /> : (
@@ -678,7 +685,9 @@ function OrdersTab({ token, data, loading, onRefresh }) {
     } catch(err){ toast.error(err.message); }
   };
 
-  const filtered = orders.filter(o=>!search||o.orderId.toLowerCase().includes(search.toLowerCase())||o.customer?.name?.toLowerCase().includes(search.toLowerCase())||o.customer?.phone?.includes(search));
+  const filtered = orders
+    .filter(o=>!filter||o.orderStatus===filter)
+    .filter(o=>!search||o.orderId.toLowerCase().includes(search.toLowerCase())||o.customer?.name?.toLowerCase().includes(search.toLowerCase())||o.customer?.phone?.includes(search));
   const { page, setPage, totalPages, paginated, reset } = usePagination(filtered);
   useEffect(()=>{ reset(); },[search, filter]); // eslint-disable-line
   return (
