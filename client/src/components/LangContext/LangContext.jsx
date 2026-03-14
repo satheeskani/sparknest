@@ -101,8 +101,8 @@ export const translations = {
     shopNow:"இப்போதே வாங்குங்கள்", kidsSafe:"குழந்தைகளுக்கு ஏற்றது",
     happyCust:"மகிழ்ச்சியான வாடிக்கையாளர்கள்", products:"பொருட்கள்", rating:"மதிப்பெண்", shipping:"₹999-க்கு மேல் இலவச டெலிவரி",
     /* Home categories */
-    browseLabel:"வகைகளை உலாவுக", catTitle1:"பொருள்", catTitle2:"வகைகள்",
-    catSub:"8 வகைகள் · 144+ பொருட்கள் · சிவகாசியிலிருந்து நேரடியாக",
+    browseLabel:"வகைகளை உலாவுக", catTitle1:"பட்டாசு", catTitle2:"வகைகள்",
+    catSub:"8 வகைகள் · 144+ பட்டாசுகள் · சிவகாசியிலிருந்து நேரடியாக",
     /* Category names */
     catSparklers:"மத்தாப்பு", catRockets:"ராக்கெட்", catBombs:"அனு குண்டு",
     catFlowerPots:"சட்டி வெடி", catSkyShots:"வானவேடிக்கை", catKidsSpecial:"குழந்தைகள் சிறப்பு",

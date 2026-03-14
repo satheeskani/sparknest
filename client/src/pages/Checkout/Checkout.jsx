@@ -11,17 +11,18 @@ const API = import.meta.env.PROD ? "" : "http://localhost:5000";
 const ADMIN_WHATSAPP = "6385812382";
 
 const BANK_ACCOUNTS = [
-  {
-    id: 1,
-    name: "Satheeskumar M",
-    accountNo: "435100050300843",
-    ifsc: "TMBL0000435",
-    bank: "Tamil Nadu Mercantile Bank",
-    branch: "Sivakasi",
-  },
+  { id:1, name:"Satheeskumar M",  accountNo:"435100050300843", ifsc:"TMBL0000435", bank:"Tamil Nadu Mercantile Bank", branch:"Sivakasi" },
+  { id:2, name:"Test Account 2",  accountNo:"123456789012345", ifsc:"SBIN0001234", bank:"State Bank of India",        branch:"Madurai"  },
+  { id:3, name:"Test Account 3",  accountNo:"987654321098765", ifsc:"HDFC0005678", bank:"HDFC Bank",                  branch:"Chennai"  },
 ];
 
-const UPI_ID = "satheeskani1995@okicici";
+const UPI_IDS = [
+  { id:1, upiId:"satheeskani1995@okicici", name:"Satheeskumar M", apps:"GPay · PhonePe · Paytm" },
+  { id:2, upiId:"testaccount2@upi",        name:"Test Account 2", apps:"GPay · PhonePe"          },
+  { id:3, upiId:"testaccount3@hdfc",       name:"Test Account 3", apps:"GPay · Paytm"            },
+];
+
+const UPI_ID = UPI_IDS[0].upiId;
 
 const INDIAN_STATES = [
   "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh",
@@ -248,75 +249,78 @@ Please verify payment screenshot from customer and confirm dispatch.`
   // ── Step 3: Success ──
   if (step === 3) {
     const snap = orderSnapshot;
-    const bank = BANK_ACCOUNTS[0];
+    const amountDue = snap?.grandTotal || grandTotal;
+    const customerName = snap?.form.name || form.name;
     return (
-      <div style={{ minHeight: "100vh", background: "#0D0600", fontFamily: "'Source Sans 3',sans-serif", padding: "2rem clamp(1rem,5vw,3rem)", paddingTop: 88 }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');`}</style>
-        <div style={{ maxWidth: 560, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+      <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'Source Sans 3',sans-serif", paddingTop:80 }}>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700;800&display=swap');`}</style>
 
-          {/* Header */}
-          <div style={{ textAlign: "center", padding: "1.5rem 0 0.5rem" }}>
-            <div style={{ fontSize: "4rem", lineHeight: 1, marginBottom: "0.75rem" }}>🎆</div>
-            <h1 style={{ color: "#FFD700", fontFamily: "'Libre Baskerville',serif", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "clamp(1.2rem,4vw,1.8rem)", margin: "0 0 0.5rem" }}>Order Confirmed!</h1>
-            <div style={{ display: "inline-block", background: "rgba(255,107,0,0.08)", border: "1px solid rgba(255,107,0,0.2)", borderRadius: 10, padding: "0.5rem 1.2rem" }}>
-              <span style={{ color: "rgba(255,245,230,0.6)", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Order ID &nbsp;</span>
-              <span style={{ color: "#FFD700", fontWeight: 800, fontSize: "1rem", fontFamily: "monospace" }}>#{orderId}</span>
-            </div>
-            <p style={{ color: "rgba(255,245,230,0.65)", fontSize: "1rem", marginTop: "0.75rem", lineHeight: 1.6 }}>
-              Dear <strong style={{ color: "#FFF5E6" }}>{snap?.form.name || form.name}</strong>, complete the payment below and send the screenshot to our WhatsApp. We'll dispatch within <strong style={{ color: "#FFD700" }}>24 hours</strong>. 🚀
-            </p>
+        {/* ── Header ── */}
+        <div style={{ textAlign:"center", padding:"3rem 1rem 2rem", background:"linear-gradient(160deg,#FFF8F0 0%,#FFF3E0 40%,#FEF9F0 100%)", borderBottom:"1px solid rgba(255,107,0,0.15)", position:"relative", overflow:"hidden" }}>
+          <div style={{ fontSize:"3.5rem", lineHeight:1, marginBottom:"0.65rem" }}>🎆</div>
+          <h1 style={{ color:"#B45000", fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.06em", fontSize:"clamp(1.4rem,4vw,2.2rem)", margin:"0 0 0.6rem" }}>Order Confirmed!</h1>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", background:"rgba(255,107,0,0.12)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:10, padding:"0.45rem 1.2rem", marginBottom:"0.8rem" }}>
+            <span style={{ color:"rgba(150,70,0,0.7)", fontSize:"0.72rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>Order ID</span>
+            <span style={{ color:"#C45000", fontWeight:800, fontSize:"1rem", fontFamily:"monospace" }}>#{orderId}</span>
+          </div>
+          <p style={{ color:"rgba(80,35,0,0.75)", fontSize:"0.97rem", margin:0, lineHeight:1.65, maxWidth:520, marginInline:"auto" }}>
+            Dear <strong style={{ color:"#3D1A00" }}>{customerName}</strong>, complete the payment below and send the screenshot to our WhatsApp. We'll dispatch within <strong style={{ color:"#C45000" }}>24 hours</strong>. 🚀
+          </p>
+        </div>
+
+        {/* ── Main content — full width ── */}
+        <div style={{ maxWidth:1200, margin:"0 auto", padding:"2rem clamp(1rem,4vw,2rem)" }}>
+
+          {/* Amount banner */}
+          <div style={{ background:"linear-gradient(135deg,rgba(255,107,0,0.14),rgba(255,61,0,0.07))", border:"1px solid rgba(255,107,0,0.3)", borderRadius:14, padding:"0.9rem 1.4rem", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.4rem", flexWrap:"wrap", gap:"0.5rem" }}>
+            <span style={{ color:"rgba(255,245,230,0.75)", fontWeight:700, fontSize:"0.95rem" }}>💰 Total Amount Due</span>
+            <span style={{ color:"#FFD700", fontWeight:900, fontSize:"1.6rem", letterSpacing:"-0.01em" }}>₹{amountDue.toLocaleString("en-IN")}</span>
           </div>
 
-          {/* Payment Details */}
-          <div style={{ background: "rgba(255,107,0,0.04)", border: "1px solid rgba(255,107,0,0.15)", borderRadius: 16, padding: "1.2rem" }}>
-            <h3 style={{ color: "#FFF5E6", fontWeight: 800, fontSize: "1.05rem", margin: "0 0 1rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>💳 Complete Your Payment</h3>
-
-            <div style={{ background: "linear-gradient(135deg,rgba(255,107,0,0.12),rgba(255,61,0,0.06))", border: "1px solid rgba(255,107,0,0.25)", borderRadius: 12, padding: "0.85rem 1rem", marginBottom: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ color: "rgba(255,245,230,0.8)", fontWeight: 700, fontSize: "1rem" }}>Amount Due</span>
-              <span style={{ color: "#FFD700", fontWeight: 900, fontSize: "1.3rem" }}>₹{(snap?.grandTotal || grandTotal).toLocaleString()}</span>
-            </div>
-
-            <div style={{ background: "rgba(37,211,102,0.06)", border: "1px solid rgba(37,211,102,0.2)", borderRadius: 12, padding: "0.9rem 1rem", marginBottom: "1rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.4rem" }}>
-                <div>
-                  <p style={{ color: "rgba(255,245,230,0.6)", fontSize: "0.7rem", fontWeight: 700, margin: "0 0 0.2rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>UPI ID</p>
-                  <p style={{ color: "#FFF5E6", fontWeight: 800, fontSize: "1rem", margin: 0 }}>{UPI_ID}</p>
+          {/* ── Payment accounts grid — 2 per row ── */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(min(460px,100%),1fr))", gap:"1rem", marginBottom:"1.3rem" }}>
+            {BANK_ACCOUNTS.map((bank, i) => {
+              const upi = UPI_IDS[i] || UPI_IDS[0];
+              const rows = [
+                { label:"UPI", value:upi.upiId, green:true },
+                { label:"Bank", value:bank.bank },
+                { label:"Name", value:bank.name },
+                { label:"Acc No.", value:bank.accountNo },
+                { label:"IFSC", value:bank.ifsc },
+                { label:"Branch", value:bank.branch },
+              ];
+              return (
+                <div key={bank.id} style={{ background: i % 2 === 0 ? "rgba(255,245,230,0.04)" : "transparent", border: i % 2 === 0 ? "1px solid rgba(255,107,0,0.18)" : "1px solid rgba(255,107,0,0.1)", borderRadius:14, overflow:"hidden", minWidth:0 }}>
+                  {BANK_ACCOUNTS.length > 1 && (
+                    <div style={{ padding:"0.45rem 1rem", background: i % 2 === 0 ? "rgba(255,107,0,0.1)" : "rgba(255,107,0,0.05)", borderBottom:"1px solid rgba(255,107,0,0.1)", display:"flex", alignItems:"center", gap:"0.4rem" }}>
+                      <span style={{ color:"#FF6B00", fontSize:"0.7rem", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.06em" }}>Account {i + 1}</span>
+                      <span style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.7rem" }}>· {bank.name}</span>
+                    </div>
+                  )}
+                  {rows.map(({ label, value, green }, ri) => (
+                    <div key={label} style={{ display:"flex", alignItems:"center", padding:"0.55rem 1rem", borderBottom: ri < rows.length-1 ? "1px solid rgba(255,107,0,0.07)" : "none", background: green ? "rgba(37,211,102,0.05)" : "transparent", gap:"0.5rem" }}>
+                      <span style={{ color: green ? "rgba(37,211,102,0.6)" : "rgba(255,245,230,0.32)", fontSize:"0.67rem", fontWeight:700, minWidth:62, flexShrink:0, textTransform:"uppercase", letterSpacing:"0.04em" }}>{label}</span>
+                      <span style={{ color: green ? "#7defa1" : "#FFF5E6", fontWeight: green ? 800 : 600, fontSize:"0.88rem", flex:1, wordBreak:"break-all" }}>{value}</span>
+                      <CopyBtn text={value} />
+                    </div>
+                  ))}
                 </div>
-                <CopyBtn text={UPI_ID} />
-              </div>
-              <p style={{ color: "rgba(255,245,230,0.55)", fontSize: "1.05rem", margin: "0.5rem 0 0" }}>Pay via GPay · PhonePe · Paytm · Any UPI app</p>
-            </div>
-
-            <p style={{ color: "rgba(255,245,230,0.6)", fontSize: "0.78rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 0.6rem" }}>Bank Transfer</p>
-            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,107,0,0.1)", borderRadius: 12, padding: "0.9rem 1rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
-              {[
-                ["Bank Name",    bank.bank],
-                ["Account Name", bank.name],
-                ["Account No.", bank.accountNo],
-                ["IFSC Code",   bank.ifsc],
-                ["Branch",      bank.branch],
-              ].map(([label, value]) => (
-                <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}>
-                  <div>
-                    <p style={{ color: "rgba(255,245,230,0.55)", fontSize: "0.7rem", fontWeight: 700, margin: 0, textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</p>
-                    <p style={{ color: "#FFF5E6", fontWeight: 700, fontSize: "0.9rem", margin: "0.1rem 0 0", wordBreak: "break-all" }}>{value}</p>
-                  </div>
-                  <CopyBtn text={value} />
-                </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
-          {/* WhatsApp CTA */}
-          <button
-            onClick={() => window.open(`https://wa.me/91${ADMIN_WHATSAPP}?text=${buildOrderMessage("admin", snap)}`, "_blank")}
-            style={{ width: "100%", padding: "1rem", background: "#25D366", border: "none", borderRadius: 14, color: "#fff", fontWeight: 800, fontSize: "1.05rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 20px rgba(37,211,102,0.4)", fontFamily: "'Source Sans 3',sans-serif" }}>
-            <MessageCircle size={20} /> Send Payment Screenshot on WhatsApp
-          </button>
-
-          <button onClick={() => navigate("/products")} style={{ background: "transparent", border: "1px solid rgba(255,107,0,0.3)", borderRadius: 12, color: "#FF6B00", fontWeight: 700, padding: "0.75rem", cursor: "pointer", fontSize: "0.9rem", width: "100%" }}>
-            Continue Shopping
-          </button>
+          {/* ── CTAs ── */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"0.75rem" }}>
+            <button
+              onClick={() => window.open(`https://wa.me/91${ADMIN_WHATSAPP}?text=${buildOrderMessage("admin", snap)}`, "_blank")}
+              style={{ padding:"1rem 1.5rem", background:"#25D366", border:"none", borderRadius:14, color:"#fff", fontWeight:800, fontSize:"1.05rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.55rem", boxShadow:"0 4px 24px rgba(37,211,102,0.35)", fontFamily:"'Source Sans 3',sans-serif" }}>
+              <MessageCircle size={20} /> Send Payment Screenshot on WhatsApp
+            </button>
+            <button onClick={() => navigate("/products")}
+              style={{ padding:"1rem", background:"transparent", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:14, color:"#FF6B00", fontWeight:700, fontSize:"0.95rem", cursor:"pointer", fontFamily:"'Source Sans 3',sans-serif" }}>
+              Continue Shopping
+            </button>
+          </div>
 
         </div>
       </div>

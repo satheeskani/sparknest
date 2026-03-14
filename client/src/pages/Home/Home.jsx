@@ -429,10 +429,10 @@ export default function Home() {
           </div>
           <div className="stats-row" style={{ display:"flex", justifyContent:"center", gap:"3rem", flexWrap:"wrap", marginTop:"3.5rem", paddingTop:"2rem", borderTop:"1px solid rgba(255,255,255,.07)" }}>
             {[
-              { Icon:Users,   num:"10,000+", label:t.happyCust, color:"#FFD700" },
-              { Icon:Package, num:"500+",    label:t.products,        color:"#FF6B9D" },
-              { Icon:Star,    num:"4.9",     label:t.rating,          color:"#2ECC71" },
-              { Icon:Truck,   num:"Free",    label:t.shipping,  color:"#00BFFF" },
+              { Icon:Users,   num:"10,000+", label:"Happy Customers", color:"#FFD700" },
+              { Icon:Package, num:"500+",    label:"Products", color:"#FF6B9D" },
+              { Icon:Star,    num:"4.9",     label:"Rating", color:"#2ECC71" },
+              { Icon:Truck,   num:"Free",    label:"Free Shipping", color:"#00BFFF" },
             ].map(s=>(
               <div key={s.label} style={{ textAlign:"center" }}>
                 <div style={{ display:"flex", justifyContent:"center", marginBottom:"0.4rem" }}>
@@ -491,7 +491,7 @@ export default function Home() {
                   <div className="bento-text">
                     <span className="bento-label">{t[cat.tKey] || cat.name}</span>
                     <h3 className="bento-name">{(t[cat.tKey] || cat.name).toUpperCase()}</h3>
-                    <div className="bento-count">{cat.count} {t.products}</div>
+                    <div className="bento-count">{cat.count} Products</div>
 
                   </div>
                   {/* Image side */}
@@ -537,8 +537,8 @@ export default function Home() {
               </p>
               <div className="about-stats" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem" }}>
                 {[
-                  { num:"500+", label:t.products },
-                  { num:"10K+", label:t.happyCust },
+                  { num:"500+", label:"Products" },
+                  { num:"10K+", label:"Happy Customers" },
                   { num:"28",   label:"States Delivered" },
                 ].map(s => (
                   <div key={s.label} style={{ textAlign:"center", padding:"0.8rem 0.5rem", background:"rgba(255,107,0,0.06)", borderRadius:12, border:"1px solid rgba(255,107,0,0.12)" }}>
