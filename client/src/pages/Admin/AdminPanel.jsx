@@ -1163,6 +1163,7 @@ function useAdminData(token) {
 
   // ── New order notification — poll order count every 30s ──────────────────
   const lastOrderCount = useRef(null);
+  const intervalRef    = useRef(null);
 
   useEffect(() => {
     if (!token) return;
@@ -1205,9 +1206,19 @@ function useAdminData(token) {
       } catch {}
     };
 
-    checkNewOrders(); // check immediately
-    const interval = setInterval(checkNewOrders, 30000); // every 30s
-    return () => clearInterval(interval);
+    // First call just sets baseline count — no sound/toast
+    const init = async () => {
+      try {
+        const res  = await authFetch("/api/admin/dashboard", {}, token);
+        const data = await res.json();
+        if (data.success) lastOrderCount.current = data.stats?.totalOrders || 0;
+      } catch {}
+    };
+    init().then(() => {
+      const interval = setInterval(checkNewOrders, 30000);
+      intervalRef.current = interval;
+    });
+    return () => clearInterval(intervalRef.current);
   }, [token]); // eslint-disable-line
 
   return { cache, loading, reload, loadTab };
@@ -1237,10 +1248,19 @@ export default function AdminPanel() {
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
   const { cache, loading, reload, loadTab } = useAdminData(token);
-  const pendingOrders = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
+  const [pendingBadge, setPendingBadge] = useState(0);
+
+  // Update badge when orders cache updates
+  useEffect(() => {
+    const count = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
+    setPendingBadge(count);
+  }, [cache.orders]);
 
   // Always fetch fresh data when tab is clicked
-  useEffect(() => { loadTab(tab); }, [tab]); // eslint-disable-line
+  useEffect(() => {
+    loadTab(tab);
+    if (tab === "orders") setPendingBadge(0); // clear badge when orders tab opened
+  }, [tab]); // eslint-disable-line
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
@@ -1272,9 +1292,9 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
           <button key={t.id} onClick={()=>setTab(t.id)}
             style={{ display:"flex",alignItems:"center",gap:"0.38rem",padding:"0.8rem 1rem",background:"none",border:"none",borderBottom:`2.5px solid ${tab===t.id?"#FF6B00":"transparent"}`,color:tab===t.id?"#FF6B00":"rgba(255,245,230,0.45)",fontWeight:700,fontSize:"0.83rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Source Sans 3',sans-serif",transition:"color .18s",marginBottom:-1 }}>
             {t.icon} {t.label}
-            {t.id==="orders" && pendingOrders > 0 && (
+            {t.id==="orders" && pendingBadge > 0 && (
               <span style={{ background:"#FF3D00",color:"#fff",borderRadius:"50%",minWidth:17,height:17,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:"0.6rem",fontWeight:900,padding:"0 3px" }}>
-                {pendingOrders}
+                {pendingBadge}
               </span>
             )}
           </button>
