@@ -1,22 +1,4 @@
-import rateLimit from "express-rate-limit";
-
-// ── Layer 1: Strict rate limit on order creation ──────────────────────────────
-// Max 5 orders per IP per hour
-export const orderRateLimit = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 5,
-  keyGenerator: (req) => req.ip,
-  handler: (_req, res) => {
-    res.status(429).json({
-      success: false,
-      message: "Too many orders from this IP. Please try again later.",
-    });
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// ── Layer 2: Lightweight payload sanity check ─────────────────────────────────
+// ── Layer 1: Lightweight payload sanity check ────────────────────────────────
 // Only blocks clearly malicious/malformed requests — not real customers
 export const validateOrder = (req, res, next) => {
   const { orderId, customer, items, pricing } = req.body;

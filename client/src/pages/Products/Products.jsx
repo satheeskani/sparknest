@@ -165,7 +165,19 @@ export default function Products() {
     setLoading(true);
     fetch(`${API}/api/products?limit=100`)
       .then(r => r.json())
-      .then(data => { if (data.success) setProducts(data.products); })
+      .then(data => {
+        if (data.success) {
+          setProducts(data.products);
+          // Clean stale wishlist IDs that no longer exist in DB
+          const validIds = new Set(data.products.map(p => p._id));
+          setWishlist(prev => {
+            const cleaned = prev.filter(id => validIds.has(id));
+            if (cleaned.length !== prev.length)
+              localStorage.setItem("sparknest_wishlist", JSON.stringify(cleaned));
+            return cleaned;
+          });
+        }
+      })
       .catch(err => console.error("Failed to fetch products:", err))
       .finally(() => setLoading(false));
   }, []);

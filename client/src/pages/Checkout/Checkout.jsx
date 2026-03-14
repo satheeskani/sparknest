@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearCart } from "../../redux/slices/cartSlice";
@@ -61,7 +61,7 @@ export default function Checkout() {
   const grandTotal = total + shipping;
 
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", state: "Tamil Nadu", pincode: "" });
-  const [honeypot, setHoneypot] = useState(""); // bot trap — must stay empty
+  const honeypotRef = useRef(null); // bot trap — must stay empty
   const [step, setStep]               = useState(1);
   const [submitting, setSubmitting]   = useState(false);
   const [orderId] = useState(() => "SN" + Date.now().toString().slice(-6));
@@ -202,10 +202,10 @@ Please verify payment screenshot from customer and confirm dispatch.`
 
   const handleConfirmOrder = async () => {
     // Honeypot check — bots auto-fill hidden fields, real users never do
-    if (honeypot) {
+    if (honeypotRef.current && honeypotRef.current.value) {
       console.warn("Bot detected via honeypot");
       setSubmitting(false);
-      return; // silently block — don't tell the bot it failed
+      return; // silently block
     }
     setSubmitting(true);
     const snap = { items: [...items], total, savings, shipping, grandTotal, form: { ...form } };
@@ -379,38 +379,38 @@ Please verify payment screenshot from customer and confirm dispatch.`
               <div className="co-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
                   <label className="co-label">{t.fullName}</label>
-                  <input name="name" value={form.name} onChange={onChange} className="co-input" />
+                  <input name="name" value={form.name} onChange={onChange} className="co-input" autoComplete="off" />
                 </div>
                 <div>
                   <label className="co-label">{t.phone}</label>
-                  <input name="phone" value={form.phone} onChange={onChange} className="co-input" maxLength={10} type="tel" />
+                  <input name="phone" value={form.phone} onChange={onChange} className="co-input" maxLength={10} type="tel" autoComplete="off" />
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.emailOpt}</label>
-                  <input name="email" value={form.email} onChange={onChange} className="co-input" type="email" />
+                  <input name="email" value={form.email} onChange={onChange} className="co-input" type="email" autoComplete="off" />
                   {/* ── Honeypot — hidden from humans, bots auto-fill this ── */}
-                  <div style={{ position:"absolute", left:"-9999px", top:"-9999px", opacity:0, pointerEvents:"none", tabIndex:-1 }} aria-hidden="true">
+                  <div style={{ position:"absolute", left:"-9999px", top:"-9999px", opacity:0, pointerEvents:"none", height:0, overflow:"hidden" }} aria-hidden="true">
                     <input
+                      ref={honeypotRef}
                       type="text"
-                      name="website"
-                      value={honeypot}
-                      onChange={e => setHoneypot(e.target.value)}
+                      name="sn_trap_x7k"
+                      defaultValue=""
                       tabIndex={-1}
-                      autoComplete="off"
+                      autoComplete="new-password"
                     />
                   </div>
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.address}</label>
-                  <input name="address" value={form.address} onChange={onChange} className="co-input" />
+                  <input name="address" value={form.address} onChange={onChange} className="co-input" autoComplete="off" />
                 </div>
                 <div>
                   <label className="co-label">{t.city}</label>
-                  <input name="city" value={form.city} onChange={onChange} className="co-input" />
+                  <input name="city" value={form.city} onChange={onChange} className="co-input" autoComplete="off" />
                 </div>
                 <div>
                   <label className="co-label">{t.pincode}</label>
-                  <input name="pincode" value={form.pincode} onChange={onChange} className="co-input" maxLength={6} type="tel" />
+                  <input name="pincode" value={form.pincode} onChange={onChange} className="co-input" maxLength={6} type="tel" autoComplete="off" />
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.state}</label>
