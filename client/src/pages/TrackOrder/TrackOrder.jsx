@@ -17,10 +17,11 @@ const STATUS_META = {
 };
 
 const PAYMENT_META = {
-  Pending:  { color:"#FF9800", label:"Payment Pending" },
-  Paid:     { color:"#4CAF50", label:"Payment Received ✓" },
-  Failed:   { color:"#F44336", label:"Payment Failed" },
-  Refunded: { color:"#9C27B0", label:"Refunded" },
+  "Pending":             { color:"#FF9800", label:"Payment Pending" },
+  "Screenshot Received": { color:"#2196F3", label:"Screenshot Received 📸" },
+  "Confirmed":           { color:"#4CAF50", label:"Payment Confirmed ✓" },
+  "Failed":              { color:"#F44336", label:"Payment Failed" },
+  "Refunded":            { color:"#9C27B0", label:"Refunded" },
 };
 
 export default function TrackOrder() {
@@ -67,13 +68,13 @@ export default function TrackOrder() {
           @keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:0.5} }
           @keyframes spin   { to{transform:rotate(360deg)} }
           .track-input {
-            width:100%; padding:0.85rem 1rem; background:rgba(255,255,255,0.05);
-            border:1.5px solid rgba(255,107,0,0.2); border-radius:12px;
-            color:#FFF5E6; font-family:'Source Sans 3',sans-serif; font-size:1rem;
+            width:100%; padding:0.85rem 1rem; background:rgba(255,255,255,0.7);
+            border:1.5px solid rgba(255,107,0,0.25); border-radius:12px;
+            color:#1a0800; font-family:'Source Sans 3',sans-serif; font-size:1rem;
             font-weight:500; outline:none; transition:border .2s; box-sizing:border-box;
           }
-          .track-input:focus { border-color:rgba(255,107,0,0.6); background:rgba(255,107,0,0.04); }
-          .track-input::placeholder { color:rgba(255,245,230,0.3); }
+          .track-input:focus { border-color:rgba(255,107,0,0.6); background:#fff; }
+          .track-input::placeholder { color:rgba(26,8,0,0.35); }
           .step-dot { transition: all .3s; }
         `}</style>
 
@@ -91,18 +92,18 @@ export default function TrackOrder() {
           </div>
 
           {/* Search Form */}
-          <div style={{ background:"linear-gradient(160deg,rgba(255,107,0,0.06),rgba(255,61,0,0.03))", border:"1px solid rgba(255,107,0,0.15)", borderRadius:20, padding:"1.8rem", marginBottom:"1.5rem", animation:"fadeUp .4s ease .05s both" }}>
+          <div style={{ background:"linear-gradient(160deg,#FFF8F0,#FFF3E0,#FEF9F0)", border:"1px solid rgba(255,107,0,0.15)", borderRadius:20, padding:"1.8rem", marginBottom:"1.5rem", animation:"fadeUp .4s ease .05s both", boxShadow:"0 4px 24px rgba(0,0,0,0.1)" }}>
             <form onSubmit={handleTrack}>
               <div style={{ display:"flex", flexDirection:"column", gap:"1rem" }}>
                 <div>
-                  <label style={{ display:"block", color:"rgba(255,245,230,0.55)", fontSize:"0.78rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:"0.4rem" }}>
+                  <label style={{ display:"block", color:"rgba(26,8,0,0.55)", fontSize:"0.78rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:"0.4rem" }}>
                     Order ID
                   </label>
                   <input className="track-input" value={orderId} onChange={e=>setOrderId(e.target.value.toUpperCase())}
                     placeholder="e.g. SN1000" autoComplete="off" />
                 </div>
                 <div>
-                  <label style={{ display:"block", color:"rgba(255,245,230,0.55)", fontSize:"0.78rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:"0.4rem" }}>
+                  <label style={{ display:"block", color:"rgba(26,8,0,0.55)", fontSize:"0.78rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", marginBottom:"0.4rem" }}>
                     Phone Number
                   </label>
                   <input className="track-input" value={phone} onChange={e=>setPhone(e.target.value)}
@@ -207,7 +208,7 @@ export default function TrackOrder() {
                     <span style={{ color: order.pricing?.shipping === 0 ? "#2ECC71" : "rgba(255,245,230,0.6)", fontWeight:600, fontSize:"0.82rem" }}>{order.pricing?.shipping === 0 ? "FREE" : `₹${order.pricing?.shipping}`}</span>
                   </div>
                   <div style={{ display:"flex", justifyContent:"space-between" }}>
-                    <span style={{ color:"#FFF5E6", fontWeight:800, fontSize:"0.95rem" }}>Total Paid</span>
+                    <span style={{ color:"#FFF5E6", fontWeight:800, fontSize:"0.95rem" }}>Total</span>
                     <span style={{ color:"#FF6B00", fontWeight:900, fontSize:"1.05rem" }}>₹{order.pricing?.grandTotal?.toLocaleString("en-IN")}</span>
                   </div>
                 </div>

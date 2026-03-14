@@ -10,7 +10,11 @@ const festivalLinks = [
   { label: "Weddings 💒",   href: "#" },
   { label: "Pongal 🎉",     href: "#" },
 ];
-const helpLinks = ["Safety Guide", "Contact Us"];
+const helpLinks = [
+  { label: "Track Order 📦", href: "/track-order", isRoute: true },
+  { label: "Safety Guide",   href: "#",             isRoute: false },
+  { label: "Contact Us",     href: "/contact",       isRoute: true },
+];
 
 // ── Accordion section for mobile ──
 function AccordionCol({ title, titleColor, gradientBar, children }) {
@@ -259,11 +263,17 @@ export default function Footer() {
                   background:"linear-gradient(90deg,#00BFFF,#9B59B6)", borderRadius:2 }} />
               </div>
               {helpLinks.map(l=>(
-                <a key={l} href="#" className="footer-link"
-                  onMouseEnter={e=>{ e.currentTarget.style.color="#00BFFF"; e.currentTarget.style.paddingLeft="6px"; }}
-                  onMouseLeave={e=>{ e.currentTarget.style.color="rgba(255,245,230,0.8)"; e.currentTarget.style.paddingLeft="0"; }}>
-                  {l}
-                </a>
+                l.isRoute
+                  ? <Link key={l.label} to={l.href} className="footer-link"
+                      onMouseEnter={e=>{ e.currentTarget.style.color="#00BFFF"; e.currentTarget.style.paddingLeft="6px"; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.color="rgba(255,245,230,0.8)"; e.currentTarget.style.paddingLeft="0"; }}>
+                      {l.label}
+                    </Link>
+                  : <a key={l.label} href={l.href} className="footer-link"
+                      onMouseEnter={e=>{ e.currentTarget.style.color="#00BFFF"; e.currentTarget.style.paddingLeft="6px"; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.color="rgba(255,245,230,0.8)"; e.currentTarget.style.paddingLeft="0"; }}>
+                      {l.label}
+                    </a>
               ))}
               <div style={{ marginTop:"1.2rem", padding:"1rem", borderRadius:12,
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
@@ -289,7 +299,9 @@ export default function Footer() {
 
             <AccordionCol title="Help" titleColor="#00BFFF">
               {helpLinks.map(l=>(
-                <a key={l} href="#" className="footer-link">{l}</a>
+                l.isRoute
+                  ? <Link key={l.label} to={l.href} className="footer-link">{l.label}</Link>
+                  : <a key={l.label} href={l.href} className="footer-link">{l.label}</a>
               ))}
               <div style={{ marginTop:"0.8rem", padding:"0.9rem", borderRadius:12,
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>

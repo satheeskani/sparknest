@@ -302,9 +302,14 @@ Please verify payment screenshot from customer and confirm dispatch.`
           <p style={{ color:"rgba(80,35,0,0.75)", fontSize:"0.97rem", margin:"0 0 0.75rem", lineHeight:1.65, maxWidth:520, marginInline:"auto" }}>
             Dear <strong style={{ color:"#3D1A00" }}>{customerName}</strong>, complete the payment below and send the screenshot to our WhatsApp. We'll dispatch within <strong style={{ color:"#C45000" }}>24 hours</strong>. 🚀
           </p>
-          <Link to="/track-order" style={{ display:"inline-flex", alignItems:"center", gap:"0.35rem", color:"#C45000", fontSize:"0.82rem", fontWeight:700, textDecoration:"none", background:"rgba(255,107,0,0.08)", border:"1px solid rgba(255,107,0,0.2)", borderRadius:8, padding:"0.35rem 0.85rem" }}>
-            📦 Track this order later
-          </Link>
+          <div style={{ display:"flex", gap:"0.75rem", justifyContent:"center", flexWrap:"wrap", marginTop:"0.5rem" }}>
+            <Link to="/track-order" style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", color:"#C45000", fontSize:"0.9rem", fontWeight:800, textDecoration:"none", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:10, padding:"0.6rem 1.2rem" }}>
+              📦 Track Your Order
+            </Link>
+            <Link to="/products" style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", color:"rgba(150,70,0,0.7)", fontSize:"0.9rem", fontWeight:700, textDecoration:"none", background:"rgba(255,107,0,0.05)", border:"1.5px solid rgba(255,107,0,0.15)", borderRadius:10, padding:"0.6rem 1.2rem" }}>
+              🛒 Continue Shopping
+            </Link>
+          </div>
         </div>
 
         {/* ── Main content — full width ── */}
