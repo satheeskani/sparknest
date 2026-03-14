@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Plus, Pencil, Trash2, X, Upload, Loader2, LogOut, Package,
   ImageIcon, Users, ShoppingBag, LayoutDashboard, Tag,
-  TrendingUp, AlertCircle, RefreshCw, ChevronDown, Phone, Mail, MapPin, ContactRound
+  TrendingUp, AlertCircle, RefreshCw, ChevronDown, Phone, Mail, MapPin, ContactRound, Ticket, ToggleLeft, ToggleRight
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -807,6 +807,200 @@ function CustomersTab({ token, data, loading, onRefresh }) {
   );
 }
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// COUPONS TAB
+// ══════════════════════════════════════════════════════════════════════════════
+const EMPTY_COUPON = { code:"", type:"percentage", value:"", minOrder:"", maxUses:"100", expiresAt:"", description:"" };
+
+function CouponModal({ coupon, onClose, onSaved, token }) {
+  const isEdit = !!coupon?._id;
+  const [form, setForm] = useState(isEdit ? {
+    code: coupon.code, type: coupon.type, value: String(coupon.value),
+    minOrder: String(coupon.minOrder||""), maxUses: String(coupon.maxUses||"100"),
+    expiresAt: coupon.expiresAt ? coupon.expiresAt.split("T")[0] : "",
+    description: coupon.description||""
+  } : EMPTY_COUPON);
+  const [saving, setSaving] = useState(false);
+  const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async () => {
+    if (!form.code || !form.value) { toast.error("Code and value are required"); return; }
+    setSaving(true);
+    try {
+      const payload = { ...form, value: Number(form.value), minOrder: Number(form.minOrder||0), maxUses: Number(form.maxUses||100), expiresAt: form.expiresAt || null };
+      const url    = isEdit ? `/api/coupons/${coupon._id}` : "/api/coupons";
+      const method = isEdit ? "PATCH" : "POST";
+      const res    = await authFetch(url, { method, headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) }, token);
+      const data   = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast.success(isEdit ? "Coupon updated!" : "Coupon created!"); onSaved();
+    } catch(err) { toast.error(err.message); } finally { setSaving(false); }
+  };
+
+  return (
+    <div style={{ position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.82)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
+      <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,107,0,0.2)",borderRadius:20,width:"100%",maxWidth:480,padding:"1.8rem" }}>
+        <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.3rem" }}>
+          <h2 style={{ color:"#FFF5E6",fontFamily:"'Libre Baskerville',serif",fontSize:"1.1rem",margin:0 }}>{isEdit?"Edit Coupon":"Create Coupon"}</h2>
+          <Btn variant="ghost" onClick={onClose} style={{ padding:"0.4rem" }}><X size={15} /></Btn>
+        </div>
+        <div style={{ display:"flex",flexDirection:"column",gap:"0.85rem" }}>
+          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.85rem" }}>
+            <div><label style={S.label}>Code *</label><Input name="code" value={form.code} onChange={onChange} placeholder="DIWALI20" style={{ textTransform:"uppercase" }} /></div>
+            <div><label style={S.label}>Type *</label>
+              <FSelect name="type" value={form.type} onChange={onChange}>
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed Amount (₹)</option>
+              </FSelect>
+            </div>
+          </div>
+          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.85rem" }}>
+            <div><label style={S.label}>{form.type==="percentage"?"Discount %" : "Discount ₹"} *</label><Input name="value" value={form.value} onChange={onChange} type="number" placeholder={form.type==="percentage"?"10":"50"} /></div>
+            <div><label style={S.label}>Min Order (₹)</label><Input name="minOrder" value={form.minOrder} onChange={onChange} type="number" placeholder="500" /></div>
+          </div>
+          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.85rem" }}>
+            <div><label style={S.label}>Max Uses</label><Input name="maxUses" value={form.maxUses} onChange={onChange} type="number" placeholder="100" /></div>
+            <div><label style={S.label}>Expires On</label><Input name="expiresAt" value={form.expiresAt} onChange={onChange} type="date" /></div>
+          </div>
+          <div><label style={S.label}>Description</label><Input name="description" value={form.description} onChange={onChange} placeholder="Diwali special offer" /></div>
+          {/* Preview */}
+          {form.value && (
+            <div style={{ background:"rgba(255,215,0,0.08)",border:"1px solid rgba(255,215,0,0.2)",borderRadius:10,padding:"0.7rem 1rem",display:"flex",alignItems:"center",gap:"0.6rem" }}>
+              <span style={{ fontSize:"1.2rem" }}>🎟️</span>
+              <div>
+                <span style={{ color:"#FFD700",fontWeight:800,fontSize:"0.9rem" }}>{form.code||"CODE"}</span>
+                <span style={{ color:"rgba(255,245,230,0.6)",fontSize:"0.8rem",marginLeft:"0.5rem" }}>
+                  {form.type==="percentage" ? `${form.value}% off` : `₹${form.value} off`}
+                  {form.minOrder ? ` on orders above ₹${form.minOrder}` : ""}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+        <div style={{ display:"flex",gap:"0.75rem",marginTop:"1.3rem" }}>
+          <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
+          <Btn onClick={handleSubmit} disabled={saving} style={{ flex:2,justifyContent:"center" }}>
+            {saving?<><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} />Saving…</>:isEdit?"Save Changes":"Create Coupon"}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CouponsTab({ token, data, loading, onRefresh }) {
+  const [modal, setModal]         = useState(null);
+  const [delTarget, setDelTarget] = useState(null);
+  const coupons = data?.coupons || [];
+
+  const toggleActive = async (coupon) => {
+    try {
+      const res  = await authFetch(`/api/coupons/${coupon._id}`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ isActive: !coupon.isActive }) }, token);
+      if (!res.ok) throw new Error();
+      toast.success(coupon.isActive ? "Coupon deactivated" : "Coupon activated"); onRefresh();
+    } catch { toast.error("Failed to update"); }
+  };
+
+  const deleteCoupon = async (id) => {
+    try {
+      const res = await authFetch(`/api/coupons/${id}`, { method:"DELETE" }, token);
+      if (!res.ok) throw new Error();
+      toast.success("Coupon deleted"); onRefresh();
+    } catch { toast.error("Failed to delete"); }
+    setDelTarget(null);
+  };
+
+  const fmtDate = d => new Date(d).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
+
+  if (loading) return <SkeletonTable />;
+
+  return (
+    <div>
+      <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.2rem",flexWrap:"wrap",gap:"0.75rem" }}>
+        <p style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.82rem",margin:0 }}>{coupons.length} coupons</p>
+        <Btn onClick={()=>setModal("add")}><Plus size={15} /> Create Coupon</Btn>
+      </div>
+
+      {coupons.length === 0 ? (
+        <div style={{ textAlign:"center",padding:"4rem",color:"rgba(255,245,230,0.35)" }}>
+          <span style={{ fontSize:"3rem",display:"block",marginBottom:"1rem" }}>🎟️</span>
+          <p style={{ fontSize:"1rem",fontWeight:600 }}>No coupons yet</p>
+          <p style={{ fontSize:"0.85rem" }}>Create your first coupon to offer discounts</p>
+        </div>
+      ) : (
+        <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:"1rem" }}>
+          {coupons.map(c => {
+            const isExpired = c.expiresAt && new Date() > new Date(c.expiresAt);
+            const usagePercent = Math.round((c.usedCount / c.maxUses) * 100);
+            return (
+              <div key={c._id} style={{ background:"rgba(255,255,255,0.025)",border:`1.5px solid ${c.isActive && !isExpired ? "rgba(255,215,0,0.2)" : "rgba(255,107,0,0.1)"}`,borderRadius:16,padding:"1.2rem",position:"relative",opacity: (!c.isActive||isExpired) ? 0.6 : 1 }}>
+                {/* Header */}
+                <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"0.8rem" }}>
+                  <div>
+                    <div style={{ display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.2rem" }}>
+                      <span style={{ color:"#FFD700",fontWeight:900,fontSize:"1.05rem",fontFamily:"monospace" }}>{c.code}</span>
+                      {isExpired && <span style={{ background:"rgba(255,61,0,0.12)",color:"#FF3D00",fontSize:"0.6rem",fontWeight:700,padding:"0.1rem 0.4rem",borderRadius:5 }}>EXPIRED</span>}
+                      {!c.isActive && !isExpired && <span style={{ background:"rgba(255,255,255,0.06)",color:"rgba(255,245,230,0.4)",fontSize:"0.6rem",fontWeight:700,padding:"0.1rem 0.4rem",borderRadius:5 }}>INACTIVE</span>}
+                    </div>
+                    <p style={{ color:"rgba(255,245,230,0.5)",fontSize:"0.78rem",margin:0 }}>{c.description||"No description"}</p>
+                  </div>
+                  <div style={{ display:"flex",gap:"0.3rem" }}>
+                    <button onClick={()=>toggleActive(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,107,0,0.15)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}>
+                      {c.isActive ? <ToggleRight size={14} color="#2ECC71" /> : <ToggleLeft size={14} color="rgba(255,245,230,0.3)" />}
+                    </button>
+                    <button onClick={()=>setModal(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,107,0,0.15)",color:"rgba(255,245,230,0.6)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}><Pencil size={11} /></button>
+                    <button onClick={()=>setDelTarget(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,61,0,0.06)",border:"1px solid rgba(255,61,0,0.2)",color:"#FF3D00",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}><Trash2 size={11} /></button>
+                  </div>
+                </div>
+                {/* Discount badge */}
+                <div style={{ display:"inline-flex",alignItems:"center",gap:"0.4rem",background:"rgba(255,215,0,0.1)",border:"1px solid rgba(255,215,0,0.2)",borderRadius:8,padding:"0.3rem 0.7rem",marginBottom:"0.8rem" }}>
+                  <span style={{ color:"#FFD700",fontWeight:800,fontSize:"1rem" }}>
+                    {c.type==="percentage" ? `${c.value}% OFF` : `₹${c.value} OFF`}
+                  </span>
+                  {c.minOrder > 0 && <span style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.7rem" }}>above ₹{c.minOrder}</span>}
+                </div>
+                {/* Usage bar */}
+                <div style={{ marginBottom:"0.5rem" }}>
+                  <div style={{ display:"flex",justifyContent:"space-between",marginBottom:"0.25rem" }}>
+                    <span style={{ color:"rgba(255,245,230,0.4)",fontSize:"0.7rem" }}>Usage</span>
+                    <span style={{ color:"rgba(255,245,230,0.6)",fontSize:"0.7rem",fontWeight:700 }}>{c.usedCount}/{c.maxUses}</span>
+                  </div>
+                  <div style={{ height:5,background:"rgba(255,255,255,0.06)",borderRadius:5,overflow:"hidden" }}>
+                    <div style={{ height:"100%",width:`${usagePercent}%`,background: usagePercent>80?"#FF3D00":"linear-gradient(90deg,#FF6B00,#FFD700)",borderRadius:5,transition:"width .3s" }} />
+                  </div>
+                </div>
+                {c.expiresAt && (
+                  <p style={{ color:"rgba(255,245,230,0.35)",fontSize:"0.7rem",margin:0 }}>
+                    Expires: {fmtDate(c.expiresAt)}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {modal && <CouponModal coupon={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);onRefresh();}} token={token} />}
+      {delTarget && (
+        <div style={{ position:"fixed",inset:0,zIndex:1001,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
+          <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,61,0,0.3)",borderRadius:16,padding:"1.8rem",maxWidth:360,width:"100%",textAlign:"center" }}>
+            <AlertCircle size={38} color="#FF3D00" style={{ marginBottom:"0.7rem" }} />
+            <h3 style={{ color:"#FFF5E6",fontFamily:"'Libre Baskerville',serif",margin:"0 0 0.4rem" }}>Delete Coupon?</h3>
+            <p style={{ color:"rgba(255,245,230,0.5)",fontSize:"0.86rem",margin:"0 0 1.4rem" }}>
+              <strong style={{ color:"#FFD700" }}>{delTarget.code}</strong> will be permanently deleted.
+            </p>
+            <div style={{ display:"flex",gap:"0.75rem" }}>
+              <Btn variant="ghost" onClick={()=>setDelTarget(null)} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
+              <Btn variant="danger" onClick={()=>deleteCoupon(delTarget._id)} style={{ flex:1,justifyContent:"center" }}><Trash2 size={13} /> Delete</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // LOGIN — real backend JWT auth
 // ══════════════════════════════════════════════════════════════════════════════
@@ -870,6 +1064,7 @@ const TABS = [
   { id:"users",      label:"Users",      icon:<Users size={15} /> },
   { id:"orders",     label:"Orders",     icon:<ShoppingBag size={15} /> },
   { id:"customers",  label:"Customers",  icon:<ContactRound size={15} /> },
+  { id:"coupons",    label:"Coupons",    icon:<Ticket size={15} /> },
 ];
 
 // ── Global data cache — fetched once on login, shared across all tabs ──────────
@@ -880,6 +1075,7 @@ const TAB_URLS = {
   users:      "/api/admin/users?limit=50",
   orders:     "/api/admin/orders?limit=50",
   customers:  "/api/admin/customers?limit=100",
+  coupons:    "/api/coupons",
 };
 
 function useAdminData(token) {
@@ -990,6 +1186,7 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
         {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users")} />}
         {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders")} />}
         {tab==="customers"  && <CustomersTab  token={token} data={cache.customers}  loading={!!loading.customers}  onRefresh={()=>reload("customers")} />}
+        {tab==="coupons"    && <CouponsTab    token={token} data={cache.coupons}    loading={!!loading.coupons}    onRefresh={()=>reload("coupons")} />}
       </div>
     </div>
   );

@@ -1,11 +1,12 @@
 import Order    from "../models/Order.model.js";
 import Customer from "../models/Customer.model.js";
 import Counter  from "../models/Counter.model.js";
+import Coupon   from "../models/Coupon.model.js";
 
 // POST /api/orders  — create order
 export const createOrder = async (req, res) => {
   try {
-    const { customer, items, pricing } = req.body;
+    const { customer, items, pricing, couponCode } = req.body;
 
     if (!customer || !items?.length || !pricing) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -27,7 +28,15 @@ export const createOrder = async (req, res) => {
     // ── 2. Save order ────────────────────────────────────────────────────────
     const order = await Order.create({ orderId, customer, items, pricing });
 
-    // ── 2. Upsert customer record (non-blocking) ─────────────────────────────
+    // ── 2. Increment coupon usage (non-blocking) ────────────────────────────────
+    if (couponCode) {
+      Coupon.findOneAndUpdate(
+        { code: couponCode.toUpperCase().trim() },
+        { $inc: { usedCount: 1 } }
+      ).catch(err => console.error("Coupon update failed:", err));
+    }
+
+    // ── 3. Upsert customer record (non-blocking) ─────────────────────────────
     try {
       const grandTotal = pricing?.grandTotal || 0;
 

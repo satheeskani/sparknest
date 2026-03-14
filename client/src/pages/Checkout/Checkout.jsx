@@ -56,11 +56,15 @@ export default function Checkout() {
   const navigate   = useNavigate();
   const items      = useSelector(s => s.cart.items);
   const total      = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const savings    = items.reduce((s, i) => s + ((i.originalPrice || i.price) - i.price) * i.quantity, 0);
-  const shipping   = total >= 999 ? 0 : 99;
-  const grandTotal = total + shipping;
+  const savings      = items.reduce((s, i) => s + ((i.originalPrice || i.price) - i.price) * i.quantity, 0);
+  const shipping     = total >= 999 ? 0 : 99;
+  const couponDiscount = couponApplied?.discount || 0;
+  const grandTotal   = Math.max(0, total + shipping - couponDiscount);
 
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", state: "Tamil Nadu", pincode: "" });
+  const [couponCode, setCouponCode]     = useState("");
+  const [couponApplied, setCouponApplied] = useState(null); // { code, discount, message }
+  const [couponLoading, setCouponLoading] = useState(false);
   const honeypotRef = useRef(null); // bot trap — must stay empty
   const [step, setStep]               = useState(1);
   const [submitting, setSubmitting]   = useState(false);
@@ -68,6 +72,24 @@ export default function Checkout() {
   const [orderSnapshot, setOrderSnapshot] = useState(null);
 
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const validateCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    try {
+      const res  = await fetch(`${API}/api/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode.trim(), orderTotal: total + shipping }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.message); setCouponApplied(null); }
+      else { setCouponApplied(data); toast.success(data.message); }
+    } catch { toast.error("Failed to validate coupon"); }
+    finally { setCouponLoading(false); }
+  };
+
+  const removeCoupon = () => { setCouponApplied(null); setCouponCode(""); };
 
   const handleNext = () => {
     const { name, phone, address, city, pincode } = form;
@@ -163,6 +185,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
   // ── POST order to /api/orders ──────────────────────────────────────────────
   const postOrder = async (snap) => {
     const payload = {
+      couponCode: couponApplied?.code || null,
       customer: {
         name:    snap.form.name,
         phone:   snap.form.phone,
@@ -183,9 +206,11 @@ Please verify payment screenshot from customer and confirm dispatch.`
       })),
       pricing: {
         itemTotal:  snap.total + snap.savings,
-        discount:   snap.savings,
+        discount:   snap.savings + (snap.couponDiscount || 0),
         shipping:   snap.shipping,
         grandTotal: snap.grandTotal,
+        couponCode: snap.couponCode || null,
+        couponDiscount: snap.couponDiscount || 0,
       },
     };
 
@@ -209,7 +234,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
       return; // silently block
     }
     setSubmitting(true);
-    const snap = { items: [...items], total, savings, shipping, grandTotal, form: { ...form } };
+    const snap = { items: [...items], total, savings, shipping, grandTotal, couponDiscount, couponCode: couponApplied?.code || null, form: { ...form } };
     setOrderSnapshot(snap);
 
     try {
@@ -488,15 +513,49 @@ Please verify payment screenshot from customer and confirm dispatch.`
                 <span style={{ color: "rgba(26,8,0,0.6)", fontSize: "1rem", display: "flex", alignItems: "center", gap: "0.3rem" }}><Truck size={13} /> Delivery</span>
                 <span style={{ color: shipping === 0 ? "#1a7a4a" : "#1a0800", fontWeight: 600, fontSize: "1rem" }}>{shipping === 0 ? "FREE" : `₹${shipping}`}</span>
               </div>
+              {/* Coupon discount row */}
+              {couponApplied && (
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ color: "rgba(26,8,0,0.6)", fontSize: "1rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    🎟️ Coupon ({couponApplied.code})
+                  </span>
+                  <span style={{ color: "#1a7a4a", fontWeight: 700, fontSize: "1rem" }}>−₹{couponDiscount.toLocaleString()}</span>
+                </div>
+              )}
               <div style={{ height: 1, background: "rgba(255,107,0,0.15)", margin: "0.2rem 0" }} />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ color: "#1a0800", fontWeight: 800, fontSize: "1.05rem" }}>Total</span>
                 <span style={{ fontWeight: 800, fontSize: "1.15rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>₹{grandTotal.toLocaleString()}</span>
               </div>
             </div>
-            {savings > 0 && (
+
+            {/* Coupon input */}
+            <div style={{ marginTop: "1rem" }}>
+              {couponApplied ? (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(46,204,113,0.1)", border: "1px solid rgba(46,204,113,0.25)", borderRadius: 10, padding: "0.6rem 0.85rem" }}>
+                  <span style={{ color: "#1a7a4a", fontWeight: 700, fontSize: "0.88rem" }}>🎟️ {couponApplied.code} applied!</span>
+                  <button onClick={removeCoupon} style={{ background: "none", border: "none", color: "#c0392b", fontWeight: 700, fontSize: "0.78rem", cursor: "pointer", fontFamily: "'Source Sans 3',sans-serif" }}>Remove</button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <input
+                    value={couponCode}
+                    onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                    onKeyDown={e => e.key === "Enter" && validateCoupon()}
+                    placeholder="Enter coupon code"
+                    style={{ flex: 1, padding: "0.6rem 0.85rem", background: "rgba(255,255,255,0.7)", border: "1.5px solid rgba(255,107,0,0.25)", borderRadius: 10, fontSize: "0.88rem", fontFamily: "'Source Sans 3',sans-serif", outline: "none", color: "#1a0800", fontWeight: 700 }}
+                  />
+                  <button onClick={validateCoupon} disabled={couponLoading || !couponCode.trim()}
+                    style={{ padding: "0.6rem 1rem", background: "linear-gradient(135deg,#FF6B00,#FF3D00)", border: "none", borderRadius: 10, color: "#fff", fontWeight: 800, fontSize: "0.82rem", cursor: couponLoading ? "not-allowed" : "pointer", fontFamily: "'Source Sans 3',sans-serif", whiteSpace: "nowrap", opacity: couponLoading ? 0.7 : 1 }}>
+                    {couponLoading ? "..." : "Apply"}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {(savings > 0 || couponDiscount > 0) && (
               <div style={{ marginTop: "0.85rem", background: "rgba(46,204,113,0.1)", border: "1px solid rgba(46,204,113,0.2)", borderRadius: 8, padding: "0.5rem 0.8rem", fontSize: "1.05rem", color: "#1a7a4a", fontWeight: 700, textAlign: "center" }}>
-                🎉 You save ₹{savings.toLocaleString()} on this order!
+                🎉 You save ₹{(savings + couponDiscount).toLocaleString()} on this order!
               </div>
             )}
             {shipping > 0 && (

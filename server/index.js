@@ -10,6 +10,7 @@ import productRoutes    from "./routes/product.routes.js";
 import orderRoutes      from "./routes/order.routes.js";
 import authRoutes       from "./routes/auth.routes.js";
 import adminRoutes      from "./routes/admin.routes.js";
+import couponRoutes     from "./routes/coupon.routes.js";
 
 dotenv.config();
 
@@ -73,6 +74,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders",   orderRoutes);
 app.use("/api/auth",     authLimit, authRoutes);
 app.use("/api/admin",    adminRoutes);
+app.use("/api/coupons",  couponRoutes);
 
 // ── Health / keep-alive ───────────────────────────────────────────────────────
 app.get("/api/ping", (_req, res) => {
