@@ -2,6 +2,7 @@ import Order    from "../models/Order.model.js";
 import User     from "../models/User.model.js";
 import Product  from "../models/Product.model.js";
 import Category from "../models/Category.model.js";
+import Customer from "../models/Customer.model.js";
 
 // GET /api/admin/dashboard
 export const getDashboard = async (req, res) => {
@@ -26,6 +27,7 @@ export const getDashboard = async (req, res) => {
       .filter(o => o.pricing?.grandTotal)
       .reduce((sum, o) => sum + o.pricing.grandTotal, 0);
 
+    // Revenue by month (last 6 months)
     const now = new Date();
     const monthlyRevenue = Array.from({ length: 6 }, (_, i) => {
       const d     = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
@@ -39,6 +41,7 @@ export const getDashboard = async (req, res) => {
       return { label, total };
     });
 
+    // Category breakdown
     const categoryBreakdown = await Product.aggregate([
       { $group: { _id: "$category", count: { $sum: 1 }, totalStock: { $sum: "$stock" } } },
       { $sort: { count: -1 } },
@@ -132,10 +135,10 @@ export const getCategories = async (req, res) => {
     const categories = dbCats.map(c => ({
       _id:        c._id,
       name:       c.name,
-      emoji:      c.emoji,
-      color:      c.color,
-      bg:         c.bg,
-      order:      c.order,
+      image:      c.image  || "",
+      color:      c.color  || "#FF6B00",
+      bg:         c.bg     || "#FFE0CC",
+      order:      c.order  || 0,
       count:      statsMap[c.name]?.count      || 0,
       totalStock: statsMap[c.name]?.totalStock || 0,
       avgPrice:   statsMap[c.name]?.avgPrice   || 0,
@@ -147,14 +150,15 @@ export const getCategories = async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
 
+
 // POST /api/admin/categories
 export const createCategory = async (req, res) => {
   try {
-    const { name, emoji, color, bg, order } = req.body;
+    const { name, image, color, bg, order } = req.body;
     if (!name) return res.status(400).json({ success: false, message: "Name is required" });
     const existing = await Category.findOne({ name: { $regex: `^${name}$`, $options: "i" } });
     if (existing) return res.status(409).json({ success: false, message: "Category already exists" });
-    const cat = await Category.create({ name, emoji, color, bg, order: order || 0 });
+    const cat = await Category.create({ name, image: image || "", color, bg, order: order || 0 });
     res.status(201).json({ success: true, category: cat });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
@@ -162,10 +166,10 @@ export const createCategory = async (req, res) => {
 // PATCH /api/admin/categories/:id
 export const updateCategory = async (req, res) => {
   try {
-    const { name, emoji, color, bg, order } = req.body;
+    const { name, image, color, bg, order } = req.body;
     const cat = await Category.findByIdAndUpdate(
       req.params.id,
-      { name, emoji, color, bg, order },
+      { name, image, color, bg, order },
       { new: true, runValidators: true }
     );
     if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
@@ -179,5 +183,25 @@ export const deleteCategory = async (req, res) => {
     const cat = await Category.findByIdAndDelete(req.params.id);
     if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
     res.json({ success: true, message: "Category deleted" });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+// GET /api/admin/customers
+export const getCustomers = async (req, res) => {
+  try {
+    const { search, page = 1, limit = 20 } = req.query;
+    const filter = search
+      ? { $or: [
+          { name:  { $regex: search, $options: "i" } },
+          { phone: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+        ]}
+      : {};
+    const skip      = (Number(page) - 1) * Number(limit);
+    const total     = await Customer.countDocuments(filter);
+    const customers = await Customer.find(filter)
+      .sort({ lastOrderAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+    res.json({ success: true, customers, total });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
