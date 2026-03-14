@@ -394,11 +394,12 @@ function ProductsTab({ token, data, loading, onRefresh, catData }) {
 }
 
 // ── Category Modal (Add / Edit) ───────────────────────────────────────────────
-const EMPTY_CAT = { name:"", emoji:"🎆", color:"#FF6B00", bg:"#FFE0CC", order:0 };
+const EMPTY_CAT = { name:"", image:"", color:"#FF6B00", bg:"#FFE0CC", order:0 };
 
 function CategoryModal({ category, onClose, onSaved, token }) {
   const isEdit = !!category?._id;
-  const [form, setForm] = useState(isEdit ? { name:category.name, emoji:category.emoji, color:category.color, bg:category.bg, order:category.order||0 } : EMPTY_CAT);
+  const [form, setForm] = useState(isEdit ? { name:category.name, image:category.image||"", color:category.color, bg:category.bg, order:category.order||0 } : EMPTY_CAT);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -425,9 +426,30 @@ function CategoryModal({ category, onClose, onSaved, token }) {
         <div style={{ display:"flex",flexDirection:"column",gap:"0.85rem" }}>
           <div><label style={S.label}>Name *</label><Input name="name" value={form.name} onChange={onChange} placeholder="e.g. Sparklers" /></div>
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.85rem" }}>
-            <div>
-              <label style={S.label}>Emoji</label>
-              <Input name="emoji" value={form.emoji} onChange={onChange} placeholder="🎆" style={{ fontSize:"1.3rem" }} />
+            <div style={{ gridColumn:"1/-1" }}>
+              <label style={S.label}>Category Image</label>
+              <div style={{ display:"flex", gap:"0.75rem", alignItems:"flex-start" }}>
+                {form.image && <img src={form.image} alt="preview" style={{ width:60, height:60, objectFit:"cover", borderRadius:10, border:"1px solid rgba(255,107,0,0.2)", flexShrink:0 }} />}
+                <div style={{ flex:1 }}>
+                  <input type="file" accept="image/*" id="cat-img-upload" style={{ display:"none" }} onChange={async e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (file.size > 5*1024*1024) { toast.error("Max 5MB"); return; }
+                    setUploading(true);
+                    try {
+                      const fd = new FormData(); fd.append("image", file);
+                      const res = await authFetch("/api/products/upload-image", { method:"POST", body:fd }, token);
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data.message);
+                      setForm(f => ({ ...f, image: data.url })); toast.success("Uploaded!");
+                    } catch(err) { toast.error(err.message); } finally { setUploading(false); }
+                  }} />
+                  <label htmlFor="cat-img-upload" style={{ display:"flex", alignItems:"center", gap:"0.4rem", background:"rgba(255,107,0,0.06)", border:"1.5px dashed rgba(255,107,0,0.25)", borderRadius:10, padding:"0.6rem 1rem", cursor:uploading?"not-allowed":"pointer", color:"rgba(255,245,230,0.6)", fontSize:"0.82rem", fontWeight:600 }}>
+                    {uploading ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} /> Uploading…</> : <><Upload size={14} /> {form.image ? "Change Image" : "Upload Image"}</>}
+                  </label>
+                  {form.image && <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.68rem", margin:"0.3rem 0 0" }}>JPG, PNG, WebP · Max 5MB</p>}
+                </div>
+              </div>
             </div>
             <div><label style={S.label}>Order</label><Input name="order" value={form.order} onChange={onChange} type="number" placeholder="1" /></div>
           </div>
@@ -449,7 +471,9 @@ function CategoryModal({ category, onClose, onSaved, token }) {
           </div>
           {/* Preview */}
           <div style={{ background:form.bg, borderRadius:12, padding:"0.8rem 1rem", display:"flex", alignItems:"center", gap:"0.7rem", border:"1px solid rgba(0,0,0,0.08)" }}>
-            <span style={{ fontSize:"1.6rem" }}>{form.emoji}</span>
+            {form.image
+              ? <img src={form.image} alt="preview" style={{ width:36, height:36, objectFit:"cover", borderRadius:8 }} />
+              : <span style={{ fontSize:"1.6rem" }}>🎆</span>}
             <span style={{ color:form.color, fontWeight:800, fontSize:"0.95rem" }}>{form.name||"Preview"}</span>
           </div>
         </div>
@@ -526,7 +550,9 @@ function CategoriesTab({ token, data, loading, onRefresh }) {
                 <button onClick={()=>setDelTarget(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,61,0,0.06)",border:"1px solid rgba(255,61,0,0.2)",color:"#FF3D00",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}><Trash2 size={11} /></button>
               </div>
               <div style={{ display:"flex",alignItems:"center",gap:"0.65rem",marginBottom:"0.85rem" }}>
-                <span style={{ fontSize:"2rem" }}>{c.emoji||"🎆"}</span>
+                {c.image
+                  ? <img src={c.image} alt={c.name} style={{ width:40, height:40, objectFit:"cover", borderRadius:10, border:"1px solid rgba(255,107,0,0.15)", flexShrink:0 }} />
+                  : <span style={{ fontSize:"2rem" }}>🎆</span>}
                 <div>
                   <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.95rem",margin:0 }}>{c.name}</h3>
                   <span style={{ background:`${color}15`,color,border:`1px solid ${color}30`,borderRadius:6,padding:"0.1rem 0.45rem",fontSize:"0.65rem",fontWeight:700 }}>{c.count} products</span>
@@ -763,21 +789,38 @@ const TABS = [
 function useAdminData(token) {
   const [cache, setCache]     = useState({});
   const [loading, setLoading] = useState({});
+  const inFlight = useRef({});   // track in-flight requests outside render cycle
+  const cacheRef = useRef({});   // mirror cache in a ref so fetch$ sees latest value
+
+  // Keep cacheRef in sync
+  useEffect(() => { cacheRef.current = cache; }, [cache]);
 
   const fetch$ = useCallback(async (key, url) => {
-    if (cache[key] || loading[key]) return;           // already have it or in-flight
+    if (cacheRef.current[key] || inFlight.current[key]) return;
+    inFlight.current[key] = true;
     setLoading(l => ({ ...l, [key]: true }));
     try {
       const res  = await authFetch(url, {}, token);
       const data = await res.json();
       setCache(c => ({ ...c, [key]: data }));
     } catch {}
-    finally { setLoading(l => ({ ...l, [key]: false })); }
-  }, [cache, loading, token]);
+    finally {
+      inFlight.current[key] = false;
+      setLoading(l => ({ ...l, [key]: false }));
+    }
+  }, [token]);
 
   const invalidate = useCallback((key) => {
+    delete cacheRef.current[key];          // clear ref immediately
+    delete inFlight.current[key];          // allow re-fetch
     setCache(c => { const n = { ...c }; delete n[key]; return n; });
   }, []);
+
+  const reload = useCallback((key, url) => {
+    invalidate(key);
+    // fetch$ will now see empty cacheRef and empty inFlight
+    setTimeout(() => fetch$(key, url), 0);
+  }, [invalidate, fetch$]);
 
   // Prefetch all tabs immediately on mount
   useEffect(() => {
@@ -788,7 +831,7 @@ function useAdminData(token) {
     fetch$("orders",     "/api/admin/orders?limit=50");
   }, [token]); // eslint-disable-line
 
-  return { cache, loading, invalidate, refetch: fetch$ };
+  return { cache, loading, invalidate, reload };
 }
 
 export default function AdminPanel() {
@@ -814,9 +857,7 @@ export default function AdminPanel() {
 
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
-  const { cache, loading, invalidate, refetch } = useAdminData(token);
-
-  const reload = (key, url) => { invalidate(key); setTimeout(() => refetch(key, url), 50); };
+  const { cache, loading, reload } = useAdminData(token);
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
