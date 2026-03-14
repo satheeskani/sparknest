@@ -86,26 +86,29 @@ function openCloudinaryLibrary(onSelect) {
   const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const API_KEY    = import.meta.env.VITE_CLOUDINARY_API_KEY;
 
-  // Load the Cloudinary ML widget script if not already loaded
   const load = () => {
-    window.cloudinary.openMediaLibrary(
+    const ml = window.cloudinary.createMediaLibrary(
       {
-        cloud_name:  CLOUD_NAME,
-        api_key:     API_KEY,
-        multiple:    false,
-        folder:      { path: "sparknest", resource_type: "image" },
+        cloud_name:         CLOUD_NAME,
+        api_key:            API_KEY,
+        multiple:           false,
+        default_transformations: [],
+        folder:             { path: "sparknest", resource_type: "image" },
+        search:             { expression: "folder=sparknest" },
       },
       {
         insertHandler: (data) => {
           if (data.assets?.length > 0) {
             onSelect(data.assets[0].secure_url);
+            ml.hide(); // close after selection
           }
         },
       }
     );
+    ml.show();
   };
 
-  if (window.cloudinary?.openMediaLibrary) {
+  if (window.cloudinary?.createMediaLibrary) {
     load();
   } else {
     const script = document.createElement("script");
