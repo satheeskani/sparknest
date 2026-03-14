@@ -6,6 +6,9 @@ import {
   getAdminOrders,
   updateAdminOrderStatus,
   getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
 } from "../controllers/admin.controller.js";
 import { protect, adminOnly } from "../middleware/auth.middleware.js";
 
@@ -20,5 +23,8 @@ router.patch("/users/:id/role",         updateUserRole);
 router.get("/orders",                   getAdminOrders);
 router.patch("/orders/:orderId/status", updateAdminOrderStatus);
 router.get("/categories",               getCategories);
+router.post("/categories",              createCategory);
+router.patch("/categories/:id",         updateCategory);
+router.delete("/categories/:id",        deleteCategory);
 
 export default router;

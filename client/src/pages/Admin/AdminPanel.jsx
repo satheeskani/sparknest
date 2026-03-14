@@ -239,6 +239,37 @@ function SkeletonGrid() {
   );
 }
 
+// ── Pagination ────────────────────────────────────────────────────────────────
+const PAGE_SIZE = 15;
+
+function usePagination(items) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.ceil(items.length / PAGE_SIZE);
+  const paginated  = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const reset      = () => setPage(1);
+  return { page, setPage, totalPages, paginated, reset };
+}
+
+function Pagination({ page, totalPages, setPage, total }) {
+  if (totalPages <= 1) return null;
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) pages.push(i);
+  return (
+    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:"1rem", flexWrap:"wrap", gap:"0.5rem" }}>
+      <span style={{ color:"rgba(255,245,230,0.38)", fontSize:"0.75rem" }}>
+        Showing {((page-1)*PAGE_SIZE)+1}–{Math.min(page*PAGE_SIZE, total)} of {total}
+      </span>
+      <div style={{ display:"flex", gap:"0.3rem", flexWrap:"wrap" }}>
+        <Btn variant="ghost" onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} style={{ padding:"0.3rem 0.7rem", fontSize:"0.78rem" }}>‹ Prev</Btn>
+        {pages.map(p=>(
+          <button key={p} onClick={()=>setPage(p)} style={{ width:32, height:32, borderRadius:8, border:"none", background:p===page?"linear-gradient(135deg,#FF6B00,#FF3D00)":"rgba(255,255,255,0.04)", color:p===page?"#fff":"rgba(255,245,230,0.55)", fontWeight:p===page?800:500, fontSize:"0.8rem", cursor:"pointer", fontFamily:"'Source Sans 3',sans-serif" }}>{p}</button>
+        ))}
+        <Btn variant="ghost" onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages} style={{ padding:"0.3rem 0.7rem", fontSize:"0.78rem" }}>Next ›</Btn>
+      </div>
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // DASHBOARD TAB
 // ══════════════════════════════════════════════════════════════════════════════
@@ -324,6 +355,8 @@ function ProductsTab({ token, data, loading, onRefresh }) {
   const fetchProducts = () => onRefresh();
 
   const filtered = products.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.category.toLowerCase().includes(search.toLowerCase()));
+  const { page, setPage, totalPages, paginated, reset } = usePagination(filtered);
+  useEffect(()=>{ reset(); },[search]); // eslint-disable-line
   return (
     <div>
       <div style={{ display:"flex",gap:"0.75rem",marginBottom:"1.2rem",flexWrap:"wrap" }}>
@@ -331,12 +364,13 @@ function ProductsTab({ token, data, loading, onRefresh }) {
         <Btn onClick={()=>setModal("add")}><Plus size={15} /> Add Product</Btn>
       </div>
       {loading ? <SkeletonTable /> : (
+        <>
         <div style={{ background:"rgba(255,107,0,0.02)",border:"1px solid rgba(255,107,0,0.1)",borderRadius:14,overflow:"auto" }}>
           <table style={{ width:"100%",borderCollapse:"collapse",minWidth:600 }}>
             <thead><tr style={{ background:"rgba(255,107,0,0.05)",borderBottom:"1px solid rgba(255,107,0,0.1)" }}>{["Image","Name","Category","Price","Stock","Actions"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
             <tbody>
-              {filtered.length===0 ? <tr><td colSpan={6} style={{ textAlign:"center",padding:"2.5rem",color:"rgba(255,245,230,0.38)" }}>No products found</td></tr>
-                : filtered.map(p=>(
+              {paginated.length===0 ? <tr><td colSpan={6} style={{ textAlign:"center",padding:"2.5rem",color:"rgba(255,245,230,0.38)" }}>No products found</td></tr>
+                : paginated.map(p=>(
                 <tr key={p._id} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,107,0,0.04)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                   <td style={S.td}>{p.image?<img src={p.image} alt={p.name} style={{ width:42,height:42,objectFit:"cover",borderRadius:8,border:"1px solid rgba(255,107,0,0.12)" }} />:<div style={{ width:42,height:42,borderRadius:8,background:"rgba(255,107,0,0.07)",display:"flex",alignItems:"center",justifyContent:"center" }}><ImageIcon size={15} color="rgba(255,107,0,0.35)" /></div>}</td>
                   <td style={S.td}><p style={{ color:"#FFF5E6",fontWeight:700,fontSize:"0.86rem",margin:"0 0 0.2rem" }}>{p.name}</p><div style={{ display:"flex",gap:"0.3rem",flexWrap:"wrap" }}>{p.isFeatured&&<span style={{ fontSize:"0.58rem",background:"rgba(255,215,0,0.1)",color:"#FFD700",border:"1px solid rgba(255,215,0,0.22)",borderRadius:4,padding:"0.08rem 0.32rem",fontWeight:700 }}>⭐ Featured</span>}{p.isSafeForKids&&<span style={{ fontSize:"0.58rem",background:"rgba(46,204,113,0.08)",color:"#2ECC71",border:"1px solid rgba(46,204,113,0.22)",borderRadius:4,padding:"0.08rem 0.32rem",fontWeight:700 }}>🧒 Kids</span>}</div></td>
@@ -349,6 +383,8 @@ function ProductsTab({ token, data, loading, onRefresh }) {
             </tbody>
           </table>
         </div>
+        <Pagination page={page} totalPages={totalPages} setPage={setPage} total={filtered.length} />
+        </>
       )}
       {modal     && <ProductModal product={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);fetchProducts();}} token={token} />}
       {delTarget && <DeleteConfirm product={delTarget} onClose={()=>setDelTarget(null)} onDeleted={()=>{setDelTarget(null);fetchProducts();}} token={token} />}
@@ -356,34 +392,158 @@ function ProductsTab({ token, data, loading, onRefresh }) {
   );
 }
 
+// ── Category Modal (Add / Edit) ───────────────────────────────────────────────
+const EMPTY_CAT = { name:"", emoji:"🎆", color:"#FF6B00", bg:"#FFE0CC", order:0 };
+
+function CategoryModal({ category, onClose, onSaved, token }) {
+  const isEdit = !!category?._id;
+  const [form, setForm] = useState(isEdit ? { name:category.name, emoji:category.emoji, color:category.color, bg:category.bg, order:category.order||0 } : EMPTY_CAT);
+  const [saving, setSaving] = useState(false);
+  const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async () => {
+    if (!form.name.trim()) { toast.error("Name is required"); return; }
+    setSaving(true);
+    try {
+      const url    = isEdit ? `/api/admin/categories/${category._id}` : "/api/admin/categories";
+      const method = isEdit ? "PATCH" : "POST";
+      const res    = await authFetch(url, { method, headers:{"Content-Type":"application/json"}, body:JSON.stringify(form) }, token);
+      const data   = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast.success(isEdit ? "Category updated!" : "Category created!"); onSaved();
+    } catch(err) { toast.error(err.message); } finally { setSaving(false); }
+  };
+
+  return (
+    <div style={{ position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.82)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
+      <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,107,0,0.2)",borderRadius:20,width:"100%",maxWidth:460,padding:"1.8rem" }}>
+        <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.3rem" }}>
+          <h2 style={{ color:"#FFF5E6",fontFamily:"'Libre Baskerville',serif",fontSize:"1.1rem",margin:0 }}>{isEdit?"Edit Category":"Add Category"}</h2>
+          <Btn variant="ghost" onClick={onClose} style={{ padding:"0.4rem" }}><X size={15} /></Btn>
+        </div>
+        <div style={{ display:"flex",flexDirection:"column",gap:"0.85rem" }}>
+          <div><label style={S.label}>Name *</label><Input name="name" value={form.name} onChange={onChange} placeholder="e.g. Sparklers" /></div>
+          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.85rem" }}>
+            <div>
+              <label style={S.label}>Emoji</label>
+              <Input name="emoji" value={form.emoji} onChange={onChange} placeholder="🎆" style={{ fontSize:"1.3rem" }} />
+            </div>
+            <div><label style={S.label}>Order</label><Input name="order" value={form.order} onChange={onChange} type="number" placeholder="1" /></div>
+          </div>
+          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.85rem" }}>
+            <div>
+              <label style={S.label}>Text Color</label>
+              <div style={{ display:"flex",gap:"0.5rem",alignItems:"center" }}>
+                <input type="color" name="color" value={form.color} onChange={onChange} style={{ width:42,height:36,borderRadius:8,border:"1.5px solid rgba(255,107,0,0.2)",background:"none",cursor:"pointer",padding:2 }} />
+                <Input name="color" value={form.color} onChange={onChange} placeholder="#FF6B00" style={{ flex:1 }} />
+              </div>
+            </div>
+            <div>
+              <label style={S.label}>Background Color</label>
+              <div style={{ display:"flex",gap:"0.5rem",alignItems:"center" }}>
+                <input type="color" name="bg" value={form.bg} onChange={onChange} style={{ width:42,height:36,borderRadius:8,border:"1.5px solid rgba(255,107,0,0.2)",background:"none",cursor:"pointer",padding:2 }} />
+                <Input name="bg" value={form.bg} onChange={onChange} placeholder="#FFE0CC" style={{ flex:1 }} />
+              </div>
+            </div>
+          </div>
+          {/* Preview */}
+          <div style={{ background:form.bg, borderRadius:12, padding:"0.8rem 1rem", display:"flex", alignItems:"center", gap:"0.7rem", border:"1px solid rgba(0,0,0,0.08)" }}>
+            <span style={{ fontSize:"1.6rem" }}>{form.emoji}</span>
+            <span style={{ color:form.color, fontWeight:800, fontSize:"0.95rem" }}>{form.name||"Preview"}</span>
+          </div>
+        </div>
+        <div style={{ display:"flex",gap:"0.75rem",marginTop:"1.3rem" }}>
+          <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
+          <Btn onClick={handleSubmit} disabled={saving} style={{ flex:2,justifyContent:"center" }}>
+            {saving?<><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} />Saving…</>:isEdit?"Save Changes":"Add Category"}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Category Delete Confirm ────────────────────────────────────────────────────
+function DeleteCategoryConfirm({ category, onClose, onDeleted, token }) {
+  const [deleting, setDeleting] = useState(false);
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const res = await authFetch(`/api/admin/categories/${category._id}`, { method:"DELETE" }, token);
+      if (!res.ok) throw new Error();
+      toast.success("Category deleted"); onDeleted();
+    } catch { toast.error("Failed to delete"); } finally { setDeleting(false); }
+  };
+  return (
+    <div style={{ position:"fixed",inset:0,zIndex:1001,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
+      <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,61,0,0.3)",borderRadius:16,padding:"1.8rem",maxWidth:360,width:"100%",textAlign:"center" }}>
+        <AlertCircle size={38} color="#FF3D00" style={{ marginBottom:"0.7rem" }} />
+        <h3 style={{ color:"#FFF5E6",fontFamily:"'Libre Baskerville',serif",margin:"0 0 0.4rem" }}>Delete Category?</h3>
+        <p style={{ color:"rgba(255,245,230,0.5)",fontSize:"0.86rem",margin:"0 0 0.3rem" }}><strong style={{ color:"#FFF5E6" }}>{category.name}</strong> will be removed.</p>
+        <p style={{ color:"rgba(255,107,0,0.7)",fontSize:"0.78rem",margin:"0 0 1.4rem" }}>⚠️ Existing products in this category will keep their category name.</p>
+        <div style={{ display:"flex",gap:"0.75rem" }}>
+          <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
+          <Btn variant="danger" onClick={handleDelete} disabled={deleting} style={{ flex:1,justifyContent:"center" }}>
+            {deleting?<Loader2 size={13} style={{ animation:"spin 1s linear infinite" }} />:<Trash2 size={13} />}{deleting?"Deleting…":"Delete"}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // CATEGORIES TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function CategoriesTab({ token, data, loading }) {
+function CategoriesTab({ token, data, loading, onRefresh }) {
+  const [modal, setModal]         = useState(null); // null | "add" | category object
+  const [delTarget, setDelTarget] = useState(null);
+
   if (loading || !data) return <SkeletonGrid />;
   const cats = data?.categories || [];
+
   return (
-    <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:"1rem" }}>
-      {cats.map(c=>{
-        const color=CAT_COLORS[c._id]||"#FF6B00";
-        return (
-          <div key={c._id} style={{ background:"rgba(255,255,255,0.025)",border:`1.5px solid ${color}22`,borderRadius:16,padding:"1.4rem",transition:"transform .2s,box-shadow .2s" }}
-            onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.boxShadow=`0 8px 28px ${color}20`;}}
-            onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
-            <div style={{ display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"0.85rem" }}>
-              <span style={{ fontSize:"2rem" }}>{CAT_EMOJI[c._id]||"🎇"}</span>
-              <span style={{ background:`${color}15`,color,border:`1px solid ${color}30`,borderRadius:8,padding:"0.18rem 0.55rem",fontSize:"0.68rem",fontWeight:700 }}>{c.count} products</span>
-            </div>
-            <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.95rem",margin:"0 0 0.85rem" }}>{c._id}</h3>
-            {[["Total Stock",c.totalStock,color],["Avg Price",`₹${Math.round(c.avgPrice)}`,"rgba(255,245,230,0.65)"],["Featured",c.featured,"#FFD700"],["Kids Safe",c.kidsSafe,"#2ECC71"]].map(([l,v,cl])=>(
-              <div key={l} style={{ display:"flex",justifyContent:"space-between",marginBottom:"0.4rem" }}>
-                <span style={{ color:"rgba(255,245,230,0.4)",fontSize:"0.76rem" }}>{l}</span>
-                <span style={{ color:cl,fontWeight:700,fontSize:"0.82rem" }}>{v}</span>
+    <div>
+      {/* Header */}
+      <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.2rem",flexWrap:"wrap",gap:"0.75rem" }}>
+        <p style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.82rem",margin:0 }}>{cats.length} categories</p>
+        <Btn onClick={()=>setModal("add")}><Plus size={15} /> Add Category</Btn>
+      </div>
+
+      {/* Grid */}
+      <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:"1rem" }}>
+        {cats.map(c=>{
+          const color = c.color || "#FF6B00";
+          const bg    = c.bg    || "rgba(255,255,255,0.025)";
+          return (
+            <div key={c._id} style={{ background:`${bg}22`,border:`1.5px solid ${color}30`,borderRadius:16,padding:"1.2rem",transition:"transform .2s,box-shadow .2s",position:"relative" }}
+              onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.boxShadow=`0 8px 28px ${color}20`;}}
+              onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
+              {/* Action buttons */}
+              <div style={{ position:"absolute",top:"0.7rem",right:"0.7rem",display:"flex",gap:"0.3rem" }}>
+                <button onClick={()=>setModal(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,107,0,0.18)",color:"rgba(255,245,230,0.6)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}><Pencil size={11} /></button>
+                <button onClick={()=>setDelTarget(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,61,0,0.06)",border:"1px solid rgba(255,61,0,0.2)",color:"#FF3D00",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}><Trash2 size={11} /></button>
               </div>
-            ))}
-          </div>
-        );
-      })}
+              <div style={{ display:"flex",alignItems:"center",gap:"0.65rem",marginBottom:"0.85rem" }}>
+                <span style={{ fontSize:"2rem" }}>{c.emoji||"🎆"}</span>
+                <div>
+                  <h3 style={{ color:"#FFF5E6",fontWeight:800,fontSize:"0.95rem",margin:0 }}>{c.name}</h3>
+                  <span style={{ background:`${color}15`,color,border:`1px solid ${color}30`,borderRadius:6,padding:"0.1rem 0.45rem",fontSize:"0.65rem",fontWeight:700 }}>{c.count} products</span>
+                </div>
+              </div>
+              {[["Stock",c.totalStock,color],["Avg Price",`₹${Math.round(c.avgPrice||0)}`,"rgba(255,245,230,0.65)"],["Featured",c.featured,"#FFD700"],["Kids Safe",c.kidsSafe,"#2ECC71"]].map(([l,v,cl])=>(
+                <div key={l} style={{ display:"flex",justifyContent:"space-between",marginBottom:"0.3rem" }}>
+                  <span style={{ color:"rgba(255,245,230,0.38)",fontSize:"0.74rem" }}>{l}</span>
+                  <span style={{ color:cl,fontWeight:700,fontSize:"0.8rem" }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
+      {modal     && <CategoryModal category={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);onRefresh();}} token={token} />}
+      {delTarget && <DeleteCategoryConfirm category={delTarget} onClose={()=>setDelTarget(null)} onDeleted={()=>{setDelTarget(null);onRefresh();}} token={token} />}
     </div>
   );
 }
@@ -409,6 +569,8 @@ function UsersTab({ token, data, loading, onRefresh }) {
   };
 
   const filtered = users.filter(u=>!search||u.name.toLowerCase().includes(search.toLowerCase())||u.email.toLowerCase().includes(search.toLowerCase()));
+  const { page, setPage, totalPages, paginated, reset } = usePagination(filtered);
+  useEffect(()=>{ reset(); },[search]); // eslint-disable-line
   return (
     <div>
       <div style={{ display:"flex",gap:"0.75rem",marginBottom:"1.2rem" }}>
@@ -416,12 +578,13 @@ function UsersTab({ token, data, loading, onRefresh }) {
         <Btn variant="ghost" onClick={fetchUsers}><RefreshCw size={14} /> Refresh</Btn>
       </div>
       {loading ? <SkeletonTable /> : (
+        <>
         <div style={{ background:"rgba(255,107,0,0.02)",border:"1px solid rgba(255,107,0,0.1)",borderRadius:14,overflow:"auto" }}>
           <table style={{ width:"100%",borderCollapse:"collapse",minWidth:600 }}>
             <thead><tr style={{ background:"rgba(255,107,0,0.05)",borderBottom:"1px solid rgba(255,107,0,0.1)" }}>{["User","Email","Phone","Role","Joined","Change Role"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr></thead>
             <tbody>
-              {filtered.length===0 ? <tr><td colSpan={6} style={{ textAlign:"center",padding:"2.5rem",color:"rgba(255,245,230,0.38)" }}>No users found</td></tr>
-                : filtered.map(u=>(
+              {paginated.length===0 ? <tr><td colSpan={6} style={{ textAlign:"center",padding:"2.5rem",color:"rgba(255,245,230,0.38)" }}>No users found</td></tr>
+                : paginated.map(u=>(
                 <tr key={u._id} onMouseEnter={e=>e.currentTarget.style.background="rgba(255,107,0,0.04)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
                   <td style={S.td}><div style={{ display:"flex",alignItems:"center",gap:"0.55rem" }}><div style={{ width:32,height:32,borderRadius:"50%",background:"linear-gradient(135deg,rgba(255,107,0,0.18),rgba(255,61,0,0.08))",border:"1.5px solid rgba(255,107,0,0.22)",display:"flex",alignItems:"center",justifyContent:"center",color:"#FF6B00",fontWeight:800,fontSize:"0.88rem",flexShrink:0 }}>{u.name.charAt(0).toUpperCase()}</div><span style={{ color:"#FFF5E6",fontWeight:700,fontSize:"0.86rem" }}>{u.name}</span></div></td>
                   <td style={{ ...S.td,color:"rgba(255,245,230,0.55)",fontSize:"0.82rem" }}>{u.email}</td>
@@ -438,6 +601,8 @@ function UsersTab({ token, data, loading, onRefresh }) {
             </tbody>
           </table>
         </div>
+        <Pagination page={page} totalPages={totalPages} setPage={setPage} total={filtered.length} />
+        </>
       )}
     </div>
   );
@@ -466,6 +631,8 @@ function OrdersTab({ token, data, loading, onRefresh }) {
   };
 
   const filtered = orders.filter(o=>!search||o.orderId.toLowerCase().includes(search.toLowerCase())||o.customer?.name?.toLowerCase().includes(search.toLowerCase())||o.customer?.phone?.includes(search));
+  const { page, setPage, totalPages, paginated, reset } = usePagination(filtered);
+  useEffect(()=>{ reset(); },[search, filter]); // eslint-disable-line
   return (
     <div>
       <div style={{ display:"flex",gap:"0.75rem",marginBottom:"1.2rem",flexWrap:"wrap" }}>
@@ -476,9 +643,10 @@ function OrdersTab({ token, data, loading, onRefresh }) {
         <Btn variant="ghost" onClick={fetchOrders}><RefreshCw size={14} /> Refresh</Btn>
       </div>
       {loading ? <SkeletonTable /> : (
+        <>
         <div style={{ display:"flex",flexDirection:"column",gap:"0.65rem" }}>
-          {filtered.length===0&&<p style={{ textAlign:"center",color:"rgba(255,245,230,0.38)",padding:"2rem" }}>No orders found</p>}
-          {filtered.map(o=>(
+          {paginated.length===0&&<p style={{ textAlign:"center",color:"rgba(255,245,230,0.38)",padding:"2rem" }}>No orders found</p>}
+          {paginated.map(o=>(
             <div key={o._id} style={{ background:"rgba(255,107,0,0.02)",border:"1px solid rgba(255,107,0,0.1)",borderRadius:14,overflow:"hidden" }}>
               <div style={{ display:"flex",alignItems:"center",gap:"0.75rem",padding:"0.95rem 1.1rem",cursor:"pointer",flexWrap:"wrap" }} onClick={()=>setExpanded(expanded===o._id?null:o._id)}>
                 <div style={{ flex:1,minWidth:0 }}>
@@ -519,6 +687,8 @@ function OrdersTab({ token, data, loading, onRefresh }) {
             </div>
           ))}
         </div>
+        <Pagination page={page} totalPages={totalPages} setPage={setPage} total={filtered.length} />
+        </>
       )}
     </div>
   );
@@ -685,7 +855,7 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
       <div style={{ maxWidth:1200,margin:"0 auto",padding:"1.8rem clamp(1rem,4vw,2rem)" }}>
         {tab==="dashboard"  && <DashboardTab  token={token} data={cache.dashboard}  loading={!!loading.dashboard}  onRefresh={()=>reload("dashboard","/api/admin/dashboard")} />}
         {tab==="products"   && <ProductsTab   token={token} data={cache.products}   loading={!!loading.products}   onRefresh={()=>reload("products","/api/products?limit=100")} />}
-        {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} />}
+        {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} onRefresh={()=>reload("categories","/api/admin/categories")} />}
         {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users","/api/admin/users?limit=50")} />}
         {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders","/api/admin/orders?limit=50")} />}
       </div>

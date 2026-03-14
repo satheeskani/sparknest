@@ -120,19 +120,66 @@ export const updateAdminOrderStatus = async (req, res) => {
 // GET /api/admin/categories
 export const getCategories = async (req, res) => {
   try {
-    const breakdown = await Product.aggregate([
-      {
-        $group: {
-          _id:        "$category",
-          count:      { $sum: 1 },
-          totalStock: { $sum: "$stock" },
-          avgPrice:   { $avg: "$price" },
-          featured:   { $sum: { $cond: ["$isFeatured", 1, 0] } },
-          kidsSafe:   { $sum: { $cond: ["$isSafeForKids", 1, 0] } },
-        },
-      },
-      { $sort: { count: -1 } },
+    const [dbCats, productStats] = await Promise.all([
+      Category.find().sort({ order: 1, name: 1 }),
+      Product.aggregate([
+        { $group: { _id: "$category", count: { $sum: 1 }, totalStock: { $sum: "$stock" }, avgPrice: { $avg: "$price" }, featured: { $sum: { $cond: ["$isFeatured", 1, 0] } }, kidsSafe: { $sum: { $cond: ["$isSafeForKids", 1, 0] } } } },
+      ]),
     ]);
-    res.json({ success: true, categories: breakdown });
+
+    const statsMap = {};
+    productStats.forEach(s => { statsMap[s._id] = s; });
+
+    const categories = dbCats.map(c => ({
+      _id:        c._id,
+      name:       c.name,
+      emoji:      c.emoji,
+      color:      c.color,
+      bg:         c.bg,
+      order:      c.order,
+      count:      statsMap[c.name]?.count      || 0,
+      totalStock: statsMap[c.name]?.totalStock || 0,
+      avgPrice:   statsMap[c.name]?.avgPrice   || 0,
+      featured:   statsMap[c.name]?.featured   || 0,
+      kidsSafe:   statsMap[c.name]?.kidsSafe   || 0,
+    }));
+
+    res.json({ success: true, categories });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+
+// POST /api/admin/categories
+export const createCategory = async (req, res) => {
+  try {
+    const { name, emoji, color, bg, order } = req.body;
+    if (!name) return res.status(400).json({ success: false, message: "Name is required" });
+    const existing = await Category.findOne({ name: { $regex: `^${name}$`, $options: "i" } });
+    if (existing) return res.status(409).json({ success: false, message: "Category already exists" });
+    const cat = await Category.create({ name, emoji, color, bg, order: order || 0 });
+    res.status(201).json({ success: true, category: cat });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// PATCH /api/admin/categories/:id
+export const updateCategory = async (req, res) => {
+  try {
+    const { name, emoji, color, bg, order } = req.body;
+    const cat = await Category.findByIdAndUpdate(
+      req.params.id,
+      { name, emoji, color, bg, order },
+      { new: true, runValidators: true }
+    );
+    if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
+    res.json({ success: true, category: cat });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// DELETE /api/admin/categories/:id
+export const deleteCategory = async (req, res) => {
+  try {
+    const cat = await Category.findByIdAndDelete(req.params.id);
+    if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
+    res.json({ success: true, message: "Category deleted" });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };

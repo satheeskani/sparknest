@@ -7,11 +7,7 @@ const productSchema = new mongoose.Schema(
     description:   { type: String, required: true },
     price:         { type: Number, required: true, min: 0 },
     originalPrice: { type: Number },
-    category: {
-      type: String,
-      required: true,
-      enum: ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","Kids Special","Combo Packs","Gift Boxes"],
-    },
+    category: { type: String, required: true, trim: true },
     // Cloudinary secure URL (or any fallback URL for legacy/seed data)
     image:          { type: String, required: true },
     // Cloudinary public_id — used to delete the old image when updating/deleting

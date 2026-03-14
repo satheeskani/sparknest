@@ -216,7 +216,7 @@ export default function Navbar() {
             borderBottom:"1px solid rgba(255,255,255,.04)",
           }}>
             <p style={{ margin:0, fontSize:"1.05rem", color:"rgba(255,215,0,.7)", fontWeight:600 }}>
-              🪔 Happy Diwali 2025! &nbsp;✨
+              🪔 Happy Diwali 2026! &nbsp;✨
             </p>
           </div>
 
