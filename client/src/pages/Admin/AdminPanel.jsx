@@ -638,7 +638,12 @@ function OrdersTab({ token, data, loading, onRefresh }) {
       const res  = await authFetch(`/api/admin/orders/${orderId}/status`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({[field]:value}) }, token);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
-      toast.success("Status updated!"); setOrders(prev=>prev.map(o=>o.orderId===orderId?data.order:o));
+      // Update local state immediately with returned order
+      setOrders(prev => prev.map(o => o.orderId === orderId
+        ? { ...o, orderStatus: data.order.orderStatus, paymentStatus: data.order.paymentStatus }
+        : o
+      ));
+      toast.success("Status updated!");
     } catch(err){ toast.error(err.message); }
   };
 
