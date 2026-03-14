@@ -5,13 +5,13 @@ import { Search, Package, Truck, CheckCircle2, Clock, XCircle, ChevronRight, Map
 
 const API = import.meta.env.VITE_API_URL || "";
 
-const STATUS_STEPS = ["Pending", "Confirmed", "Processing", "Dispatched", "Delivered"];
+const STATUS_STEPS = ["Pending", "Confirmed", "Processing", "Shipped", "Delivered"];
 
 const STATUS_META = {
   Pending:    { color:"#FF9800", icon:"⏳", desc:"Your order has been received and is awaiting confirmation." },
   Confirmed:  { color:"#2196F3", icon:"✅", desc:"Your order has been confirmed and will be packed soon." },
   Processing: { color:"#9C27B0", icon:"📦", desc:"Your order is being packed and prepared for dispatch." },
-  Dispatched: { color:"#FF6B00", icon:"🚚", desc:"Your order is on the way! You will receive it soon." },
+  Shipped:    { color:"#FF6B00", icon:"🚚", desc:"Your order is on the way! You will receive it soon." },
   Delivered:  { color:"#4CAF50", icon:"🎆", desc:"Your order has been delivered. Enjoy your crackers!" },
   Cancelled:  { color:"#F44336", icon:"❌", desc:"Your order has been cancelled." },
 };

@@ -732,10 +732,10 @@ function OrdersTab({ token, data, loading, onRefresh }) {
                       style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(37,211,102,0.12)",border:"1px solid rgba(37,211,102,0.3)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#25D366",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
                       💬 WhatsApp {o.customer?.name}
                     </a>
-                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${encodeURIComponent(`Hi ${o.customer?.name}, your SparkNest order *#${o.orderId}* has been dispatched! 🎆 We will deliver it soon. Thank you for ordering with us!`)}`}
+                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${encodeURIComponent(`Hi ${o.customer?.name}, your SparkNest order *#${o.orderId}* has been shipped! 🎆 We will deliver it soon. Thank you for ordering with us!`)}`}
                       target="_blank" rel="noreferrer"
                       style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(255,107,0,0.1)",border:"1px solid rgba(255,107,0,0.25)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#FF6B00",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
-                      🚚 Send Dispatch Message
+                      🚚 Send Shipped Message
                     </a>
                     <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${encodeURIComponent(`Hi ${o.customer?.name}, your SparkNest order *#${o.orderId}* has been delivered! 🎆 Thank you for shopping with us. Happy Diwali! 🪔`)}`}
                       target="_blank" rel="noreferrer"
@@ -1159,6 +1159,55 @@ function useAdminData(token) {
   // Load dashboard on login
   useEffect(() => {
     fetchTab("dashboard", TAB_URLS.dashboard);
+  }, [token]); // eslint-disable-line
+
+  // ── New order notification — poll order count every 30s ──────────────────
+  const lastOrderCount = useRef(null);
+
+  useEffect(() => {
+    if (!token) return;
+
+    const playSound = () => {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        // Pleasant chime sound
+        [523, 659, 784, 1047].forEach((freq, i) => {
+          const osc  = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.type      = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+          gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + i * 0.12 + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.4);
+          osc.start(ctx.currentTime + i * 0.12);
+          osc.stop(ctx.currentTime + i * 0.12 + 0.4);
+        });
+      } catch {}
+    };
+
+    const checkNewOrders = async () => {
+      try {
+        const res  = await authFetch("/api/admin/dashboard", {}, token);
+        const data = await res.json();
+        if (!data.success) return;
+        const count = data.stats?.totalOrders || 0;
+        if (lastOrderCount.current !== null && count > lastOrderCount.current) {
+          const newCount = count - lastOrderCount.current;
+          playSound();
+          toast.success(`🎆 ${newCount} new order${newCount > 1 ? "s" : ""} received!`, { duration: 6000, icon: "🛒" });
+          // Update document title
+          document.title = `(${newCount} New!) SparkNest Admin`;
+          setTimeout(() => { document.title = "SparkNest Admin"; }, 8000);
+        }
+        lastOrderCount.current = count;
+      } catch {}
+    };
+
+    checkNewOrders(); // check immediately
+    const interval = setInterval(checkNewOrders, 30000); // every 30s
+    return () => clearInterval(interval);
   }, [token]); // eslint-disable-line
 
   return { cache, loading, reload, loadTab };
