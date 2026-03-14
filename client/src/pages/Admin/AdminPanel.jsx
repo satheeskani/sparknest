@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Plus, Pencil, Trash2, X, Upload, Loader2, LogOut, Package,
   ImageIcon, Users, ShoppingBag, LayoutDashboard, Tag,
-  TrendingUp, AlertCircle, RefreshCw, ChevronDown
+  TrendingUp, AlertCircle, RefreshCw, ChevronDown, Phone, Mail, MapPin, ContactRound
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -721,6 +721,102 @@ function OrdersTab({ token, data, loading, onRefresh }) {
   );
 }
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CUSTOMERS TAB
+// ══════════════════════════════════════════════════════════════════════════════
+function CustomersTab({ token, data, loading, onRefresh }) {
+  const [search, setSearch] = useState("");
+  const [expanded, setExpanded] = useState(null);
+  const customers = data?.customers || [];
+
+  const filtered = customers.filter(c =>
+    !search ||
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.phone.includes(search) ||
+    (c.email && c.email.toLowerCase().includes(search.toLowerCase()))
+  );
+  const { page, setPage, totalPages, paginated, reset } = usePagination(filtered);
+  useEffect(() => { reset(); }, [search]); // eslint-disable-line
+
+  const fmtDate = d => new Date(d).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
+
+  if (loading) return <SkeletonTable />;
+
+  return (
+    <div>
+      <div style={{ display:"flex", gap:"0.75rem", marginBottom:"1.2rem", flexWrap:"wrap", alignItems:"center" }}>
+        <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, phone or email…" style={{ flex:1, minWidth:200 }} />
+        <Btn variant="ghost" onClick={onRefresh}><RefreshCw size={14} /> Refresh</Btn>
+        <span style={{ color:"rgba(255,245,230,0.38)", fontSize:"0.78rem" }}>{customers.length} total customers</span>
+      </div>
+
+      <>
+      <div style={{ background:"rgba(255,107,0,0.02)", border:"1px solid rgba(255,107,0,0.1)", borderRadius:14, overflow:"hidden" }}>
+        {paginated.length === 0
+          ? <p style={{ textAlign:"center", color:"rgba(255,245,230,0.35)", padding:"2.5rem" }}>No customers yet</p>
+          : paginated.map(c => (
+            <div key={c._id} style={{ borderBottom:"1px solid rgba(255,107,0,0.06)" }}>
+              {/* Row */}
+              <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", padding:"0.85rem 1rem", cursor:"pointer", flexWrap:"wrap" }}
+                onClick={() => setExpanded(expanded === c._id ? null : c._id)}>
+                {/* Avatar */}
+                <div style={{ width:36, height:36, borderRadius:"50%", background:"linear-gradient(135deg,rgba(255,107,0,0.18),rgba(255,61,0,0.08))", border:"1.5px solid rgba(255,107,0,0.22)", display:"flex", alignItems:"center", justifyContent:"center", color:"#FF6B00", fontWeight:800, fontSize:"0.95rem", flexShrink:0 }}>
+                  {c.name.charAt(0).toUpperCase()}
+                </div>
+                {/* Name + contact */}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <p style={{ color:"#FFF5E6", fontWeight:700, fontSize:"0.88rem", margin:"0 0 0.15rem" }}>{c.name}</p>
+                  <div style={{ display:"flex", gap:"0.8rem", flexWrap:"wrap" }}>
+                    <a href={`tel:${c.phone}`} onClick={e=>e.stopPropagation()} style={{ color:"#FF6B00", fontSize:"0.75rem", display:"flex", alignItems:"center", gap:"0.25rem", textDecoration:"none" }}>
+                      <Phone size={11} /> {c.phone}
+                    </a>
+                    {c.email && (
+                      <a href={`mailto:${c.email}`} onClick={e=>e.stopPropagation()} style={{ color:"#00BFFF", fontSize:"0.75rem", display:"flex", alignItems:"center", gap:"0.25rem", textDecoration:"none" }}>
+                        <Mail size={11} /> {c.email}
+                      </a>
+                    )}
+                    <a href={`https://wa.me/91${c.phone.replace(/\D/g,"")}`} target="_blank" rel="noreferrer" onClick={e=>e.stopPropagation()} style={{ color:"#25D366", fontSize:"0.75rem", display:"flex", alignItems:"center", gap:"0.25rem", textDecoration:"none" }}>
+                      💬 WhatsApp
+                    </a>
+                  </div>
+                </div>
+                {/* Stats */}
+                <div style={{ textAlign:"right", flexShrink:0 }}>
+                  <p style={{ color:"#FFD700", fontWeight:700, fontSize:"0.82rem", margin:"0 0 0.12rem" }}>₹{c.totalSpent.toLocaleString("en-IN")}</p>
+                  <p style={{ color:"rgba(255,245,230,0.38)", fontSize:"0.7rem", margin:0 }}>{c.totalOrders} order{c.totalOrders!==1?"s":""} · {fmtDate(c.lastOrderAt)}</p>
+                </div>
+                <ChevronDown size={14} color="rgba(255,245,230,0.3)" style={{ transform:expanded===c._id?"rotate(180deg)":"none", transition:"transform .2s", flexShrink:0 }} />
+              </div>
+              {/* Expanded: addresses */}
+              {expanded === c._id && (
+                <div style={{ padding:"0.75rem 1rem 1rem 1rem", borderTop:"1px solid rgba(255,107,0,0.06)", background:"rgba(255,107,0,0.02)" }}>
+                  <p style={{ ...S.label, marginBottom:"0.5rem" }}>Delivery Addresses</p>
+                  {c.addresses.length === 0
+                    ? <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.8rem" }}>No addresses saved</p>
+                    : c.addresses.map((a, i) => (
+                      <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:"0.4rem", marginBottom:"0.4rem" }}>
+                        <MapPin size={12} color="#FF6B00" style={{ marginTop:2, flexShrink:0 }} />
+                        <p style={{ color:"rgba(255,245,230,0.6)", fontSize:"0.82rem", margin:0 }}>
+                          {a.street}, {a.city}, {a.state} — {a.pincode}
+                        </p>
+                      </div>
+                    ))
+                  }
+                  <p style={{ ...S.label, marginTop:"0.75rem", marginBottom:"0.3rem" }}>Last Order</p>
+                  <p style={{ color:"rgba(255,245,230,0.55)", fontSize:"0.82rem", margin:0, fontFamily:"monospace" }}>#{c.lastOrderId}</p>
+                </div>
+              )}
+            </div>
+          ))
+        }
+      </div>
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} total={filtered.length} />
+      </>
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // LOGIN — real backend JWT auth
 // ══════════════════════════════════════════════════════════════════════════════
@@ -783,6 +879,7 @@ const TABS = [
   { id:"categories", label:"Categories", icon:<Tag size={15} /> },
   { id:"users",      label:"Users",      icon:<Users size={15} /> },
   { id:"orders",     label:"Orders",     icon:<ShoppingBag size={15} /> },
+  { id:"customers",  label:"Customers",  icon:<ContactRound size={15} /> },
 ];
 
 // ── Global data cache — fetched once on login, shared across all tabs ──────────
@@ -829,6 +926,7 @@ function useAdminData(token) {
     fetch$("categories", "/api/admin/categories");
     fetch$("users",      "/api/admin/users?limit=50");
     fetch$("orders",     "/api/admin/orders?limit=50");
+    fetch$("customers",  "/api/admin/customers?limit=100");
   }, [token]); // eslint-disable-line
 
   return { cache, loading, invalidate, reload };
@@ -900,6 +998,7 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
         {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} onRefresh={()=>reload("categories","/api/admin/categories")} />}
         {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users","/api/admin/users?limit=50")} />}
         {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders","/api/admin/orders?limit=50")} />}
+        {tab==="customers"  && <CustomersTab  token={token} data={cache.customers}  loading={!!loading.customers}  onRefresh={()=>reload("customers","/api/admin/customers?limit=100")} />}
       </div>
     </div>
   );

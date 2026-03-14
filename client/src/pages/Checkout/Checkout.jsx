@@ -61,6 +61,7 @@ export default function Checkout() {
   const grandTotal = total + shipping;
 
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", state: "Tamil Nadu", pincode: "" });
+  const [honeypot, setHoneypot] = useState(""); // bot trap — must stay empty
   const [step, setStep]               = useState(1);
   const [submitting, setSubmitting]   = useState(false);
   const [orderId] = useState(() => "SN" + Date.now().toString().slice(-6));
@@ -71,7 +72,8 @@ export default function Checkout() {
   const handleNext = () => {
     const { name, phone, address, city, pincode } = form;
     if (!name || !phone || !address || !city || !pincode) { toast.error("Please fill all required fields"); return; }
-    if (phone.length < 10) { toast.error("Enter valid phone number"); return; }
+    if (!/^\d{10}$/.test(phone.replace(/\s/g, ""))) { toast.error("Enter a valid 10-digit phone number"); return; }
+    if (!/^\d{6}$/.test(pincode)) { toast.error("Enter a valid 6-digit pincode"); return; }
     setStep(2);
     window.scrollTo({ top: 0, behavior: "instant" });
   };
@@ -199,6 +201,12 @@ Please verify payment screenshot from customer and confirm dispatch.`
   };
 
   const handleConfirmOrder = async () => {
+    // Honeypot check — bots auto-fill hidden fields, real users never do
+    if (honeypot) {
+      console.warn("Bot detected via honeypot");
+      setSubmitting(false);
+      return; // silently block — don't tell the bot it failed
+    }
     setSubmitting(true);
     const snap = { items: [...items], total, savings, shipping, grandTotal, form: { ...form } };
     setOrderSnapshot(snap);
@@ -380,6 +388,17 @@ Please verify payment screenshot from customer and confirm dispatch.`
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.emailOpt}</label>
                   <input name="email" value={form.email} onChange={onChange} className="co-input" type="email" />
+                  {/* ── Honeypot — hidden from humans, bots auto-fill this ── */}
+                  <div style={{ position:"absolute", left:"-9999px", top:"-9999px", opacity:0, pointerEvents:"none", tabIndex:-1 }} aria-hidden="true">
+                    <input
+                      type="text"
+                      name="website"
+                      value={honeypot}
+                      onChange={e => setHoneypot(e.target.value)}
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </div>
                 </div>
                 <div style={{ gridColumn: "1/-1" }}>
                   <label className="co-label">{t.address}</label>

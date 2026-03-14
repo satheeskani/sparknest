@@ -9,6 +9,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  getCustomers,
 } from "../controllers/admin.controller.js";
 import { protect, adminOnly } from "../middleware/auth.middleware.js";
 
@@ -26,5 +27,6 @@ router.get("/categories",               getCategories);
 router.post("/categories",              createCategory);
 router.patch("/categories/:id",         updateCategory);
 router.delete("/categories/:id",        deleteCategory);
+router.get("/customers",                getCustomers);
 
 export default router;
