@@ -156,8 +156,9 @@ export default function CartDrawer({ open, onClose }) {
                     <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#FF6B00", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: "0.15rem" }}>
                       {t[CAT_MAP[item.category]] || item.category}
                     </div>
-                    <div style={{ fontSize: "0.80rem", fontWeight: 700, color: "#FFF5E6", lineHeight: 1.3, marginBottom: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: "0.80rem", fontWeight: 700, color: item.stock <= 0 ? "rgba(255,245,230,0.4)" : "#FFF5E6", lineHeight: 1.3, marginBottom: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {item.name}
+                      {item.stock <= 0 && <span style={{ marginLeft:"0.4rem", fontSize:"0.65rem", color:"#FF3D00", fontWeight:700 }}>OUT OF STOCK</span>}
                     </div>
                     <div style={{ fontSize: "1.05rem", color: "rgba(255,245,230,0.7)", marginBottom: "0.5rem" }}>
                       ₹{item.price} × {item.quantity}

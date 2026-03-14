@@ -28,7 +28,18 @@ export const createOrder = async (req, res) => {
     // ── 2. Save order ────────────────────────────────────────────────────────
     const order = await Order.create({ orderId, customer, items, pricing });
 
-    // ── 2. Increment coupon usage (non-blocking) ────────────────────────────────
+    // ── 2. Decrement stock for each ordered item ─────────────────────────────────
+    try {
+      const Product = (await import("../models/Product.model.js")).default;
+      for (const item of items) {
+        await Product.findOneAndUpdate(
+          { name: item.name, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } }
+        );
+      }
+    } catch (err) { console.error("Stock update failed:", err.message); }
+
+    // ── 3. Increment coupon usage (non-blocking) ────────────────────────────────
     if (couponCode) {
       Coupon.findOneAndUpdate(
         { code: couponCode.toUpperCase().trim() },
@@ -36,7 +47,7 @@ export const createOrder = async (req, res) => {
       ).catch(err => console.error("Coupon update failed:", err));
     }
 
-    // ── 3. Upsert customer record (non-blocking) ─────────────────────────────
+    // ── 4. Upsert customer record (non-blocking) ─────────────────────────────
     try {
       const grandTotal = pricing?.grandTotal || 0;
 

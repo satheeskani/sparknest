@@ -83,9 +83,11 @@ function ProductCard({ product, wishlist, onWishlist }) {
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.25rem", marginTop:"0.25rem" }}>
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.25rem", marginBottom:"0.18rem" }}>
-              {product.stock <= 20
-                ? <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 Only {product.stock} left</span>
-                : <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
+              {product.stock <= 0
+                ? <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(255,255,255,0.05)", color:"rgba(255,245,230,0.35)", border:"1px solid rgba(255,245,230,0.1)", whiteSpace:"nowrap" }}>Out of Stock</span>
+                : product.stock <= 20
+                  ? <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(255,61,0,0.18)", color:"#FF4500", border:"1px solid rgba(255,61,0,0.35)", whiteSpace:"nowrap" }}>🔥 Only {product.stock} left</span>
+                  : <span style={{ fontSize:"0.82rem", fontWeight:800, padding:"0.18rem 0.55rem", borderRadius:100, background:"rgba(46,204,113,0.15)", color:"#2ECC71", border:"1px solid rgba(46,204,113,0.3)", whiteSpace:"nowrap" }}>✓ {product.stock} in stock</span>
               }
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:"0.3rem" }}>
@@ -96,9 +98,11 @@ function ProductCard({ product, wishlist, onWishlist }) {
             </div>
           </div>
           {qty === 0 ? (
-            <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.42rem 0.85rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'Source Sans 3',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
-              + ADD
-            </button>
+            product.stock <= 0
+              ? <span style={{ background:"rgba(255,255,255,0.06)", border:"1px solid rgba(255,245,230,0.1)", borderRadius:8, color:"rgba(255,245,230,0.35)", fontWeight:700, fontSize:"0.72rem", padding:"0.42rem 0.7rem", whiteSpace:"nowrap", flexShrink:0 }}>Out of Stock</span>
+              : <button onClick={handleAdd} style={{ background:"linear-gradient(135deg,#FF6B00,#FF3D00)", border:"none", borderRadius:8, color:"#fff", fontWeight:800, fontSize:"1rem", padding:"0.42rem 0.85rem", cursor:"pointer", display:"flex", alignItems:"center", gap:"0.2rem", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", fontFamily:"'Source Sans 3',sans-serif", whiteSpace:"nowrap", flexShrink:0 }}>
+                  + ADD
+                </button>
           ) : (
             <div style={{ display:"flex", alignItems:"center", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", borderRadius:8, overflow:"hidden", boxShadow:"0 2px 8px rgba(255,107,0,0.65)", flexShrink:0 }}>
               <button onClick={handleDec} style={{ width:24, height:28, border:"none", background:"transparent", color:"#fff", fontWeight:800, fontSize:"1.05rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>−</button>

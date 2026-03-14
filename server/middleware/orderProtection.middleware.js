@@ -24,6 +24,21 @@ export const validateOrder = (req, res, next) => {
     return res.status(400).json({ success: false, message: "Invalid pricing" });
   }
 
+  // Stock validation
+  try {
+    const Product = (await import("../models/Product.model.js")).default;
+    for (const item of items) {
+      const product = await Product.findOne({ name: item.name });
+      if (!product) continue;
+      if (product.stock <= 0) {
+        return res.status(400).json({ success: false, message: `"${item.name}" is out of stock` });
+      }
+      if (product.stock < item.quantity) {
+        return res.status(400).json({ success: false, message: `Only ${product.stock} units of "${item.name}" available` });
+      }
+    }
+  } catch (err) { console.error("Stock check failed:", err.message); }
+
   next();
 };
 

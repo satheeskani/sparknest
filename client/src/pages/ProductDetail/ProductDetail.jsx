@@ -278,8 +278,8 @@ export default function ProductDetail() {
                 <span style={{ fontSize:"1rem", fontWeight:700, color:"#b8860b" }}>{product.rating}</span>
                 <span style={{ fontSize:"0.9rem", color:"rgba(26,8,0,0.55)" }}>({product.numReviews})</span>
                 <span style={{ color:"rgba(26,8,0,0.18)" }}>|</span>
-                <span style={{ fontSize:"0.76rem", color: product.stock > 20 ? "#1a7a4a" : "#FF6B00", fontWeight:700 }}>
-                  {product.stock > 0 ? `✓ In Stock (${product.stock})` : "Out of Stock"}
+                <span style={{ fontSize:"0.76rem", color: product.stock <= 0 ? "rgba(255,245,230,0.35)" : product.stock <= 20 ? "#FF6B00" : "#1a7a4a", fontWeight:700 }}>
+                  {product.stock <= 0 ? "❌ Out of Stock" : product.stock <= 20 ? `🔥 Only ${product.stock} left` : `✓ In Stock (${product.stock})`}
                 </span>
               </div>
 
@@ -316,9 +316,10 @@ export default function ProductDetail() {
                 />
                   <button className="qty-btn" onClick={() => setQty(q => Math.min(Math.min(99, product.stock), q+1))}><Plus size={13}/></button>
                 </div>
-                <button className="add-cart-btn-main" onClick={handleAddToCart} disabled={product.stock === 0}>
+                <button className="add-cart-btn-main" onClick={handleAddToCart} disabled={product.stock <= 0}
+                  style={{ opacity: product.stock <= 0 ? 0.45 : 1, cursor: product.stock <= 0 ? "not-allowed" : "pointer" }}>
                   <ShoppingCart size={16} strokeWidth={2.2}/>
-                  {qty > 1 ? `Add ${qty} to Cart` : "Add to Cart"}
+                  {product.stock <= 0 ? "Out of Stock" : qty > 1 ? `Add ${qty} to Cart` : "Add to Cart"}
                 </button>
               </div>
 
