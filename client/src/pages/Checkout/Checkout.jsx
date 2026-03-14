@@ -58,13 +58,15 @@ export default function Checkout() {
   const total      = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const savings      = items.reduce((s, i) => s + ((i.originalPrice || i.price) - i.price) * i.quantity, 0);
   const shipping     = total >= 999 ? 0 : 99;
-  const couponDiscount = couponApplied?.discount || 0;
-  const grandTotal   = Math.max(0, total + shipping - couponDiscount);
 
   const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", state: "Tamil Nadu", pincode: "" });
-  const [couponCode, setCouponCode]     = useState("");
+  const [couponCode, setCouponCode]       = useState("");
   const [couponApplied, setCouponApplied] = useState(null); // { code, discount, message }
   const [couponLoading, setCouponLoading] = useState(false);
+
+  // Derived after couponApplied is declared
+  const couponDiscount = couponApplied?.discount || 0;
+  const grandTotal     = Math.max(0, total + shipping - couponDiscount);
   const honeypotRef = useRef(null); // bot trap — must stay empty
   const [step, setStep]               = useState(1);
   const [submitting, setSubmitting]   = useState(false);
