@@ -1156,9 +1156,10 @@ function useAdminData(token) {
     fetchTab(key, TAB_URLS[key]);
   }, [fetchTab]);
 
-  // Load dashboard on login
+  // Load dashboard + orders on login so badge shows immediately
   useEffect(() => {
     fetchTab("dashboard", TAB_URLS.dashboard);
+    fetchTab("orders",    TAB_URLS.orders);
   }, [token]); // eslint-disable-line
 
   // ── New order notification — poll order count every 30s ──────────────────
