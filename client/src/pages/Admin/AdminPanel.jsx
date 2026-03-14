@@ -735,6 +735,13 @@ function OrdersTab({ token, data, loading, onRefresh }) {
                     <p style={{ ...S.label,marginBottom:"0.3rem" }}>Delivery Address</p>
                     <p style={{ color:"rgba(255,245,230,0.6)",fontSize:"0.82rem",margin:0,lineHeight:1.6 }}>{o.customer?.address}, {o.customer?.city}, {o.customer?.state} — {o.customer?.pincode}</p>
                   </div>
+                  {o.payment?.utr && (
+                    <div style={{ background:"rgba(46,204,113,0.08)",border:"1px solid rgba(46,204,113,0.2)",borderRadius:10,padding:"0.7rem 1rem" }}>
+                      <p style={{ ...S.label,marginBottom:"0.2rem",color:"#2ECC71" }}>UTR / Transaction ID</p>
+                      <p style={{ color:"#7defa1",fontWeight:800,fontSize:"0.95rem",margin:0,fontFamily:"monospace" }}>{o.payment.utr}</p>
+                      <p style={{ color:"rgba(255,245,230,0.35)",fontSize:"0.7rem",margin:"0.2rem 0 0" }}>Submitted at {new Date(o.payment.submittedAt).toLocaleString("en-IN")}</p>
+                    </div>
+                  )}
                   {/* WhatsApp quick actions */}
                   <div style={{ display:"flex",gap:"0.6rem",flexWrap:"wrap" }}>
                     <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}`} target="_blank" rel="noreferrer"

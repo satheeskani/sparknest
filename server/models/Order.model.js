@@ -30,6 +30,10 @@ const orderSchema = new mongoose.Schema(
       grandTotal: { type: Number, required: true },
     },
     paymentMethod: { type: String, enum: ["UPI", "Bank Transfer"], default: "UPI" },
+    payment: {
+      utr:         { type: String, default: "" },
+      submittedAt: { type: Date,   default: null },
+    },
     paymentStatus: {
       type: String,
       enum: ["Pending", "Screenshot Received", "Confirmed", "Failed"],

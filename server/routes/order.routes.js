@@ -51,4 +51,28 @@ router.post("/track", async (req, res) => {
 });
 router.patch("/:orderId/status", updateOrderStatus);
 
+// PATCH /api/orders/:orderId/utr — customer submits UTR after payment
+router.patch("/:orderId/utr", async (req, res) => {
+  try {
+    const { utr } = req.body;
+    if (!utr || utr.length !== 12)
+      return res.status(400).json({ success: false, message: "Invalid UTR number" });
+
+    const Order = (await import("../models/Order.model.js")).default;
+    const order = await Order.findOneAndUpdate(
+      { orderId: req.params.orderId },
+      { 
+        $set: { 
+          "payment.utr": utr,
+          "payment.submittedAt": new Date(),
+          paymentStatus: "Screenshot Received"
+        }
+      },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+    res.json({ success: true, message: "UTR submitted successfully" });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
+
 export default router;

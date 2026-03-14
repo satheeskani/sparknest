@@ -70,7 +70,10 @@ export default function Checkout() {
   const honeypotRef = useRef(null); // bot trap — must stay empty
   const [step, setStep]               = useState(1);
   const [submitting, setSubmitting]   = useState(false);
-  const [orderId, setOrderId] = useState("SN1000"); // will be set by server
+  const [orderId, setOrderId]       = useState("SN1000"); // will be set by server
+  const [utrNumber, setUtrNumber]   = useState("");
+  const [utrSubmitting, setUtrSubmitting] = useState(false);
+  const [utrConfirmed, setUtrConfirmed]   = useState(false);
   const [orderSnapshot, setOrderSnapshot] = useState(null);
 
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -92,6 +95,22 @@ export default function Checkout() {
   };
 
   const removeCoupon = () => { setCouponApplied(null); setCouponCode(""); };
+
+  const handleUTRConfirm = async () => {
+    if (utrNumber.length !== 12) return;
+    setUtrSubmitting(true);
+    try {
+      const snap = orderSnapshot;
+      // Update order with UTR number
+      await fetch(`${API}/api/orders/${orderId}/utr`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ utr: utrNumber }),
+      });
+      setUtrConfirmed(true);
+    } catch { toast.error("Failed to submit UTR. Please try again."); }
+    finally { setUtrSubmitting(false); }
+  };
 
   const handleNext = () => {
     const { name, phone, address, city, pincode } = form;
@@ -267,85 +286,112 @@ Please verify payment screenshot from customer and confirm dispatch.`
   // ── Step 3: Success ──
   if (step === 3) {
     const snap = orderSnapshot;
-    const amountDue = snap?.grandTotal || grandTotal;
+    const amountDue    = snap?.grandTotal || grandTotal;
     const customerName = snap?.form.name || form.name;
+    const gpayLink     = `upi://pay?pa=${UPI_IDS[0].upiId}&pn=${encodeURIComponent(UPI_IDS[0].name)}&am=${amountDue}&cu=INR&tn=${encodeURIComponent("SparkNest Order " + orderId)}`;
     return (
       <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'Source Sans 3',sans-serif", paddingTop:80 }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700;800&display=swap');`}</style>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700;800&display=swap');
+          @keyframes utr-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,0.3)} 50%{box-shadow:0 0 0 8px rgba(255,107,0,0)} }
+          .utr-input { width:100%; padding:0.9rem 1rem; background:rgba(255,255,255,0.07); border:2px solid rgba(255,107,0,0.3); border-radius:12px; color:#FFF5E6; font-family:'Source Sans 3',sans-serif; font-size:1rem; font-weight:700; outline:none; transition:border .2s; box-sizing:border-box; letter-spacing:0.05em; }
+          .utr-input:focus { border-color:#FF6B00; background:rgba(255,107,0,0.05); animation:utr-pulse 1.5s infinite; }
+          .utr-input::placeholder { color:rgba(255,245,230,0.25); font-weight:400; letter-spacing:0; }
+        `}</style>
 
         {/* ── Header ── */}
-        <div style={{ textAlign:"center", padding:"3rem 1rem 2rem", background:"linear-gradient(160deg,#FFF8F0 0%,#FFF3E0 40%,#FEF9F0 100%)", borderBottom:"1px solid rgba(255,107,0,0.15)", position:"relative", overflow:"hidden" }}>
-          <div style={{ fontSize:"3.5rem", lineHeight:1, marginBottom:"0.65rem" }}>🎆</div>
-          <h1 style={{ color:"#B45000", fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.06em", fontSize:"clamp(1.4rem,4vw,2.2rem)", margin:"0 0 0.6rem" }}>Order Confirmed!</h1>
-          <div style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", background:"rgba(255,107,0,0.12)", border:"1px solid rgba(255,107,0,0.3)", borderRadius:10, padding:"0.45rem 1.2rem", marginBottom:"0.8rem" }}>
-            <span style={{ color:"rgba(150,70,0,0.7)", fontSize:"0.72rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>Order ID</span>
-            <span style={{ color:"#C45000", fontWeight:800, fontSize:"1rem", fontFamily:"monospace" }}>#{orderId}</span>
+        <div style={{ textAlign:"center", padding:"2.5rem 1rem 2rem", background:"linear-gradient(160deg,#FFF8F0 0%,#FFF3E0 40%,#FEF9F0 100%)", borderBottom:"1px solid rgba(255,107,0,0.15)" }}>
+          <div style={{ fontSize:"3rem", marginBottom:"0.5rem" }}>🎆</div>
+          <h1 style={{ color:"#B45000", fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.06em", fontSize:"clamp(1.3rem,4vw,2rem)", margin:"0 0 0.5rem" }}>Order Placed!</h1>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.25)", borderRadius:10, padding:"0.4rem 1.1rem", marginBottom:"0.6rem" }}>
+            <span style={{ color:"rgba(150,70,0,0.6)", fontSize:"0.7rem", fontWeight:700, textTransform:"uppercase" }}>Order ID</span>
+            <span style={{ color:"#C45000", fontWeight:900, fontSize:"1rem", fontFamily:"monospace" }}>#{orderId}</span>
           </div>
-          <p style={{ color:"rgba(80,35,0,0.75)", fontSize:"0.97rem", margin:"0 0 0.75rem", lineHeight:1.65, maxWidth:520, marginInline:"auto" }}>
-            Dear <strong style={{ color:"#3D1A00" }}>{customerName}</strong>, complete the payment below and send the screenshot to our WhatsApp. We'll dispatch within <strong style={{ color:"#C45000" }}>24 hours</strong>. 🚀
+          <p style={{ color:"rgba(80,35,0,0.7)", fontSize:"0.9rem", margin:"0 0 1rem", lineHeight:1.6, maxWidth:480, marginInline:"auto" }}>
+            Hi <strong style={{ color:"#3D1A00" }}>{customerName}</strong>! Please complete the GPay payment below and enter your UTR number to confirm your order.
           </p>
-          <div style={{ display:"flex", gap:"0.75rem", justifyContent:"center", flexWrap:"wrap", marginTop:"0.5rem" }}>
-            <Link to="/track-order" style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", color:"#C45000", fontSize:"0.9rem", fontWeight:800, textDecoration:"none", background:"rgba(255,107,0,0.1)", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:10, padding:"0.6rem 1.2rem" }}>
-              📦 Track Your Order
-            </Link>
-            <Link to="/products" style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", color:"rgba(150,70,0,0.7)", fontSize:"0.9rem", fontWeight:700, textDecoration:"none", background:"rgba(255,107,0,0.05)", border:"1.5px solid rgba(255,107,0,0.15)", borderRadius:10, padding:"0.6rem 1.2rem" }}>
-              🛒 Continue Shopping
-            </Link>
-          </div>
         </div>
 
-        {/* ── Main content — full width ── */}
-        <div style={{ maxWidth:1200, margin:"0 auto", padding:"2rem clamp(1rem,4vw,2rem)" }}>
+        <div style={{ maxWidth:600, margin:"0 auto", padding:"1.5rem clamp(1rem,4vw,2rem) 4rem" }}>
 
-          {/* Amount banner */}
-          <div style={{ background:"linear-gradient(135deg,rgba(255,107,0,0.14),rgba(255,61,0,0.07))", border:"1px solid rgba(255,107,0,0.3)", borderRadius:14, padding:"0.9rem 1.4rem", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.4rem", flexWrap:"wrap", gap:"0.5rem" }}>
-            <span style={{ color:"rgba(255,245,230,0.75)", fontWeight:700, fontSize:"0.95rem" }}>💰 Total Amount Due</span>
-            <span style={{ color:"#FFD700", fontWeight:900, fontSize:"1.6rem", letterSpacing:"-0.01em" }}>₹{amountDue.toLocaleString("en-IN")}</span>
+          {/* ── Amount ── */}
+          <div style={{ background:"linear-gradient(135deg,rgba(255,107,0,0.15),rgba(255,61,0,0.08))", border:"1.5px solid rgba(255,107,0,0.35)", borderRadius:16, padding:"1.2rem 1.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem" }}>
+            <span style={{ color:"rgba(255,245,230,0.7)", fontWeight:700, fontSize:"0.95rem" }}>💰 Amount to Pay</span>
+            <span style={{ color:"#FFD700", fontWeight:900, fontSize:"1.8rem" }}>₹{amountDue.toLocaleString("en-IN")}</span>
           </div>
 
-          {/* ── Payment accounts grid — 2 per row ── */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(min(460px,100%),1fr))", gap:"1rem", marginBottom:"1.3rem" }}>
-            {BANK_ACCOUNTS.map((bank, i) => {
-              const upi = UPI_IDS[i] || UPI_IDS[0];
-              const rows = [
-                { label:"UPI", value:upi.upiId, green:true },
-                { label:"Bank", value:bank.bank },
-                { label:"Name", value:bank.name },
-                { label:"Acc No.", value:bank.accountNo },
-                { label:"IFSC", value:bank.ifsc },
-                { label:"Branch", value:bank.branch },
-              ];
-              return (
-                <div key={bank.id} style={{ background: i % 2 === 0 ? "rgba(255,245,230,0.04)" : "transparent", border: i % 2 === 0 ? "1px solid rgba(255,107,0,0.18)" : "1px solid rgba(255,107,0,0.1)", borderRadius:14, overflow:"hidden", minWidth:0 }}>
-                  {BANK_ACCOUNTS.length > 1 && (
-                    <div style={{ padding:"0.45rem 1rem", background: i % 2 === 0 ? "rgba(255,107,0,0.1)" : "rgba(255,107,0,0.05)", borderBottom:"1px solid rgba(255,107,0,0.1)", display:"flex", alignItems:"center", gap:"0.4rem" }}>
-                      <span style={{ color:"#FF6B00", fontSize:"0.7rem", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.06em" }}>Account {i + 1}</span>
-                      <span style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.7rem" }}>· {bank.name}</span>
-                    </div>
-                  )}
-                  {rows.map(({ label, value, green }, ri) => (
-                    <div key={label} style={{ display:"flex", alignItems:"center", padding:"0.55rem 1rem", borderBottom: ri < rows.length-1 ? "1px solid rgba(255,107,0,0.07)" : "none", background: green ? "rgba(37,211,102,0.05)" : "transparent", gap:"0.5rem" }}>
-                      <span style={{ color: green ? "rgba(37,211,102,0.6)" : "rgba(255,245,230,0.32)", fontSize:"0.67rem", fontWeight:700, minWidth:62, flexShrink:0, textTransform:"uppercase", letterSpacing:"0.04em" }}>{label}</span>
-                      <span style={{ color: green ? "#7defa1" : "#FFF5E6", fontWeight: green ? 800 : 600, fontSize:"0.88rem", flex:1, wordBreak:"break-all" }}>{value}</span>
-                      <CopyBtn text={value} />
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
+          {/* ── GPay section ── */}
+          <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,107,0,0.12)", borderRadius:16, padding:"1.5rem", marginBottom:"1.2rem" }}>
+            <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 1rem" }}>Pay via GPay / UPI</p>
+
+            {/* UPI ID */}
+            <div style={{ background:"rgba(37,211,102,0.06)", border:"1px solid rgba(37,211,102,0.2)", borderRadius:12, padding:"0.85rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1rem", gap:"0.5rem" }}>
+              <div>
+                <p style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.68rem", fontWeight:700, textTransform:"uppercase", margin:"0 0 0.2rem" }}>UPI ID</p>
+                <p style={{ color:"#7defa1", fontWeight:800, fontSize:"1rem", margin:0, fontFamily:"monospace" }}>{UPI_IDS[0].upiId}</p>
+              </div>
+              <CopyBtn text={UPI_IDS[0].upiId} />
+            </div>
+
+            {/* GPay button */}
+            <a href={gpayLink}
+              style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.6rem", width:"100%", padding:"0.9rem", background:"linear-gradient(135deg,#1a73e8,#1557b0)", border:"none", borderRadius:12, color:"#fff", fontWeight:800, fontSize:"1rem", textDecoration:"none", boxSizing:"border-box", boxShadow:"0 4px 16px rgba(26,115,232,0.4)", marginBottom:"0.75rem" }}>
+              <span style={{ fontSize:"1.2rem" }}>G</span> Open GPay & Pay ₹{amountDue.toLocaleString("en-IN")}
+            </a>
+            <p style={{ color:"rgba(255,245,230,0.3)", fontSize:"0.75rem", textAlign:"center", margin:0 }}>
+              Works with GPay · PhonePe · Paytm · Any UPI app
+            </p>
           </div>
 
-          {/* ── CTAs ── */}
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:"0.75rem" }}>
-            <button
-              onClick={() => window.open(`https://wa.me/91${ADMIN_WHATSAPP}?text=${buildOrderMessage("admin", snap)}`, "_blank")}
-              style={{ padding:"1rem 1.5rem", background:"#25D366", border:"none", borderRadius:14, color:"#fff", fontWeight:800, fontSize:"1.05rem", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.55rem", boxShadow:"0 4px 24px rgba(37,211,102,0.35)", fontFamily:"'Source Sans 3',sans-serif" }}>
-              <MessageCircle size={20} /> Send Payment Screenshot on WhatsApp
-            </button>
-            <button onClick={() => navigate("/products")}
-              style={{ padding:"1rem", background:"transparent", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:14, color:"#FF6B00", fontWeight:700, fontSize:"0.95rem", cursor:"pointer", fontFamily:"'Source Sans 3',sans-serif" }}>
-              Continue Shopping
-            </button>
+          {/* ── UTR Input ── */}
+          <div style={{ background:"rgba(255,255,255,0.03)", border:"1.5px solid rgba(255,107,0,0.2)", borderRadius:16, padding:"1.5rem", marginBottom:"1.2rem" }}>
+            <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Step 2 — Enter UTR / Transaction ID</p>
+            <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.8rem", margin:"0 0 0.85rem", lineHeight:1.6 }}>
+              After paying, open your GPay app → tap the transaction → copy the <strong style={{ color:"rgba(255,245,230,0.6)" }}>UTR number</strong> (12 digits) and paste it below.
+            </p>
+            <input
+              className="utr-input"
+              value={utrNumber}
+              onChange={e => setUtrNumber(e.target.value.replace(/\D/g, "").slice(0, 12))}
+              placeholder="e.g. 123456789012"
+              maxLength={12}
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+            />
+            {utrNumber.length > 0 && utrNumber.length < 12 && (
+              <p style={{ color:"#FF9800", fontSize:"0.75rem", margin:"0.4rem 0 0", fontWeight:600 }}>UTR must be 12 digits ({12 - utrNumber.length} more)</p>
+            )}
+            {utrNumber.length === 12 && (
+              <p style={{ color:"#2ECC71", fontSize:"0.75rem", margin:"0.4rem 0 0", fontWeight:600 }}>✓ UTR looks good!</p>
+            )}
+          </div>
+
+          {/* ── UTR Confirmed message ── */}
+          {utrConfirmed && (
+            <div style={{ background:"rgba(46,204,113,0.1)", border:"1.5px solid rgba(46,204,113,0.3)", borderRadius:14, padding:"1.2rem 1.5rem", marginBottom:"1rem", textAlign:"center" }}>
+              <div style={{ fontSize:"2rem", marginBottom:"0.4rem" }}>🎉</div>
+              <p style={{ color:"#2ECC71", fontWeight:800, fontSize:"1rem", margin:"0 0 0.3rem" }}>Payment Confirmed!</p>
+              <p style={{ color:"rgba(255,245,230,0.55)", fontSize:"0.85rem", margin:0 }}>UTR #{utrNumber} received. Our team will verify and dispatch your order within 24 hours.</p>
+            </div>
+          )}
+
+          {/* ── Confirm button ── */}
+          {!utrConfirmed && <button
+            onClick={handleUTRConfirm}
+            disabled={utrNumber.length !== 12 || utrSubmitting}
+            style={{ width:"100%", padding:"1rem", background: utrNumber.length === 12 ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.06)", border:"none", borderRadius:14, color: utrNumber.length === 12 ? "#fff" : "rgba(255,245,230,0.25)", fontWeight:800, fontSize:"1.05rem", cursor: utrNumber.length === 12 ? "pointer" : "not-allowed", fontFamily:"'Source Sans 3',sans-serif", marginBottom:"1rem", transition:"all .2s", boxShadow: utrNumber.length === 12 ? "0 4px 20px rgba(255,107,0,0.4)" : "none", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
+            {utrSubmitting
+              ? <><span style={{ width:18,height:18,border:"2.5px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .8s linear infinite" }} /> Confirming…</>
+              : "✅ Confirm Payment & Order"
+            }
+          </button>}
+
+          {/* ── Links ── */}
+          <div style={{ display:"flex", gap:"0.75rem", justifyContent:"center", flexWrap:"wrap" }}>
+            <Link to="/track-order" style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>📦 Track Order</Link>
+            <span style={{ color:"rgba(255,245,230,0.15)" }}>·</span>
+            <Link to="/products" style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>🛒 Continue Shopping</Link>
           </div>
 
         </div>
