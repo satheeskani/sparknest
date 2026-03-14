@@ -1266,9 +1266,8 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
     loadTab(tab);
   }, [tab]); // eslint-disable-line
 
-  // Badge: show pending count only when NOT on orders tab
-  const pendingBadge = tab === "orders" ? 0
-    : (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
+  // Badge: show pending count always, disappears when count reaches 0
+  const pendingBadge = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
