@@ -11,6 +11,7 @@ import {
 import upload from "../middleware/upload.middleware.js";
 import { protect, adminOnly } from "../middleware/auth.middleware.js";
 import Category from "../models/Category.model.js";
+import cloudinary from "../config/cloudinary.js";
 
 const router = express.Router();
 
@@ -43,6 +44,31 @@ router.get("/categories/public", async (req, res) => {
 });
 
 router.get("/:slug",    getProductBySlug);
+
+// ── Admin: browse uploaded images from Cloudinary ────────────────────────────
+router.get("/media-library", protect, adminOnly, async (req, res) => {
+  try {
+    const { next_cursor, folder } = req.query;
+    const options = {
+      type:        "upload",
+      prefix:      folder || "sparknest",
+      max_results: 30,
+      resource_type: "image",
+    };
+    if (next_cursor) options.next_cursor = next_cursor;
+
+    const result = await cloudinary.api.resources(options);
+    const images = result.resources.map(r => ({
+      url:       r.secure_url,
+      publicId:  r.public_id,
+      width:     r.width,
+      height:    r.height,
+      bytes:     r.bytes,
+      createdAt: r.created_at,
+    }));
+    res.json({ success: true, images, next_cursor: result.next_cursor || null });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+});
 
 // ── Admin only ────────────────────────────────────────────────────────────────
 router.post("/upload-image", protect, adminOnly, upload.single("image"), uploadImage);
