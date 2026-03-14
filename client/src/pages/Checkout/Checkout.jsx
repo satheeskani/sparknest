@@ -243,6 +243,7 @@ Please verify payment screenshot from customer and confirm dispatch.`
       // 1. Save order to MongoDB
       await postOrder(snap);
 
+            dispatch(clearCart()); // clear cart after successful order
             setStep(3);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
