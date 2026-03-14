@@ -1261,20 +1261,13 @@ export default function AdminPanel() {
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
   const { cache, loading, reload, loadTab } = useAdminData(token);
-  const [badgeDismissed, setBadgeDismissed] = useState(false);
-
   // Always fetch fresh data when tab is clicked
   useEffect(() => {
     loadTab(tab);
-    if (tab === "orders") setBadgeDismissed(true); // hide badge when orders opened
   }, [tab]); // eslint-disable-line
 
-  // Show badge when new orders come in (after dismissed, re-show only on fresh data)
-  useEffect(() => {
-    setBadgeDismissed(false);
-  }, [cache.orders]);
-
-  const pendingBadge = badgeDismissed ? 0
+  // Badge: show pending count only when NOT on orders tab
+  const pendingBadge = tab === "orders" ? 0
     : (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
 
   return (
