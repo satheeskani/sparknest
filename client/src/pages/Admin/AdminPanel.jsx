@@ -202,7 +202,7 @@ function ProductModal({ product, onClose, onSaved, token, categoryList=[] }) {
         </div>
         <div style={{ display:"flex",gap:"0.75rem",marginTop:"1.3rem" }}>
           <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
-          <Btn onClick={handleSubmit} disabled={saving||uploading} style={{ flex:2,justifyContent:"center" }}>
+          <Btn onClick={handleSubmit} disabled={saving} style={{ flex:2,justifyContent:"center" }}>
             {saving?<><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} />Saving…</>:isEdit?"Save Changes":"Add Product"}
           </Btn>
         </div>
