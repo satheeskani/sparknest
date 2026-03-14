@@ -116,9 +116,9 @@ function ImageUpload({ currentImage, onUpload, uploading, setUploading, token })
 }
 
 // ── Product Modal ──────────────────────────────────────────────────────────────
-function ProductModal({ product, onClose, onSaved, token }) {
+function ProductModal({ product, onClose, onSaved, token, categoryList=[] }) {
   const isEdit = !!product?._id;
-  const [form,setForm]           = useState(isEdit?{...product,price:String(product.price),originalPrice:String(product.originalPrice||""),stock:String(product.stock),tags:(product.tags||[]).join(", ")}:EMPTY_FORM);
+  const [form,setForm]           = useState(isEdit?{...product,price:String(product.price),originalPrice:String(product.originalPrice||""),stock:String(product.stock),tags:(product.tags||[]).join(", ")}:{...EMPTY_FORM, category: categoryList[0]||"Sparklers"});
   const [saving,setSaving]       = useState(false);
   const [uploading,setUploading] = useState(false);
 
@@ -154,7 +154,7 @@ function ProductModal({ product, onClose, onSaved, token }) {
           <div style={{ gridColumn:"1/-1" }}><label style={S.label}>Description *</label><Textarea name="description" value={form.description} onChange={onChange} rows={3} /></div>
           <div><label style={S.label}>Price (₹) *</label><Input name="price" value={form.price} onChange={onChange} type="number" /></div>
           <div><label style={S.label}>Original Price (₹)</label><Input name="originalPrice" value={form.originalPrice} onChange={onChange} type="number" /></div>
-          <div><label style={S.label}>Category *</label><FSelect name="category" value={form.category} onChange={onChange}>{CATEGORIES.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></div>
+          <div><label style={S.label}>Category *</label><FSelect name="category" value={form.category} onChange={onChange}>{categoryList.map(c=><option key={c} value={c}>{c}</option>)}</FSelect></div>
           <div><label style={S.label}>Stock *</label><Input name="stock" value={form.stock} onChange={onChange} type="number" /></div>
           <div style={{ gridColumn:"1/-1" }}><label style={S.label}>Tags (comma separated)</label><Input name="tags" value={form.tags} onChange={onChange} placeholder="sparkler, golden, diwali" /></div>
           <div style={{ gridColumn:"1/-1",display:"flex",gap:"1.4rem" }}>
@@ -344,11 +344,12 @@ function DashboardTab({ token, data, loading, onRefresh }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // PRODUCTS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function ProductsTab({ token, data, loading, onRefresh }) {
+function ProductsTab({ token, data, loading, onRefresh, catData }) {
   const [products,setProducts]   = useState([]);
   const [search,setSearch]       = useState("");
   const [modal,setModal]         = useState(null);
   const [delTarget,setDelTarget] = useState(null);
+  const catNames = (catData?.categories||[]).map(c=>c.name);
 
   useEffect(()=>{ if (data?.products) setProducts(data.products); },[data]);
 
@@ -386,7 +387,7 @@ function ProductsTab({ token, data, loading, onRefresh }) {
         <Pagination page={page} totalPages={totalPages} setPage={setPage} total={filtered.length} />
         </>
       )}
-      {modal     && <ProductModal product={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);fetchProducts();}} token={token} />}
+      {modal     && <ProductModal product={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);fetchProducts();}} token={token} categoryList={catNames} />}
       {delTarget && <DeleteConfirm product={delTarget} onClose={()=>setDelTarget(null)} onDeleted={()=>{setDelTarget(null);fetchProducts();}} token={token} />}
     </div>
   );
@@ -854,7 +855,7 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
       {/* Content — tabs receive cached data, no re-fetching on switch */}
       <div style={{ maxWidth:1200,margin:"0 auto",padding:"1.8rem clamp(1rem,4vw,2rem)" }}>
         {tab==="dashboard"  && <DashboardTab  token={token} data={cache.dashboard}  loading={!!loading.dashboard}  onRefresh={()=>reload("dashboard","/api/admin/dashboard")} />}
-        {tab==="products"   && <ProductsTab   token={token} data={cache.products}   loading={!!loading.products}   onRefresh={()=>reload("products","/api/products?limit=100")} />}
+        {tab==="products"   && <ProductsTab   token={token} data={cache.products}   loading={!!loading.products}   onRefresh={()=>reload("products","/api/products?limit=100")} catData={cache.categories} />}
         {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} onRefresh={()=>reload("categories","/api/admin/categories")} />}
         {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users","/api/admin/users?limit=50")} />}
         {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders","/api/admin/orders?limit=50")} />}
