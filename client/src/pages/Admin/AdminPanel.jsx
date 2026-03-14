@@ -1216,18 +1216,18 @@ function useAdminData(token) {
       } catch {}
     };
 
-    // First call just sets baseline count — no sound/toast
-    const init = async () => {
-      try {
-        const res  = await authFetch("/api/admin/dashboard", {}, token);
-        const data = await res.json();
-        if (data.success) lastOrderCount.current = data.stats?.totalOrders || 0;
-      } catch {}
-    };
-    init().then(() => {
-      const interval = setInterval(checkNewOrders, 30000);
-      intervalRef.current = interval;
-    });
+    // First call sets baseline — interval only starts after baseline is set
+    lastOrderCount.current = null; // reset on login
+    authFetch("/api/admin/dashboard", {}, token)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          lastOrderCount.current = data.stats?.totalOrders || 0;
+          // Only start polling after baseline is confirmed
+          intervalRef.current = setInterval(checkNewOrders, 30000);
+        }
+      })
+      .catch(() => {});
     return () => {
       clearInterval(intervalRef.current);
       document.removeEventListener("click", unlockAudio);
@@ -1261,26 +1261,21 @@ export default function AdminPanel() {
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
   const { cache, loading, reload, loadTab } = useAdminData(token);
-  const [pendingBadge, setPendingBadge] = useState(0);
-  const ordersViewed = useRef(false);
-
-  // Update badge only when not already viewing orders tab
-  useEffect(() => {
-    if (ordersViewed.current) return; // don't re-show if already viewed
-    const count = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
-    setPendingBadge(count);
-  }, [cache.orders]);
+  const [badgeDismissed, setBadgeDismissed] = useState(false);
 
   // Always fetch fresh data when tab is clicked
   useEffect(() => {
     loadTab(tab);
-    if (tab === "orders") {
-      setPendingBadge(0);      // clear badge immediately
-      ordersViewed.current = true; // mark as viewed so cache update won't re-add badge
-    } else {
-      ordersViewed.current = false; // reset when leaving orders tab
-    }
+    if (tab === "orders") setBadgeDismissed(true); // hide badge when orders opened
   }, [tab]); // eslint-disable-line
+
+  // Show badge when new orders come in (after dismissed, re-show only on fresh data)
+  useEffect(() => {
+    setBadgeDismissed(false);
+  }, [cache.orders]);
+
+  const pendingBadge = badgeDismissed ? 0
+    : (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
