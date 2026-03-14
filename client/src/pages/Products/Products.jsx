@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Helmet } from "react-helmet-async";
 import { addToCart, removeFromCart, updateQty } from "../../redux/slices/cartSlice";
 import { ShoppingCart, SlidersHorizontal, X, Baby, ChevronDown, ChevronLeft, ChevronRight, Search, Heart } from "lucide-react";
 import toast from "react-hot-toast";
@@ -329,6 +330,17 @@ export default function Products() {
 
   return (
     <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'Source Sans 3', sans-serif", paddingTop:"80px" }}>
+      <Helmet>
+        <title>Buy Diwali Crackers Online — Sparklers, Rockets, Bombs | SparkNest Sivakasi</title>
+        <meta name="description" content="Shop premium Diwali firecrackers online from SparkNest Sivakasi. Sparklers, rockets, flower pots, sky shots, kids safe crackers & combo packs. Free shipping above ₹999. Pan India delivery." />
+        <meta name="keywords" content="buy crackers online, diwali crackers, sivakasi crackers, sparklers online, rockets firecrackers, kids safe crackers, flower pots crackers, combo packs diwali" />
+        <link rel="canonical" href="https://sparknest-one.vercel.app/products" />
+        <meta property="og:type"  content="website" />
+        <meta property="og:url"   content="https://sparknest-one.vercel.app/products" />
+        <meta property="og:title" content="Buy Diwali Crackers Online | SparkNest Sivakasi" />
+        <meta property="og:description" content="Shop premium firecrackers — sparklers, rockets, flower pots, sky shots & kids safe options. Free delivery above ₹999." />
+        <meta property="og:image" content="https://sparknest-one.vercel.app/og-image.jpg" />
+      </Helmet>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');
 
