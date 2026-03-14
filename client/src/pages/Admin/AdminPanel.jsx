@@ -81,89 +81,44 @@ function Btn({ children, variant="primary", style={}, ...props }) {
   return <button {...props} style={{ fontFamily:"'Source Sans 3',sans-serif", fontWeight:800, fontSize:"0.88rem", borderRadius:10, cursor:props.disabled?"not-allowed":"pointer", display:"flex", alignItems:"center", gap:"0.4rem", padding:"0.6rem 1.1rem", opacity:props.disabled?0.55:1, transition:"opacity .2s", ...v[variant], ...style }}>{children}</button>;
 }
 
-// ── Media Library Picker ──────────────────────────────────────────────────────
-function MediaLibrary({ onSelect, onClose, token }) {
-  const [images, setImages]       = useState([]);
-  const [loading, setLoading]     = useState(true);
-  const [nextCursor, setNextCursor] = useState(null);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [selected, setSelected]   = useState(null);
+// ── Open Cloudinary Media Library Widget ─────────────────────────────────────
+function openCloudinaryLibrary(onSelect) {
+  const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const API_KEY    = import.meta.env.VITE_CLOUDINARY_API_KEY;
 
-  const fetchImages = async (cursor = null) => {
-    cursor ? setLoadingMore(true) : setLoading(true);
-    try {
-      const url = `/api/products/media-library${cursor ? `?next_cursor=${encodeURIComponent(cursor)}` : ""}`;
-      const res  = await authFetch(url, {}, token);
-      const data = await res.json();
-      if (data.success) {
-        setImages(prev => cursor ? [...prev, ...data.images] : data.images);
-        setNextCursor(data.next_cursor);
+  // Load the Cloudinary ML widget script if not already loaded
+  const load = () => {
+    window.cloudinary.openMediaLibrary(
+      {
+        cloud_name:  CLOUD_NAME,
+        api_key:     API_KEY,
+        multiple:    false,
+        folder:      { path: "sparknest", resource_type: "image" },
+      },
+      {
+        insertHandler: (data) => {
+          if (data.assets?.length > 0) {
+            onSelect(data.assets[0].secure_url);
+          }
+        },
       }
-    } catch { toast.error("Failed to load media"); }
-    finally { cursor ? setLoadingMore(false) : setLoading(false); }
+    );
   };
 
-  useEffect(() => { fetchImages(); }, []);
-
-  return (
-    <div style={{ position:"fixed",inset:0,zIndex:1100,background:"rgba(0,0,0,0.88)",backdropFilter:"blur(6px)",display:"flex",alignItems:"flex-start",justifyContent:"center",padding:"1.5rem",overflowY:"auto" }}>
-      <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,107,0,0.2)",borderRadius:20,width:"100%",maxWidth:800,padding:"1.8rem" }}>
-        {/* Header */}
-        <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.3rem" }}>
-          <h2 style={{ color:"#FFF5E6",fontFamily:"'Libre Baskerville',serif",fontSize:"1.1rem",margin:0 }}>📷 Media Library</h2>
-          <Btn variant="ghost" onClick={onClose} style={{ padding:"0.4rem" }}><X size={15} /></Btn>
-        </div>
-
-        {loading ? (
-          <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:"0.75rem" }}>
-            {[...Array(12)].map((_,i) => <div key={i} className="skeleton" style={{ height:140,borderRadius:10 }} />)}
-          </div>
-        ) : images.length === 0 ? (
-          <p style={{ color:"rgba(255,245,230,0.4)",textAlign:"center",padding:"3rem" }}>No images uploaded yet</p>
-        ) : (
-          <>
-            <div style={{ display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:"0.75rem",marginBottom:"1rem" }}>
-              {images.map(img => (
-                <div key={img.publicId} onClick={() => setSelected(img)}
-                  style={{ borderRadius:10,overflow:"hidden",cursor:"pointer",border:`2.5px solid ${selected?.publicId===img.publicId?"#FF6B00":"rgba(255,255,255,0.06)"}`,position:"relative",aspectRatio:"1",background:"#111",transition:"border-color .15s" }}>
-                  <img src={img.url} alt={img.publicId} style={{ width:"100%",height:"100%",objectFit:"cover",display:"block" }} />
-                  {selected?.publicId===img.publicId && (
-                    <div style={{ position:"absolute",inset:0,background:"rgba(255,107,0,0.25)",display:"flex",alignItems:"center",justifyContent:"center" }}>
-                      <div style={{ width:28,height:28,borderRadius:"50%",background:"#FF6B00",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:"1rem" }}>✓</div>
-                    </div>
-                  )}
-                  <div style={{ position:"absolute",bottom:0,left:0,right:0,background:"rgba(0,0,0,0.6)",padding:"0.2rem 0.4rem",fontSize:"0.55rem",color:"rgba(255,255,255,0.6)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap" }}>
-                    {img.publicId.split("/").pop()}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {nextCursor && (
-              <div style={{ textAlign:"center",marginBottom:"1rem" }}>
-                <Btn variant="ghost" onClick={()=>fetchImages(nextCursor)} style={{ justifyContent:"center" }}>
-                  {loadingMore ? <><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} /> Loading…</> : "Load More"}
-                </Btn>
-              </div>
-            )}
-          </>
-        )}
-
-        <div style={{ display:"flex",gap:"0.75rem",paddingTop:"1rem",borderTop:"1px solid rgba(255,107,0,0.1)" }}>
-          <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
-          <Btn onClick={()=>{ if(selected){ onSelect(selected.url); onClose(); } else toast.error("Select an image first"); }} style={{ flex:2,justifyContent:"center" }} disabled={!selected}>
-            Use Selected Image
-          </Btn>
-        </div>
-      </div>
-    </div>
-  );
+  if (window.cloudinary?.openMediaLibrary) {
+    load();
+  } else {
+    const script = document.createElement("script");
+    script.src = "https://media-library.cloudinary.com/global/all.js";
+    script.onload = load;
+    document.head.appendChild(script);
+  }
 }
 
 // ── Image Upload ───────────────────────────────────────────────────────────────
 function ImageUpload({ currentImage, onUpload, uploading, setUploading, token }) {
   const fileRef = useRef();
-  const [preview, setPreview]       = useState(currentImage||"");
-  const [showLibrary, setShowLibrary] = useState(false);
+  const [preview, setPreview] = useState(currentImage||"");
   useEffect(()=>{ setPreview(currentImage||""); },[currentImage]);
 
   const handleFile = async (file) => {
@@ -180,11 +135,15 @@ function ImageUpload({ currentImage, onUpload, uploading, setUploading, token })
     finally{ setUploading(false); }
   };
 
+  const handleLibrary = () => {
+    openCloudinaryLibrary(url => { setPreview(url); onUpload(url); });
+  };
+
   return (
     <div>
       <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.35rem" }}>
         <label style={S.label}>Product Image</label>
-        <button type="button" onClick={()=>setShowLibrary(true)}
+        <button type="button" onClick={handleLibrary}
           style={{ background:"none",border:"none",color:"#FF6B00",fontSize:"0.72rem",fontWeight:700,cursor:"pointer",fontFamily:"'Source Sans 3',sans-serif",display:"flex",alignItems:"center",gap:"0.25rem",padding:0 }}>
           📷 Browse Library
         </button>
@@ -196,9 +155,6 @@ function ImageUpload({ currentImage, onUpload, uploading, setUploading, token })
           : <div style={{ display:"flex",flexDirection:"column",alignItems:"center",gap:"0.35rem",padding:"0.4rem 0" }}><Upload size={22} color="rgba(255,107,0,0.45)" /><p style={{ color:"rgba(255,245,230,0.45)",fontSize:"0.8rem",margin:0 }}>Click or drag & drop</p><p style={{ color:"rgba(255,245,230,0.28)",fontSize:"0.7rem",margin:0 }}>JPG, PNG, WebP · Max 5MB</p></div>}
       </div>
       <input ref={fileRef} type="file" accept="image/*" style={{ display:"none" }} onChange={e=>handleFile(e.target.files[0])} />
-      {showLibrary && (
-        <MediaLibrary token={token} onClose={()=>setShowLibrary(false)} onSelect={url=>{ setPreview(url); onUpload(url); }} />
-      )}
     </div>
   );
 }
