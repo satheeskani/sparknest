@@ -1,6 +1,7 @@
-import Order   from "../models/Order.model.js";
-import User    from "../models/User.model.js";
-import Product from "../models/Product.model.js";
+import Order    from "../models/Order.model.js";
+import User     from "../models/User.model.js";
+import Product  from "../models/Product.model.js";
+import Category from "../models/Category.model.js";
 
 // GET /api/admin/dashboard
 export const getDashboard = async (req, res) => {
@@ -25,7 +26,6 @@ export const getDashboard = async (req, res) => {
       .filter(o => o.pricing?.grandTotal)
       .reduce((sum, o) => sum + o.pricing.grandTotal, 0);
 
-    // Revenue by month (last 6 months)
     const now = new Date();
     const monthlyRevenue = Array.from({ length: 6 }, (_, i) => {
       const d     = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
@@ -39,7 +39,6 @@ export const getDashboard = async (req, res) => {
       return { label, total };
     });
 
-    // Category breakdown
     const categoryBreakdown = await Product.aggregate([
       { $group: { _id: "$category", count: { $sum: 1 }, totalStock: { $sum: "$stock" } } },
       { $sort: { count: -1 } },
@@ -147,7 +146,6 @@ export const getCategories = async (req, res) => {
     res.json({ success: true, categories });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
-
 
 // POST /api/admin/categories
 export const createCategory = async (req, res) => {
