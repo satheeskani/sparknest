@@ -888,7 +888,6 @@ function useAdminData(token) {
   const inFlight              = useRef({});
 
   const fetchTab = useCallback(async (key, url) => {
-    if (inFlight.current[key]) return;
     inFlight.current[key] = true;
     setLoading(l => ({ ...l, [key]: true }));
     try {
@@ -908,19 +907,17 @@ function useAdminData(token) {
     fetchTab(key, TAB_URLS[key]);
   }, [fetchTab]);
 
-  // Fetch a tab's data if not already cached
-  const ensureLoaded = useCallback((key) => {
-    if (!cache[key] && !inFlight.current[key]) {
-      fetchTab(key, TAB_URLS[key]);
-    }
-  }, [cache, fetchTab]);
+  // Always fetch fresh when switching tabs
+  const loadTab = useCallback((key) => {
+    fetchTab(key, TAB_URLS[key]);
+  }, [fetchTab]);
 
-  // Prefetch dashboard on login
+  // Load dashboard on login
   useEffect(() => {
     fetchTab("dashboard", TAB_URLS.dashboard);
   }, [token]); // eslint-disable-line
 
-  return { cache, loading, reload, ensureLoaded };
+  return { cache, loading, reload, loadTab };
 }
 
 export default function AdminPanel() {
@@ -946,10 +943,10 @@ export default function AdminPanel() {
 
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
-  const { cache, loading, reload, ensureLoaded } = useAdminData(token);
+  const { cache, loading, reload, loadTab } = useAdminData(token);
 
-  // Fetch tab data when tab is clicked
-  useEffect(() => { ensureLoaded(tab); }, [tab]); // eslint-disable-line
+  // Always fetch fresh data when tab is clicked
+  useEffect(() => { loadTab(tab); }, [tab]); // eslint-disable-line
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
