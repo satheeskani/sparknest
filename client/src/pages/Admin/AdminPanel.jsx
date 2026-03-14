@@ -716,6 +716,23 @@ function OrdersTab({ token, data, loading, onRefresh }) {
                     <p style={{ ...S.label,marginBottom:"0.3rem" }}>Delivery Address</p>
                     <p style={{ color:"rgba(255,245,230,0.6)",fontSize:"0.82rem",margin:0,lineHeight:1.6 }}>{o.customer?.address}, {o.customer?.city}, {o.customer?.state} — {o.customer?.pincode}</p>
                   </div>
+                  {/* WhatsApp quick actions */}
+                  <div style={{ display:"flex",gap:"0.6rem",flexWrap:"wrap" }}>
+                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}`} target="_blank" rel="noreferrer"
+                      style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(37,211,102,0.12)",border:"1px solid rgba(37,211,102,0.3)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#25D366",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
+                      💬 WhatsApp {o.customer?.name}
+                    </a>
+                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${encodeURIComponent(`Hi ${o.customer?.name}, your SparkNest order *#${o.orderId}* has been dispatched! 🎆 We will deliver it soon. Thank you for ordering with us!`)}`}
+                      target="_blank" rel="noreferrer"
+                      style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(255,107,0,0.1)",border:"1px solid rgba(255,107,0,0.25)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#FF6B00",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
+                      🚚 Send Dispatch Message
+                    </a>
+                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${encodeURIComponent(`Hi ${o.customer?.name}, your SparkNest order *#${o.orderId}* has been delivered! 🎆 Thank you for shopping with us. Happy Diwali! 🪔`)}`}
+                      target="_blank" rel="noreferrer"
+                      style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(255,215,0,0.1)",border:"1px solid rgba(255,215,0,0.25)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#FFD700",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
+                      ✅ Send Delivered Message
+                    </a>
+                  </div>
                   <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.9rem" }}>
                     <div><p style={{ ...S.label,marginBottom:"0.35rem" }}>Order Status</p><FSelect value={o.orderStatus} onChange={e=>updateStatus(o.orderId,"orderStatus",e.target.value)}>{ORDER_STATUS.map(s=><option key={s} value={s}>{s}</option>)}</FSelect></div>
                     <div><p style={{ ...S.label,marginBottom:"0.35rem" }}>Payment Status</p><FSelect value={o.paymentStatus} onChange={e=>updateStatus(o.orderId,"paymentStatus",e.target.value)}>{PAYMENT_STATUS.map(s=><option key={s} value={s}>{s}</option>)}</FSelect></div>
