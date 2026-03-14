@@ -23,15 +23,10 @@ function StarRating({ rating, size = 13 }) {
   );
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product, catMap = {} }) {
   const dispatch  = useDispatch();
   const navigate  = useNavigate();
   const { t } = useLang();
-  const CAT_MAP = {
-    "Sparklers":"catSparklers","Rockets":"catRockets","Bombs":"catBombs",
-    "Flower Pots":"catFlowerPots","Sky Shots":"catSkyShots","Kids Special":"catKidsSpecial",
-    "Combo Packs":"catComboPacks","Gift Boxes":"catGiftBoxes",
-  };
   const cartItems = useSelector(s => s.cart.items);
   const cartItem  = cartItems.find(i => i._id === product._id);
   const qty       = cartItem ? cartItem.quantity : 0;
@@ -72,7 +67,7 @@ function ProductCard({ product }) {
       <div style={{ flex:1, padding:"0.6rem 0.7rem", display:"flex", flexDirection:"column", justifyContent:"space-between", minWidth:0 }}>
         <div>
           <div style={{ fontSize:"0.72rem", color:"#FF6B00", fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:"0.12rem", display:"flex", alignItems:"center", gap:"0.3rem" }}>
-            {t[CAT_MAP[product.category]] || product.category}{product.isSafeForKids && <span style={{ color:"#1ABC9C" }}>✦ Kids Safe</span>}
+            {t[catMap[product.category]] || product.category}{product.isSafeForKids && <span style={{ color:"#1ABC9C" }}>✦ Kids Safe</span>}
           </div>
           <div style={{ fontSize:"0.80rem", fontWeight:700, color:"rgba(255,245,230,0.92)", lineHeight:1.3, display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>{product.name}</div>
         </div>
@@ -115,19 +110,31 @@ export default function ProductDetail() {
   const { slug } = useParams();
   const navigate  = useNavigate();
   const { t } = useLang();
-  const CAT_MAP = {
-    "Sparklers":"catSparklers","Rockets":"catRockets","Bombs":"catBombs",
-    "Flower Pots":"catFlowerPots","Sky Shots":"catSkyShots","Kids Special":"catKidsSpecial",
-    "Combo Packs":"catComboPacks","Gift Boxes":"catGiftBoxes",
-  };
   const dispatch  = useDispatch();
   const { items } = useSelector(s => s.cart);
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [qty, setQty]         = useState(1);
-
   const [loading, setLoading] = useState(true);
+  const [catMap, setCatMap]   = useState({});
+
+  // Fetch categories for dynamic label mapping
+  useEffect(() => {
+    fetch(`${API}/api/products/categories/public`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const map = {};
+          data.categories.forEach(c => {
+            const key = "cat" + c.name.replace(/\s+/g, "");
+            map[c.name] = key;
+          });
+          setCatMap(map);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -257,7 +264,7 @@ export default function ProductDetail() {
 
               {/* Category + badges row */}
               <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", marginBottom:"0.45rem", flexWrap:"wrap" }}>
-                <span style={{ fontSize:"1rem", color:"#FF6B00", fontWeight:800, letterSpacing:"0.1em", textTransform:"uppercase" }}>{t[CAT_MAP[product.category]] || product.category}</span>
+                <span style={{ fontSize:"1rem", color:"#FF6B00", fontWeight:800, letterSpacing:"0.1em", textTransform:"uppercase" }}>{t[catMap[product.category]] || product.category}</span>
                 {product.isSafeForKids && <span style={{ background:"rgba(46,204,113,0.15)", border:"1px solid rgba(46,204,113,0.3)", color:"#2ECC71", fontSize:"0.6rem", fontWeight:700, padding:"0.12rem 0.5rem", borderRadius:100, display:"flex", alignItems:"center", gap:"0.2rem" }}><Baby size={9}/> Kids Safe</span>}
                 {product.stock <= 20 && <span style={{ background:"rgba(255,61,0,0.12)", border:"1px solid rgba(255,61,0,0.25)", color:"#FF3D00", fontSize:"0.6rem", fontWeight:700, padding:"0.12rem 0.5rem", borderRadius:100, animation:"pulse 2s infinite" }}>Only {product.stock} left!</span>}
               </div>
@@ -357,7 +364,7 @@ export default function ProductDetail() {
               </Link>
             </div>
             <div className="related-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"0.75rem" }}>
-              {related.map(p => <ProductCard key={p._id} product={p} />)}
+              {related.map(p => <ProductCard key={p._id} product={p} catMap={catMap} />)}
             </div>
           </div>
         )}

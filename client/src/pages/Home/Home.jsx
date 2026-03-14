@@ -8,16 +8,19 @@ import {
 } from "lucide-react";
 import AISearch from "../../components/AISearch/AISearch";
 
-const categories = [
-  { name:"Sparklers",   tKey:"catSparklers",  img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", count:24, color:"#B34500", bg:"#FDDBB4" },
-  { name:"Rockets",     tKey:"catRockets",    img:"https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=600&q=80", count:18, color:"#8B1A1A", bg:"#F5BFBF" },
-  { name:"Bombs",       tKey:"catBombs",      img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
-  { name:"Flower Pots", tKey:"catFlowerPots", img:"https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=600&q=80", count:21, color:"#004F80", bg:"#B3D9F5" },
-  { name:"Sky Shots",   tKey:"catSkyShots",   img:"https://images.unsplash.com/photo-1533230408708-8f9f91d1235a?w=600&q=80", count:12, color:"#0D5C30", bg:"#B3E8CC" },
-  { name:"Kids Special",tKey:"catKidsSpecial",img:"https://images.unsplash.com/photo-1604881991720-f91add269bed?w=600&q=80", count:32, color:"#7A3000", bg:"#FECFA0" },
-  { name:"Combo Packs", tKey:"catComboPacks", img:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80", count:15, color:"#4A1A8B", bg:"#D9C8F5" },
-  { name:"Gift Boxes",  tKey:"catGiftBoxes",  img:"https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", count: 9, color:"#004F80", bg:"#B3D9F5" },
-];
+const API = import.meta.env.VITE_API_URL || "";
+
+// Categories loaded from DB — fallback colors per name
+const CAT_FALLBACK = {
+  "Sparklers":   { color:"#B34500", bg:"#FDDBB4" },
+  "Rockets":     { color:"#8B1A1A", bg:"#F5BFBF" },
+  "Bombs":       { color:"#4A1A8B", bg:"#D9C8F5" },
+  "Flower Pots": { color:"#004F80", bg:"#B3D9F5" },
+  "Sky Shots":   { color:"#0D5C30", bg:"#B3E8CC" },
+  "Kids Special":{ color:"#7A3000", bg:"#FECFA0" },
+  "Combo Packs": { color:"#4A1A8B", bg:"#D9C8F5" },
+  "Gift Boxes":  { color:"#004F80", bg:"#B3D9F5" },
+};
 
 const marqueeItems = [
   { text: "✨ Premium Sivakasi Quality",  color: "#FFD700" },
@@ -35,6 +38,25 @@ const marqueeItems = [
 
 export default function Home() {
   const [aiResults, setAiResults] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API}/api/products/categories/public`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setCategories(data.categories.map((c, i) => ({
+            name:  c.name,
+            tKey:  `cat${c.name.replace(/\s+/g,"")}`,
+            img:   c.image || "",
+            count: c.count || 0,
+            color: c.color || CAT_FALLBACK[c.name]?.color || "#FF6B00",
+            bg:    c.bg    || CAT_FALLBACK[c.name]?.bg    || "#FFE0CC",
+          })));
+        }
+      })
+      .catch(() => {}); // silently fail — page still works
+  }, []);
   const { lang, setLang, t, LANGS } = useLang();
 
   useEffect(() => { localStorage.setItem("sparknest_lang", lang); }, [lang]);
@@ -496,12 +518,10 @@ export default function Home() {
                   </div>
                   {/* Image side */}
                   <div className="bento-img-wrap">
-                    <img
-                      src={cat.img}
-                      alt={cat.name}
-                      className="bento-img"
-                      onError={e => { e.target.style.display="none"; }}
-                    />
+                    {cat.img
+                      ? <img src={cat.img} alt={cat.name} className="bento-img" onError={e => { e.target.style.display="none"; }} />
+                      : <div style={{ width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"3rem", opacity:0.4 }}>🎆</div>
+                    }
                   </div>
                 </Link>
               );

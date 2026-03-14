@@ -10,7 +10,6 @@ const API = import.meta.env.PROD ? "" : "http://localhost:5000";
 
 const toSlug = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-const CATEGORIES = ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","Kids Special","Combo Packs","Gift Boxes"];
 
 function ProductCard({ product, wishlist, onWishlist }) {
   const dispatch  = useDispatch();
@@ -158,8 +157,19 @@ export default function Products() {
     { label:"Price: High→Low", value:"price_desc" },
     { label:"Top Rated",       value:"rating"     },
   ];
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [products, setProducts]     = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [CATEGORIES, setCategories] = useState([]);
+
+  // Fetch categories from DB
+  useEffect(() => {
+    fetch(`${API}/api/products/categories/public`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) setCategories(data.categories.map(c => c.name));
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -523,7 +533,7 @@ export default function Products() {
               <button className={`tab-btn${activeTab==="all" ? " active" : ""}`} onClick={() => setActiveTab("all")}>All Products</button>
               <button className={`tab-btn${activeTab==="wishlist" ? " active" : ""}`} onClick={() => setActiveTab("wishlist")}>
                 <Heart size={13} fill={activeTab==="wishlist" ? "#FF3D00" : "none"} color={activeTab==="wishlist" ? "#FF3D00" : "rgba(255,245,230,0.7)"} />
-                Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:20, height:20, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.8rem", fontWeight:800 }}>{wishlist.length}</span>}
+                Wishlist {wishlist.length > 0 && <span style={{ background: activeTab==="wishlist" ? "#FF3D00" : "rgba(255,107,0,0.2)", color: activeTab==="wishlist" ? "#fff" : "#FF6B00", borderRadius:"50%", width:17, height:17, display:"inline-flex", alignItems:"center", justifyContent:"center", fontSize:"0.6rem", fontWeight:800 }}>{wishlist.length}</span>}
               </button>
             </div>
 

@@ -42,11 +42,8 @@ export default function CartDrawer({ open, onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t } = useLang();
-  const CAT_MAP = {
-    "Sparklers":"catSparklers","Rockets":"catRockets","Bombs":"catBombs",
-    "Flower Pots":"catFlowerPots","Sky Shots":"catSkyShots","Kids Special":"catKidsSpecial",
-    "Combo Packs":"catComboPacks","Gift Boxes":"catGiftBoxes",
-  };
+  // Category shown as-is (dynamic from DB)
+  const CAT_MAP = {};
   const items = useSelector(s => s.cart.items);
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -148,11 +145,12 @@ export default function CartDrawer({ open, onClose }) {
                   borderRadius: 14, padding: "0.75rem",
                 }}>
                   {/* Image */}
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    style={{ width: 64, height: 64, borderRadius: 10, objectFit: "cover", flexShrink: 0, border: "1px solid rgba(255,107,0,0.15)" }}
-                  />
+                  {item.image
+                    ? <img src={item.image} alt={item.name} style={{ width:64, height:64, borderRadius:10, objectFit:"cover", flexShrink:0, border:"1px solid rgba(255,107,0,0.15)" }}
+                        onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="flex"; }}
+                      />
+                    : null}
+                  <div style={{ width:64, height:64, borderRadius:10, flexShrink:0, border:"1px solid rgba(255,107,0,0.15)", background:"linear-gradient(135deg,#1a0a00,#0d0600)", display: item.image ? "none" : "flex", alignItems:"center", justifyContent:"center", fontSize:"1.6rem" }}>🎆</div>
                   {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: "0.68rem", fontWeight: 700, color: "#FF6B00", letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: "0.15rem" }}>
