@@ -320,34 +320,45 @@ Please verify payment screenshot from customer and confirm dispatch.`
             <span style={{ color:"#FFD700", fontWeight:900, fontSize:"1.8rem" }}>₹{amountDue.toLocaleString("en-IN")}</span>
           </div>
 
-          {/* ── GPay section ── */}
+          {/* ── UPI Payment section ── */}
           <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,107,0,0.12)", borderRadius:16, padding:"1.5rem", marginBottom:"1.2rem" }}>
-            <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 1rem" }}>Pay via GPay / UPI</p>
+            <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 1rem" }}>Step 1 — Scan & Pay via Any UPI App</p>
+
+            {/* QR Code */}
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:"1.2rem" }}>
+              <div style={{ background:"#fff", padding:"0.85rem", borderRadius:16, boxShadow:"0 4px 24px rgba(0,0,0,0.3)", marginBottom:"0.75rem" }}>
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(gpayLink)}`}
+                  alt="UPI QR Code"
+                  width={180} height={180}
+                  style={{ display:"block", borderRadius:8 }}
+                />
+              </div>
+              <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.75rem", textAlign:"center", margin:"0 0 0.4rem" }}>
+                📱 Open any UPI app → Scan QR → Pay ₹{amountDue.toLocaleString("en-IN")}
+              </p>
+              <div style={{ display:"flex", gap:"0.4rem", flexWrap:"wrap", justifyContent:"center" }}>
+                {["GPay","PhonePe","Paytm","BHIM","Any Bank App"].map(app => (
+                  <span key={app} style={{ background:"rgba(255,255,255,0.06)", borderRadius:100, padding:"0.2rem 0.65rem", fontSize:"0.7rem", color:"rgba(255,245,230,0.5)", fontWeight:600 }}>{app}</span>
+                ))}
+              </div>
+            </div>
 
             {/* UPI ID */}
-            <div style={{ background:"rgba(37,211,102,0.06)", border:"1px solid rgba(37,211,102,0.2)", borderRadius:12, padding:"0.85rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"1rem", gap:"0.5rem" }}>
+            <div style={{ background:"rgba(37,211,102,0.06)", border:"1px solid rgba(37,211,102,0.2)", borderRadius:12, padding:"0.85rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.5rem" }}>
               <div>
-                <p style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.68rem", fontWeight:700, textTransform:"uppercase", margin:"0 0 0.2rem" }}>UPI ID</p>
+                <p style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.68rem", fontWeight:700, textTransform:"uppercase", margin:"0 0 0.2rem" }}>Or pay to UPI ID</p>
                 <p style={{ color:"#7defa1", fontWeight:800, fontSize:"1rem", margin:0, fontFamily:"monospace" }}>{UPI_IDS[0].upiId}</p>
               </div>
               <CopyBtn text={UPI_IDS[0].upiId} />
             </div>
-
-            {/* GPay button */}
-            <a href={gpayLink}
-              style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.6rem", width:"100%", padding:"0.9rem", background:"linear-gradient(135deg,#1a73e8,#1557b0)", border:"none", borderRadius:12, color:"#fff", fontWeight:800, fontSize:"1rem", textDecoration:"none", boxSizing:"border-box", boxShadow:"0 4px 16px rgba(26,115,232,0.4)", marginBottom:"0.75rem" }}>
-              <span style={{ fontSize:"1.2rem" }}>G</span> Open GPay & Pay ₹{amountDue.toLocaleString("en-IN")}
-            </a>
-            <p style={{ color:"rgba(255,245,230,0.3)", fontSize:"0.75rem", textAlign:"center", margin:0 }}>
-              Works with GPay · PhonePe · Paytm · Any UPI app
-            </p>
           </div>
 
           {/* ── UTR Input ── */}
           <div style={{ background:"rgba(255,255,255,0.03)", border:"1.5px solid rgba(255,107,0,0.2)", borderRadius:16, padding:"1.5rem", marginBottom:"1.2rem" }}>
             <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Step 2 — Enter UTR / Transaction ID</p>
             <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.8rem", margin:"0 0 0.85rem", lineHeight:1.6 }}>
-              After paying, open your GPay app → tap the transaction → copy the <strong style={{ color:"rgba(255,245,230,0.6)" }}>UTR number</strong> (12 digits) and paste it below.
+              After paying, open your UPI app → tap the transaction → copy the <strong style={{ color:"rgba(255,245,230,0.6)" }}>UTR / Transaction ID</strong> (12 digits) and paste below.
             </p>
             <input
               className="utr-input"
