@@ -1110,7 +1110,7 @@ const TABS = [
   { id:"products",   label:"Products",   icon:<Package size={15} /> },
   { id:"categories", label:"Categories", icon:<Tag size={15} /> },
   { id:"users",      label:"Users",      icon:<Users size={15} /> },
-  { id:"orders",     label:"Orders",     icon:<ShoppingBag size={15} /> },
+  { id:"orders",     label:"Orders",     icon:<ShoppingBag size={15} /> }, // badge added dynamically
   { id:"customers",  label:"Customers",  icon:<ContactRound size={15} /> },
   { id:"coupons",    label:"Coupons",    icon:<Tag size={15} /> },
 ];
@@ -1237,6 +1237,7 @@ export default function AdminPanel() {
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
   const { cache, loading, reload, loadTab } = useAdminData(token);
+  const pendingOrders = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
 
   // Always fetch fresh data when tab is clicked
   useEffect(() => { loadTab(tab); }, [tab]); // eslint-disable-line
