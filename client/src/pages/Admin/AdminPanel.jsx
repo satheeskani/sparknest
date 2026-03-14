@@ -868,17 +868,22 @@ const TABS = [
 ];
 
 // ── Global data cache — fetched once on login, shared across all tabs ──────────
+const TAB_URLS = {
+  dashboard:  "/api/admin/dashboard",
+  products:   "/api/products?limit=100",
+  categories: "/api/admin/categories",
+  users:      "/api/admin/users?limit=50",
+  orders:     "/api/admin/orders?limit=50",
+  customers:  "/api/admin/customers?limit=100",
+};
+
 function useAdminData(token) {
   const [cache, setCache]     = useState({});
   const [loading, setLoading] = useState({});
-  const inFlight = useRef({});   // track in-flight requests outside render cycle
-  const cacheRef = useRef({});   // mirror cache in a ref so fetch$ sees latest value
+  const inFlight              = useRef({});
 
-  // Keep cacheRef in sync
-  useEffect(() => { cacheRef.current = cache; }, [cache]);
-
-  const fetch$ = useCallback(async (key, url) => {
-    if (cacheRef.current[key] || inFlight.current[key]) return;
+  const fetchTab = useCallback(async (key, url) => {
+    if (inFlight.current[key]) return;
     inFlight.current[key] = true;
     setLoading(l => ({ ...l, [key]: true }));
     try {
@@ -892,29 +897,25 @@ function useAdminData(token) {
     }
   }, [token]);
 
-  const invalidate = useCallback((key) => {
-    delete cacheRef.current[key];          // clear ref immediately
-    delete inFlight.current[key];          // allow re-fetch
+  const reload = useCallback((key) => {
+    delete inFlight.current[key];
     setCache(c => { const n = { ...c }; delete n[key]; return n; });
-  }, []);
+    fetchTab(key, TAB_URLS[key]);
+  }, [fetchTab]);
 
-  const reload = useCallback((key, url) => {
-    invalidate(key);
-    // fetch$ will now see empty cacheRef and empty inFlight
-    setTimeout(() => fetch$(key, url), 0);
-  }, [invalidate, fetch$]);
+  // Fetch a tab's data if not already cached
+  const ensureLoaded = useCallback((key) => {
+    if (!cache[key] && !inFlight.current[key]) {
+      fetchTab(key, TAB_URLS[key]);
+    }
+  }, [cache, fetchTab]);
 
-  // Prefetch all tabs immediately on mount
+  // Prefetch dashboard on login
   useEffect(() => {
-    fetch$("dashboard",  "/api/admin/dashboard");
-    fetch$("products",   "/api/products?limit=100");
-    fetch$("categories", "/api/admin/categories");
-    fetch$("users",      "/api/admin/users?limit=50");
-    fetch$("orders",     "/api/admin/orders?limit=50");
-    fetch$("customers",  "/api/admin/customers?limit=100");
+    fetchTab("dashboard", TAB_URLS.dashboard);
   }, [token]); // eslint-disable-line
 
-  return { cache, loading, invalidate, reload };
+  return { cache, loading, reload, ensureLoaded };
 }
 
 export default function AdminPanel() {
@@ -940,7 +941,10 @@ export default function AdminPanel() {
 
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
-  const { cache, loading, reload } = useAdminData(token);
+  const { cache, loading, reload, ensureLoaded } = useAdminData(token);
+
+  // Fetch tab data when tab is clicked
+  useEffect(() => { ensureLoaded(tab); }, [tab]); // eslint-disable-line
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
@@ -978,12 +982,12 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
 
       {/* Content — tabs receive cached data, no re-fetching on switch */}
       <div style={{ maxWidth:1200,margin:"0 auto",padding:"1.8rem clamp(1rem,4vw,2rem)" }}>
-        {tab==="dashboard"  && <DashboardTab  token={token} data={cache.dashboard}  loading={!!loading.dashboard}  onRefresh={()=>reload("dashboard","/api/admin/dashboard")} />}
-        {tab==="products"   && <ProductsTab   token={token} data={cache.products}   loading={!!loading.products}   onRefresh={()=>reload("products","/api/products?limit=100")} catData={cache.categories} />}
-        {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} onRefresh={()=>reload("categories","/api/admin/categories")} />}
-        {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users","/api/admin/users?limit=50")} />}
-        {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders","/api/admin/orders?limit=50")} />}
-        {tab==="customers"  && <CustomersTab  token={token} data={cache.customers}  loading={!!loading.customers}  onRefresh={()=>reload("customers","/api/admin/customers?limit=100")} />}
+        {tab==="dashboard"  && <DashboardTab  token={token} data={cache.dashboard}  loading={!!loading.dashboard}  onRefresh={()=>reload("dashboard")} />}
+        {tab==="products"   && <ProductsTab   token={token} data={cache.products}   loading={!!loading.products}   onRefresh={()=>reload("products")} catData={cache.categories} />}
+        {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} onRefresh={()=>reload("categories")} />}
+        {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users")} />}
+        {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders")} />}
+        {tab==="customers"  && <CustomersTab  token={token} data={cache.customers}  loading={!!loading.customers}  onRefresh={()=>reload("customers")} />}
       </div>
     </div>
   );

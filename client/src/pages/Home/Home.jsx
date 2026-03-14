@@ -30,7 +30,7 @@ const marqueeItems = [
   { text: "🧒 Kids Safe Collection",       color: "#2ECC71" },
   { text: "💳 Razorpay Secure Payments",   color: "#00BFFF" },
   { text: "⭐ 10,000+ Happy Customers",    color: "#FF6B9D" },
-  { text: "🪔 Happy Diwali 2025",          color: "#FFD700" },
+  { text: "🪔 Happy Diwali 2026",          color: "#FFD700" },
   { text: "🎇 Free Shipping above ₹999",   color: "#2ECC71" },
   { text: "🏭 Direct from Sivakasi",       color: "#FF6B9D" },
 ];
