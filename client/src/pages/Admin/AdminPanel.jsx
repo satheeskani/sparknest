@@ -377,6 +377,16 @@ function ProductsTab({ token, data, loading, onRefresh, catData }) {
 
   const fetchProducts = () => onRefresh();
 
+  const toggleStock = async (p) => {
+    const newStock = p.stock > 0 ? 0 : 10; // toggle between 0 and 10
+    try {
+      const res = await authFetch(`/api/products/${p._id}`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ stock: newStock }) }, token);
+      if (!res.ok) throw new Error();
+      toast.success(newStock === 0 ? "Marked Out of Stock" : "Marked In Stock");
+      fetchProducts();
+    } catch { toast.error("Failed to update stock"); }
+  };
+
   const filtered = products.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.category.toLowerCase().includes(search.toLowerCase()));
   const { page, setPage, totalPages, paginated, reset } = usePagination(filtered);
   useEffect(()=>{ reset(); },[search]); // eslint-disable-line
@@ -399,8 +409,8 @@ function ProductsTab({ token, data, loading, onRefresh, catData }) {
                   <td style={S.td}><p style={{ color:"#FFF5E6",fontWeight:700,fontSize:"0.86rem",margin:"0 0 0.2rem" }}>{p.name}</p><div style={{ display:"flex",gap:"0.3rem",flexWrap:"wrap" }}>{p.isFeatured&&<span style={{ fontSize:"0.58rem",background:"rgba(255,215,0,0.1)",color:"#FFD700",border:"1px solid rgba(255,215,0,0.22)",borderRadius:4,padding:"0.08rem 0.32rem",fontWeight:700 }}>⭐ Featured</span>}{p.isSafeForKids&&<span style={{ fontSize:"0.58rem",background:"rgba(46,204,113,0.08)",color:"#2ECC71",border:"1px solid rgba(46,204,113,0.22)",borderRadius:4,padding:"0.08rem 0.32rem",fontWeight:700 }}>🧒 Kids</span>}</div></td>
                   <td style={{ ...S.td,color:"rgba(255,245,230,0.5)",fontSize:"0.82rem" }}>{p.category}</td>
                   <td style={S.td}><p style={{ color:"#FFD700",fontWeight:700,fontSize:"0.88rem",margin:0 }}>₹{p.price.toLocaleString()}</p>{p.originalPrice&&<p style={{ color:"rgba(255,245,230,0.28)",fontSize:"0.7rem",textDecoration:"line-through",margin:0 }}>₹{p.originalPrice.toLocaleString()}</p>}</td>
-                  <td style={S.td}><span style={{ color:p.stock<10?"#FF3D00":p.stock<30?"#FFD700":"#2ECC71",fontWeight:800 }}>{p.stock}</span></td>
-                  <td style={S.td}><div style={{ display:"flex",gap:"0.4rem" }}><Btn variant="ghost" onClick={()=>setModal(p)} style={{ padding:"0.32rem 0.65rem",fontSize:"0.76rem" }}><Pencil size={11} /> Edit</Btn><Btn variant="danger" onClick={()=>setDelTarget(p)} style={{ padding:"0.32rem 0.65rem",fontSize:"0.76rem" }}><Trash2 size={11} /> Del</Btn></div></td>
+                  <td style={S.td}><span style={{ color:p.stock<=0?"rgba(255,245,230,0.3)":p.stock<10?"#FF3D00":p.stock<30?"#FFD700":"#2ECC71",fontWeight:800 }}>{p.stock<=0?"Out of Stock":p.stock}</span></td>
+                  <td style={S.td}><div style={{ display:"flex",gap:"0.4rem",flexWrap:"wrap" }}><Btn variant="ghost" onClick={()=>setModal(p)} style={{ padding:"0.32rem 0.65rem",fontSize:"0.76rem" }}><Pencil size={11} /> Edit</Btn><Btn variant="ghost" onClick={()=>toggleStock(p)} style={{ padding:"0.32rem 0.65rem",fontSize:"0.76rem",color:p.stock>0?"#FF3D00":"#2ECC71",borderColor:p.stock>0?"rgba(255,61,0,0.3)":"rgba(46,204,113,0.3)" }}>{p.stock>0?"🚫 Out of Stock":"✅ In Stock"}</Btn><Btn variant="danger" onClick={()=>setDelTarget(p)} style={{ padding:"0.32rem 0.65rem",fontSize:"0.76rem" }}><Trash2 size={11} /> Del</Btn></div></td>
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,6 @@
 // ── Layer 1: Lightweight payload sanity check ────────────────────────────────
 // Only blocks clearly malicious/malformed requests — not real customers
-export const validateOrder = (req, res, next) => {
+export const validateOrder = async (req, res, next) => {
   const { customer, items, pricing } = req.body;
 
   // Must have all top-level fields (orderId now generated server-side)
@@ -26,7 +26,6 @@ export const validateOrder = (req, res, next) => {
 
   // Stock validation
   try {
-    const Product = (await import("../models/Product.model.js")).default;
     for (const item of items) {
       const product = await Product.findOne({ name: item.name });
       if (!product) continue;

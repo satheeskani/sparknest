@@ -2,6 +2,7 @@ import Order    from "../models/Order.model.js";
 import Customer from "../models/Customer.model.js";
 import Counter  from "../models/Counter.model.js";
 import Coupon   from "../models/Coupon.model.js";
+import Product  from "../models/Product.model.js";
 
 // POST /api/orders  — create order
 export const createOrder = async (req, res) => {
@@ -30,7 +31,6 @@ export const createOrder = async (req, res) => {
 
     // ── 2. Decrement stock for each ordered item ─────────────────────────────────
     try {
-      const Product = (await import("../models/Product.model.js")).default;
       for (const item of items) {
         await Product.findOneAndUpdate(
           { name: item.name, stock: { $gte: item.quantity } },
