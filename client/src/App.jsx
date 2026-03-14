@@ -16,6 +16,7 @@ import Cart          from "./pages/Cart/Cart";
 import Checkout      from "./pages/Checkout/Checkout";
 import Contact       from "./pages/Contact/Contact";
 import Blog          from "./pages/Blog/Blog";
+import TrackOrder    from "./pages/TrackOrder/TrackOrder";
 import AdminPanel    from "./pages/Admin/AdminPanel";
 
 function RouteScrollToTop() {
@@ -119,6 +120,7 @@ export default function App() {
               <Route path="/checkout"       element={<Checkout />} />
               <Route path="/contact"        element={<Contact />} />
               <Route path="/blog"           element={<Blog />} />
+              <Route path="/track-order"     element={<TrackOrder />} />
               <Route path="/sparknest-cp"    element={<AdminPanel />} />
             </Routes>
           </Layout>

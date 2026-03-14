@@ -299,9 +299,12 @@ Please verify payment screenshot from customer and confirm dispatch.`
             <span style={{ color:"rgba(150,70,0,0.7)", fontSize:"0.72rem", fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em" }}>Order ID</span>
             <span style={{ color:"#C45000", fontWeight:800, fontSize:"1rem", fontFamily:"monospace" }}>#{orderId}</span>
           </div>
-          <p style={{ color:"rgba(80,35,0,0.75)", fontSize:"0.97rem", margin:0, lineHeight:1.65, maxWidth:520, marginInline:"auto" }}>
+          <p style={{ color:"rgba(80,35,0,0.75)", fontSize:"0.97rem", margin:"0 0 0.75rem", lineHeight:1.65, maxWidth:520, marginInline:"auto" }}>
             Dear <strong style={{ color:"#3D1A00" }}>{customerName}</strong>, complete the payment below and send the screenshot to our WhatsApp. We'll dispatch within <strong style={{ color:"#C45000" }}>24 hours</strong>. 🚀
           </p>
+          <Link to="/track-order" style={{ display:"inline-flex", alignItems:"center", gap:"0.35rem", color:"#C45000", fontSize:"0.82rem", fontWeight:700, textDecoration:"none", background:"rgba(255,107,0,0.08)", border:"1px solid rgba(255,107,0,0.2)", borderRadius:8, padding:"0.35rem 0.85rem" }}>
+            📦 Track this order later
+          </Link>
         </div>
 
         {/* ── Main content — full width ── */}
