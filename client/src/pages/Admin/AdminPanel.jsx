@@ -1168,22 +1168,32 @@ function useAdminData(token) {
   useEffect(() => {
     if (!token) return;
 
+    // Create and resume audio context on first user interaction to unlock autoplay
+    let audioCtx = null;
+    const unlockAudio = () => {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+    };
+    document.addEventListener("click", unlockAudio, { once: false });
+
     const playSound = () => {
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        // Pleasant chime sound
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === "suspended") audioCtx.resume();
         [523, 659, 784, 1047].forEach((freq, i) => {
-          const osc  = ctx.createOscillator();
-          const gain = ctx.createGain();
+          const osc  = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
           osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type      = "sine";
+          gain.connect(audioCtx.destination);
+          osc.type = "sine";
           osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
-          gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + i * 0.12 + 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.4);
-          osc.start(ctx.currentTime + i * 0.12);
-          osc.stop(ctx.currentTime + i * 0.12 + 0.4);
+          gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.12);
+          gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + i * 0.12 + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.12 + 0.4);
+          osc.start(audioCtx.currentTime + i * 0.12);
+          osc.stop(audioCtx.currentTime + i * 0.12 + 0.4);
         });
       } catch {}
     };
@@ -1218,7 +1228,10 @@ function useAdminData(token) {
       const interval = setInterval(checkNewOrders, 30000);
       intervalRef.current = interval;
     });
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+      document.removeEventListener("click", unlockAudio);
+    };
   }, [token]); // eslint-disable-line
 
   return { cache, loading, reload, loadTab };
@@ -1249,9 +1262,11 @@ export default function AdminPanel() {
 function AdminShell({ token, user, onLogout, tab, setTab }) {
   const { cache, loading, reload, loadTab } = useAdminData(token);
   const [pendingBadge, setPendingBadge] = useState(0);
+  const ordersViewed = useRef(false);
 
-  // Update badge when orders cache updates
+  // Update badge only when not already viewing orders tab
   useEffect(() => {
+    if (ordersViewed.current) return; // don't re-show if already viewed
     const count = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
     setPendingBadge(count);
   }, [cache.orders]);
@@ -1259,7 +1274,12 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
   // Always fetch fresh data when tab is clicked
   useEffect(() => {
     loadTab(tab);
-    if (tab === "orders") setPendingBadge(0); // clear badge when orders tab opened
+    if (tab === "orders") {
+      setPendingBadge(0);      // clear badge immediately
+      ordersViewed.current = true; // mark as viewed so cache update won't re-add badge
+    } else {
+      ordersViewed.current = false; // reset when leaving orders tab
+    }
   }, [tab]); // eslint-disable-line
 
   return (
