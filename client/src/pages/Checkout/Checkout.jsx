@@ -71,9 +71,9 @@ export default function Checkout() {
   const [step, setStep]               = useState(1);
   const [submitting, setSubmitting]   = useState(false);
   const [orderId, setOrderId]       = useState("SN1000"); // will be set by server
-  const [utrNumber, setUtrNumber]   = useState("");
-  const [utrSubmitting, setUtrSubmitting] = useState(false);
-  const [utrConfirmed, setUtrConfirmed]   = useState(false);
+  const [screenshotUrl, setScreenshotUrl]         = useState("");
+  const [screenshotUploading, setScreenshotUploading] = useState(false);
+  const [screenshotConfirmed, setScreenshotConfirmed] = useState(false);
   const [orderSnapshot, setOrderSnapshot] = useState(null);
 
   const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -96,20 +96,37 @@ export default function Checkout() {
 
   const removeCoupon = () => { setCouponApplied(null); setCouponCode(""); };
 
-  const handleUTRConfirm = async () => {
-    if (utrNumber.length !== 12) return;
-    setUtrSubmitting(true);
+  const handleScreenshotUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB allowed"); return; }
+    setScreenshotUploading(true);
     try {
-      const snap = orderSnapshot;
-      // Update order with UTR number
-      await fetch(`${API}/api/orders/${orderId}/utr`, {
+      const fd = new FormData();
+      fd.append("image", file);
+      const res  = await fetch(`${API}/api/products/upload-image`, { method:"POST", body:fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      setScreenshotUrl(data.url);
+      toast.success("Screenshot uploaded!");
+    } catch (err) { toast.error(err.message || "Upload failed"); }
+    finally { setScreenshotUploading(false); }
+  };
+
+  const handleScreenshotConfirm = async () => {
+    if (!screenshotUrl) return;
+    setScreenshotUploading(true);
+    try {
+      await fetch(`${API}/api/orders/${orderId}/screenshot`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ utr: utrNumber }),
+        body: JSON.stringify({ screenshot: screenshotUrl }),
       });
-      setUtrConfirmed(true);
-    } catch { toast.error("Failed to submit UTR. Please try again."); }
-    finally { setUtrSubmitting(false); }
+      setScreenshotConfirmed(true);
+      toast.success("Payment submitted! We will verify and confirm shortly.");
+    } catch { toast.error("Failed to submit. Please try again."); }
+    finally { setScreenshotUploading(false); }
   };
 
   const handleNext = () => {
@@ -285,18 +302,27 @@ Please verify payment screenshot from customer and confirm dispatch.`
 
   // ── Step 3: Success ──
   if (step === 3) {
-    const snap = orderSnapshot;
+    const snap         = orderSnapshot;
     const amountDue    = snap?.grandTotal || grandTotal;
     const customerName = snap?.form.name || form.name;
-    const gpayLink     = `upi://pay?pa=${UPI_IDS[0].upiId}&pn=${encodeURIComponent(UPI_IDS[0].name)}&am=${amountDue}&cu=INR&tn=${encodeURIComponent("SparkNest Order " + orderId)}`;
+    const waMessage    = encodeURIComponent(
+`Hi SparkNest! 🙏
+
+I just placed an order and need payment details.
+
+*Order ID:* #${orderId}
+*Name:* ${customerName}
+*Amount:* ₹${amountDue.toLocaleString("en-IN")}
+
+Please share your payment details. Thank you!`
+    );
     return (
       <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'Source Sans 3',sans-serif", paddingTop:80 }}>
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700;800&display=swap');
-          @keyframes utr-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,0.3)} 50%{box-shadow:0 0 0 8px rgba(255,107,0,0)} }
-          .utr-input { width:100%; padding:0.9rem 1rem; background:rgba(255,255,255,0.07); border:2px solid rgba(255,107,0,0.3); border-radius:12px; color:#FFF5E6; font-family:'Source Sans 3',sans-serif; font-size:1rem; font-weight:700; outline:none; transition:border .2s; box-sizing:border-box; letter-spacing:0.05em; }
-          .utr-input:focus { border-color:#FF6B00; background:rgba(255,107,0,0.05); animation:utr-pulse 1.5s infinite; }
-          .utr-input::placeholder { color:rgba(255,245,230,0.25); font-weight:400; letter-spacing:0; }
+          @keyframes wa-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,0.4)} 50%{box-shadow:0 0 0 20px rgba(37,211,102,0)} }
+          @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+          .wa-btn:hover { transform:scale(1.03) !important; box-shadow:0 8px 32px rgba(37,211,102,0.6) !important; }
         `}</style>
 
         {/* ── Header ── */}
@@ -307,102 +333,68 @@ Please verify payment screenshot from customer and confirm dispatch.`
             <span style={{ color:"rgba(150,70,0,0.6)", fontSize:"0.7rem", fontWeight:700, textTransform:"uppercase" }}>Order ID</span>
             <span style={{ color:"#C45000", fontWeight:900, fontSize:"1rem", fontFamily:"monospace" }}>#{orderId}</span>
           </div>
-          <p style={{ color:"rgba(80,35,0,0.7)", fontSize:"0.9rem", margin:"0 0 1rem", lineHeight:1.6, maxWidth:480, marginInline:"auto" }}>
-            Hi <strong style={{ color:"#3D1A00" }}>{customerName}</strong>! Please complete the GPay payment below and enter your UTR number to confirm your order.
+          <p style={{ color:"rgba(80,35,0,0.7)", fontSize:"0.9rem", margin:0, lineHeight:1.6, maxWidth:480, marginInline:"auto" }}>
+            Hi <strong style={{ color:"#3D1A00" }}>{customerName}</strong>! Your order is placed. Click the WhatsApp button below to complete your payment.
           </p>
         </div>
 
-        <div style={{ maxWidth:600, margin:"0 auto", padding:"1.5rem clamp(1rem,4vw,2rem) 4rem" }}>
+        <div style={{ maxWidth:520, margin:"0 auto", padding:"1.5rem clamp(1rem,4vw,2rem) 4rem", animation:"fadeUp .4s ease" }}>
 
           {/* ── Amount ── */}
-          <div style={{ background:"linear-gradient(135deg,rgba(255,107,0,0.15),rgba(255,61,0,0.08))", border:"1.5px solid rgba(255,107,0,0.35)", borderRadius:16, padding:"1.2rem 1.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem" }}>
-            <span style={{ color:"rgba(255,245,230,0.7)", fontWeight:700, fontSize:"0.95rem" }}>💰 Amount to Pay</span>
-            <span style={{ color:"#FFD700", fontWeight:900, fontSize:"1.8rem" }}>₹{amountDue.toLocaleString("en-IN")}</span>
+          <div style={{ background:"linear-gradient(135deg,rgba(255,107,0,0.15),rgba(255,61,0,0.08))", border:"1.5px solid rgba(255,107,0,0.35)", borderRadius:16, padding:"1rem 1.4rem", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.4rem" }}>
+            <span style={{ color:"rgba(255,245,230,0.7)", fontWeight:700 }}>Order Total</span>
+            <span style={{ color:"#FFD700", fontWeight:900, fontSize:"1.6rem" }}>₹{amountDue.toLocaleString("en-IN")}</span>
           </div>
 
-          {/* ── UPI Payment section ── */}
-          <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,107,0,0.12)", borderRadius:16, padding:"1.5rem", marginBottom:"1.2rem" }}>
-            <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 1rem" }}>Step 1 — Scan & Pay via Any UPI App</p>
-
-            {/* QR Code */}
-            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginBottom:"1.2rem" }}>
-              <div style={{ background:"#fff", padding:"0.85rem", borderRadius:16, boxShadow:"0 4px 24px rgba(0,0,0,0.3)", marginBottom:"0.75rem" }}>
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(gpayLink)}`}
-                  alt="UPI QR Code"
-                  width={180} height={180}
-                  style={{ display:"block", borderRadius:8 }}
-                />
+          {/* ── Steps ── */}
+          <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.8rem" }}>
+            {[
+              { n:"1", icon:"💬", text:"Click the WhatsApp button below" },
+              { n:"2", icon:"💳", text:"We'll send you our UPI / GPay details" },
+              { n:"3", icon:"📸", text:"Pay & send your payment screenshot to us" },
+              { n:"4", icon:"🚀", text:"We confirm & dispatch within 24 hours!" },
+            ].map(s => (
+              <div key={s.n} style={{ display:"flex", alignItems:"center", gap:"0.85rem", background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,107,0,0.08)", borderRadius:12, padding:"0.75rem 1rem" }}>
+                <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(135deg,#FF6B00,#FF3D00)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:900, fontSize:"0.72rem", flexShrink:0 }}>{s.n}</div>
+                <span style={{ fontSize:"1.3rem", flexShrink:0 }}>{s.icon}</span>
+                <span style={{ color:"rgba(255,245,230,0.72)", fontSize:"0.88rem", lineHeight:1.4 }}>{s.text}</span>
               </div>
-              <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.75rem", textAlign:"center", margin:"0 0 0.4rem" }}>
-                📱 Open any UPI app → Scan QR → Pay ₹{amountDue.toLocaleString("en-IN")}
-              </p>
-              <div style={{ display:"flex", gap:"0.4rem", flexWrap:"wrap", justifyContent:"center" }}>
-                {["GPay","PhonePe","Paytm","BHIM","Any Bank App"].map(app => (
-                  <span key={app} style={{ background:"rgba(255,255,255,0.06)", borderRadius:100, padding:"0.2rem 0.65rem", fontSize:"0.7rem", color:"rgba(255,245,230,0.5)", fontWeight:600 }}>{app}</span>
-                ))}
-              </div>
-            </div>
+            ))}
+          </div>
 
-            {/* UPI ID */}
-            <div style={{ background:"rgba(37,211,102,0.06)", border:"1px solid rgba(37,211,102,0.2)", borderRadius:12, padding:"0.85rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.5rem" }}>
+          {/* ── WhatsApp button ── */}
+          <a
+            href={`https://wa.me/91${ADMIN_WHATSAPP}?text=${waMessage}`}
+            target="_blank" rel="noreferrer"
+            className="wa-btn"
+            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.65rem", width:"100%", padding:"1.1rem", background:"#25D366", borderRadius:16, color:"#fff", fontWeight:800, fontSize:"1.1rem", textDecoration:"none", boxSizing:"border-box", boxShadow:"0 6px 24px rgba(37,211,102,0.45)", marginBottom:"1.2rem", transition:"transform .2s, box-shadow .2s", animation:"wa-pulse 2s infinite" }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Confirm Order on WhatsApp
+          </a>
+
+          {/* ── Trust message ── */}
+          <div style={{ background:"linear-gradient(135deg,rgba(255,215,0,0.06),rgba(255,107,0,0.04))", border:"1px solid rgba(255,215,0,0.15)", borderRadius:14, padding:"1.2rem 1.4rem", marginBottom:"1rem" }}>
+            <div style={{ display:"flex", alignItems:"flex-start", gap:"0.75rem" }}>
+              <span style={{ fontSize:"1.8rem", flexShrink:0 }}>🛡️</span>
               <div>
-                <p style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.68rem", fontWeight:700, textTransform:"uppercase", margin:"0 0 0.2rem" }}>Or pay to UPI ID</p>
-                <p style={{ color:"#7defa1", fontWeight:800, fontSize:"1rem", margin:0, fontFamily:"monospace" }}>{UPI_IDS[0].upiId}</p>
+                <p style={{ color:"#FFD700", fontWeight:800, fontSize:"0.9rem", margin:"0 0 0.4rem" }}>Your order is safe with us!</p>
+                <p style={{ color:"rgba(255,245,230,0.55)", fontSize:"0.82rem", margin:"0 0 0.6rem", lineHeight:1.7 }}>
+                  We are a trusted cracker store from <strong style={{ color:"rgba(255,245,230,0.75)" }}>Sivakasi</strong> — the cracker capital of India. Every product is PESO certified and packed with care. Trusted by <strong style={{ color:"rgba(255,245,230,0.75)" }}>10,000+ happy customers</strong> across India.
+                </p>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:"0.5rem" }}>
+                  {["✅ PESO Certified", "🚚 Pan India Delivery", "📦 Safe Packaging", "💬 WhatsApp Support"].map(b => (
+                    <span key={b} style={{ background:"rgba(255,215,0,0.08)", border:"1px solid rgba(255,215,0,0.15)", borderRadius:100, padding:"0.2rem 0.65rem", fontSize:"0.72rem", color:"rgba(255,245,230,0.6)", fontWeight:600 }}>{b}</span>
+                  ))}
+                </div>
               </div>
-              <CopyBtn text={UPI_IDS[0].upiId} />
             </div>
           </div>
 
-          {/* ── UTR Input ── */}
-          <div style={{ background:"rgba(255,255,255,0.03)", border:"1.5px solid rgba(255,107,0,0.2)", borderRadius:16, padding:"1.5rem", marginBottom:"1.2rem" }}>
-            <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 0.5rem" }}>Step 2 — Enter UTR / Transaction ID</p>
-            <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.8rem", margin:"0 0 0.85rem", lineHeight:1.6 }}>
-              After paying, open your UPI app → tap the transaction → copy the <strong style={{ color:"rgba(255,245,230,0.6)" }}>UTR / Transaction ID</strong> (12 digits) and paste below.
-            </p>
-            <input
-              className="utr-input"
-              value={utrNumber}
-              onChange={e => setUtrNumber(e.target.value.replace(/\D/g, "").slice(0, 12))}
-              placeholder="e.g. 123456789012"
-              maxLength={12}
-              type="text"
-              inputMode="numeric"
-              autoComplete="off"
-            />
-            {utrNumber.length > 0 && utrNumber.length < 12 && (
-              <p style={{ color:"#FF9800", fontSize:"0.75rem", margin:"0.4rem 0 0", fontWeight:600 }}>UTR must be 12 digits ({12 - utrNumber.length} more)</p>
-            )}
-            {utrNumber.length === 12 && (
-              <p style={{ color:"#2ECC71", fontSize:"0.75rem", margin:"0.4rem 0 0", fontWeight:600 }}>✓ UTR looks good!</p>
-            )}
-          </div>
-
-          {/* ── UTR Confirmed message ── */}
-          {utrConfirmed && (
-            <div style={{ background:"rgba(46,204,113,0.1)", border:"1.5px solid rgba(46,204,113,0.3)", borderRadius:14, padding:"1.2rem 1.5rem", marginBottom:"1rem", textAlign:"center" }}>
-              <div style={{ fontSize:"2rem", marginBottom:"0.4rem" }}>🎉</div>
-              <p style={{ color:"#2ECC71", fontWeight:800, fontSize:"1rem", margin:"0 0 0.3rem" }}>Payment Confirmed!</p>
-              <p style={{ color:"rgba(255,245,230,0.55)", fontSize:"0.85rem", margin:0 }}>UTR #{utrNumber} received. Our team will verify and dispatch your order within 24 hours.</p>
-            </div>
-          )}
-
-          {/* ── Confirm button ── */}
-          {!utrConfirmed && <button
-            onClick={handleUTRConfirm}
-            disabled={utrNumber.length !== 12 || utrSubmitting}
-            style={{ width:"100%", padding:"1rem", background: utrNumber.length === 12 ? "linear-gradient(135deg,#FF6B00,#FF3D00)" : "rgba(255,255,255,0.06)", border:"none", borderRadius:14, color: utrNumber.length === 12 ? "#fff" : "rgba(255,245,230,0.25)", fontWeight:800, fontSize:"1.05rem", cursor: utrNumber.length === 12 ? "pointer" : "not-allowed", fontFamily:"'Source Sans 3',sans-serif", marginBottom:"1rem", transition:"all .2s", boxShadow: utrNumber.length === 12 ? "0 4px 20px rgba(255,107,0,0.4)" : "none", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem" }}>
-            {utrSubmitting
-              ? <><span style={{ width:18,height:18,border:"2.5px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .8s linear infinite" }} /> Confirming…</>
-              : "✅ Confirm Payment & Order"
-            }
-          </button>}
-
-          {/* ── Links ── */}
+          {/* ── Bottom links ── */}
           <div style={{ display:"flex", gap:"0.75rem", justifyContent:"center", flexWrap:"wrap" }}>
-            <Link to="/track-order" style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>📦 Track Order</Link>
+            <Link to="/track-order" style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>📦 Track Order</Link>
             <span style={{ color:"rgba(255,245,230,0.15)" }}>·</span>
-            <Link to="/products" style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>🛒 Continue Shopping</Link>
+            <Link to="/products" style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>🛒 Continue Shopping</Link>
           </div>
 
         </div>
