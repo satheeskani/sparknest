@@ -867,7 +867,7 @@ function CustomerModal({ customer, onClose, onSaved, token }) {
 // ══════════════════════════════════════════════════════════════════════════════
 // CUSTOMERS TAB
 // ══════════════════════════════════════════════════════════════════════════════
-function CustomersTab({ token, data, loading, onRefresh }) {
+function CustomersTab({ token, data, loading, onRefresh, onRefreshOrders }) {
   const [search, setSearch]     = useState("");
   const [expanded, setExpanded] = useState(null);
   const [modal, setModal]       = useState(null);
@@ -971,7 +971,7 @@ function CustomersTab({ token, data, loading, onRefresh }) {
       </div>
       <Pagination page={page} totalPages={totalPages} setPage={setPage} total={filtered.length} />
       </>
-      {modal && <CustomerModal customer={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);onRefresh();}} token={token} />}
+      {modal && <CustomerModal customer={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);onRefresh();onRefreshOrders&&onRefreshOrders();}} token={token} />}
       {delTarget && (
         <div style={{ position:"fixed",inset:0,zIndex:1001,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
           <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,61,0,0.3)",borderRadius:16,padding:"1.8rem",maxWidth:360,width:"100%",textAlign:"center" }}>
@@ -1451,7 +1451,7 @@ function AdminShell({ token, user, onLogout, tab, setTab }) {
         {tab==="categories" && <CategoriesTab token={token} data={cache.categories} loading={!!loading.categories} onRefresh={()=>reload("categories")} />}
         {tab==="users"      && <UsersTab      token={token} data={cache.users}      loading={!!loading.users}      onRefresh={()=>reload("users")} />}
         {tab==="orders"     && <OrdersTab     token={token} data={cache.orders}     loading={!!loading.orders}     onRefresh={()=>reload("orders")} />}
-        {tab==="customers"  && <CustomersTab  token={token} data={cache.customers}  loading={!!loading.customers}  onRefresh={()=>reload("customers")} />}
+        {tab==="customers"  && <CustomersTab  token={token} data={cache.customers}  loading={!!loading.customers}  onRefresh={()=>reload("customers")} onRefreshOrders={()=>reload("orders")} />}
         {tab==="coupons"    && <CouponsTab    token={token} data={cache.coupons}    loading={!!loading.coupons}    onRefresh={()=>reload("coupons")} />}
       </div>
     </div>

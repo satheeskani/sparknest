@@ -239,10 +239,16 @@ export const updateCustomer = async (req, res) => {
     if (email) updateFields["customer.email"] = email;
 
     if (Object.keys(updateFields).length > 0) {
-      await Order.updateMany(
-        { "customer.phone": oldPhone },
+      // Match both exact phone and phone with spaces stripped
+      const cleanOld = oldPhone.replace(/\D/g, "");
+      const result = await Order.updateMany(
+        { $or: [
+          { "customer.phone": oldPhone },
+          { "customer.phone": cleanOld },
+        ]},
         { $set: updateFields }
       );
+      console.log(`✅ Updated ${result.modifiedCount} orders for customer phone ${oldPhone}`);
     }
 
     res.json({ success: true, customer });
