@@ -13,6 +13,7 @@ const CATEGORIES    = ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","
 const CAT_COLORS    = { "Sparklers":"#FFD700","Rockets":"#FF6B00","Bombs":"#FF3D00","Flower Pots":"#2ECC71","Sky Shots":"#00BFFF","Kids Special":"#FF69B4","Combo Packs":"#7B2FBE","Gift Boxes":"#F39C12" };
 const CAT_EMOJI     = { "Sparklers":"✨","Rockets":"🚀","Bombs":"💥","Flower Pots":"🌸","Sky Shots":"🎆","Kids Special":"🧒","Combo Packs":"📦","Gift Boxes":"🎁" };
 const ORDER_STATUS  = ["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
+const SPARKNEST_UPI = "satheeskani1995@okicici"; // Update this with your UPI ID
 const PAYMENT_STATUS= ["Pending","Screenshot Received","Confirmed","Failed"];
 
 const STATUS_COLORS = {
@@ -34,6 +35,33 @@ const EMPTY_FORM = { name:"", slug:"", description:"", price:"", originalPrice:"
 const toSlug   = s => s.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const fmtPrice = n => `₹${Number(n||0).toLocaleString("en-IN")}`;
 const fmtDate  = d => new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+
+// ── Build WhatsApp payment request message ────────────────────────────────
+const buildPaymentMsg = (o) => {
+  const itemLines = (o.items || [])
+    .map(item => `▪️ ${item.name} × ${item.quantity} = ₹${(item.price * item.quantity).toLocaleString("en-IN")}`)
+    .join("");
+
+  return encodeURIComponent(
+`Hello ${o.customer?.name} 👋
+
+Thank you for ordering from SparkNest 🔥
+
+🧾 *Order ID:* #${o.orderId}
+💰 *Total Amount:* ₹${o.pricing?.grandTotal?.toLocaleString("en-IN")}
+
+📦 *Your Order:*
+${itemLines}
+
+Please complete the payment using the UPI details below:
+💳 *UPI ID:* ${SPARKNEST_UPI}
+
+After payment, kindly send the payment screenshot here.
+Once verified, we will confirm and dispatch your order 🚚
+
+Thank you for choosing SparkNest! 🎆`
+  );
+};
 
 // Authenticated fetch — automatically attaches Bearer token
 const authFetch = (url, options = {}, token) => {
@@ -735,15 +763,19 @@ function OrdersTab({ token, data, loading, onRefresh }) {
                     <p style={{ ...S.label,marginBottom:"0.3rem" }}>Delivery Address</p>
                     <p style={{ color:"rgba(255,245,230,0.6)",fontSize:"0.82rem",margin:0,lineHeight:1.6 }}>{o.customer?.address}, {o.customer?.city}, {o.customer?.state} — {o.customer?.pincode}</p>
                   </div>
-                  {o.payment?.utr && (
+                  {o.payment?.screenshot && (
                     <div style={{ background:"rgba(46,204,113,0.08)",border:"1px solid rgba(46,204,113,0.2)",borderRadius:10,padding:"0.7rem 1rem" }}>
-                      <p style={{ ...S.label,marginBottom:"0.2rem",color:"#2ECC71" }}>UTR / Transaction ID</p>
-                      <p style={{ color:"#7defa1",fontWeight:800,fontSize:"0.95rem",margin:0,fontFamily:"monospace" }}>{o.payment.utr}</p>
-                      <p style={{ color:"rgba(255,245,230,0.35)",fontSize:"0.7rem",margin:"0.2rem 0 0" }}>Submitted at {new Date(o.payment.submittedAt).toLocaleString("en-IN")}</p>
+                      <p style={{ ...S.label,marginBottom:"0.5rem",color:"#2ECC71" }}>💸 Payment Screenshot</p>
+                      <img src={o.payment.screenshot} alt="Payment proof" style={{ width:"100%",maxHeight:220,objectFit:"contain",borderRadius:8,background:"#000",display:"block",marginBottom:"0.4rem" }} />
+                      <p style={{ color:"rgba(255,245,230,0.35)",fontSize:"0.7rem",margin:0 }}>Submitted at {o.payment.submittedAt ? new Date(o.payment.submittedAt).toLocaleString("en-IN") : "—"}</p>
                     </div>
                   )}
                   {/* WhatsApp quick actions */}
                   <div style={{ display:"flex",gap:"0.6rem",flexWrap:"wrap" }}>
+                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${buildPaymentMsg(o)}`} target="_blank" rel="noreferrer"
+                      style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"linear-gradient(135deg,rgba(37,211,102,0.2),rgba(37,211,102,0.1))",border:"1.5px solid rgba(37,211,102,0.4)",borderRadius:8,padding:"0.5rem 1rem",color:"#25D366",fontSize:"0.82rem",fontWeight:800,textDecoration:"none" }}>
+                      💳 Send Payment Request
+                    </a>
                     <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}`} target="_blank" rel="noreferrer"
                       style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(37,211,102,0.12)",border:"1px solid rgba(37,211,102,0.3)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#25D366",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
                       💬 WhatsApp {o.customer?.name}
