@@ -334,12 +334,12 @@ export default function Products() {
         <title>Buy Diwali Crackers Online — Sparklers, Rockets, Bombs | SparkNest Sivakasi</title>
         <meta name="description" content="Shop premium Diwali firecrackers online from SparkNest Sivakasi. Sparklers, rockets, flower pots, sky shots, kids safe crackers & combo packs. Free shipping above ₹999. Pan India delivery." />
         <meta name="keywords" content="buy crackers online, diwali crackers, sivakasi crackers, sparklers online, rockets firecrackers, kids safe crackers, flower pots crackers, combo packs diwali" />
-        <link rel="canonical" href="https://sparknest-one.vercel.app/products" />
+        <link rel="canonical" href="https://sparknest.co.in/products" />
         <meta property="og:type"  content="website" />
-        <meta property="og:url"   content="https://sparknest-one.vercel.app/products" />
+        <meta property="og:url"   content="https://sparknest.co.in/products" />
         <meta property="og:title" content="Buy Diwali Crackers Online | SparkNest Sivakasi" />
         <meta property="og:description" content="Shop premium firecrackers — sparklers, rockets, flower pots, sky shots & kids safe options. Free delivery above ₹999." />
-        <meta property="og:image" content="https://sparknest-one.vercel.app/og-image.jpg" />
+        <meta property="og:image" content="https://sparknest.co.in/og-image.jpg" />
       </Helmet>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');

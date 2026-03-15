@@ -191,18 +191,18 @@ export default function ProductDetail() {
         <title>{product.name} — Buy {product.category} Online | SparkNest Sivakasi</title>
         <meta name="description" content={`Buy ${product.name} online from SparkNest Sivakasi. ${product.description?.slice(0,120) || "Premium quality crackers direct from Sivakasi factory."} ₹${product.price} only. Free delivery above ₹999.`} />
         <meta name="keywords" content={`${product.name}, ${product.category}, buy crackers online, sivakasi crackers, diwali crackers, ${product.tags?.join(", ") || ""}`} />
-        <link rel="canonical" href={`https://sparknest-one.vercel.app/products/${product.slug}`} />
+        <link rel="canonical" href={`https://sparknest.co.in/products/${product.slug}`} />
         <meta property="og:type"        content="product" />
-        <meta property="og:url"         content={`https://sparknest-one.vercel.app/products/${product.slug}`} />
+        <meta property="og:url"         content={`https://sparknest.co.in/products/${product.slug}`} />
         <meta property="og:title"       content={`${product.name} — SparkNest`} />
         <meta property="og:description" content={`${product.description?.slice(0,120) || "Premium Sivakasi crackers"}. ₹${product.price} only.`} />
-        <meta property="og:image"       content={product.image || "https://sparknest-one.vercel.app/og-image.jpg"} />
+        <meta property="og:image"       content={product.image || "https://sparknest.co.in/og-image.jpg"} />
         <meta property="product:price:amount"   content={String(product.price)} />
         <meta property="product:price:currency" content="INR" />
         <meta name="twitter:card"        content="summary_large_image" />
         <meta name="twitter:title"       content={`${product.name} — SparkNest`} />
         <meta name="twitter:description" content={`Buy ${product.name} online. ₹${product.price} only.`} />
-        <meta name="twitter:image"       content={product.image || "https://sparknest-one.vercel.app/og-image.jpg"} />
+        <meta name="twitter:image"       content={product.image || "https://sparknest.co.in/og-image.jpg"} />
       </Helmet>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Nunito+Sans:wght@300;400;600;700;800&family=Source+Sans+3:wght@300;400;600;700&display=swap');

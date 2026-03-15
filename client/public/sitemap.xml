@@ -3,77 +3,77 @@
 
   <!-- Home -->
   <url>
-    <loc>https://sparknest-one.vercel.app/</loc>
+    <loc>https://sparknest.co.in/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Products listing -->
   <url>
-    <loc>https://sparknest-one.vercel.app/products</loc>
+    <loc>https://sparknest.co.in/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <!-- Category pages -->
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Sparklers</loc>
+    <loc>https://sparknest.co.in/products?category=Sparklers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Rockets</loc>
+    <loc>https://sparknest.co.in/products?category=Rockets</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Bombs</loc>
+    <loc>https://sparknest.co.in/products?category=Bombs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Flower+Pots</loc>
+    <loc>https://sparknest.co.in/products?category=Flower+Pots</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Sky+Shots</loc>
+    <loc>https://sparknest.co.in/products?category=Sky+Shots</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Kids+Special</loc>
+    <loc>https://sparknest.co.in/products?category=Kids+Special</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Combo+Packs</loc>
+    <loc>https://sparknest.co.in/products?category=Combo+Packs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sparknest-one.vercel.app/products?category=Gift+Boxes</loc>
+    <loc>https://sparknest.co.in/products?category=Gift+Boxes</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Blog -->
   <url>
-    <loc>https://sparknest-one.vercel.app/blog</loc>
+    <loc>https://sparknest.co.in/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- Contact -->
   <url>
-    <loc>https://sparknest-one.vercel.app/contact</loc>
+    <loc>https://sparknest.co.in/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- Track Order -->
   <url>
-    <loc>https://sparknest-one.vercel.app/track-order</loc>
+    <loc>https://sparknest.co.in/track-order</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

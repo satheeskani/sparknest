@@ -53,18 +53,18 @@ export default function Blog() {
         <title>Blog — Diwali Cracker Tips, Safety Guides & Buying Advice | SparkNest</title>
         <meta name="description" content="Read SparkNest's expert guides on Diwali firecracker safety, how to choose the right crackers, kid-safe options, PESO certifications, and why Sivakasi crackers are the best in India." />
         <meta name="keywords" content="diwali cracker safety tips, best crackers for kids, sivakasi crackers, PESO certified fireworks, how to store firecrackers, diwali combo packs, buy crackers online india" />
-        <link rel="canonical" href="https://sparknest-one.vercel.app/blog" />
+        <link rel="canonical" href="https://sparknest.co.in/blog" />
         {/* Open Graph */}
         <meta property="og:type"        content="website" />
-        <meta property="og:url"         content="https://sparknest-one.vercel.app/blog" />
+        <meta property="og:url"         content="https://sparknest.co.in/blog" />
         <meta property="og:title"       content="Blog — Diwali Cracker Tips & Safety Guides | SparkNest" />
         <meta property="og:description" content="Expert guides on Diwali firecracker safety, kid-safe crackers, PESO certifications, and buying tips from Sivakasi's trusted cracker store." />
-        <meta property="og:image"       content="https://sparknest-one.vercel.app/og-image.jpg" />
+        <meta property="og:image"       content="https://sparknest.co.in/og-image.jpg" />
         {/* Twitter */}
         <meta name="twitter:card"        content="summary_large_image" />
         <meta name="twitter:title"       content="Blog — Diwali Cracker Tips & Safety Guides | SparkNest" />
         <meta name="twitter:description" content="Expert guides on Diwali firecracker safety, kid-safe crackers, PESO certifications, and buying tips from Sivakasi's trusted cracker store." />
-        <meta name="twitter:image"       content="https://sparknest-one.vercel.app/og-image.jpg" />
+        <meta name="twitter:image"       content="https://sparknest.co.in/og-image.jpg" />
       </Helmet>
 
       <div style={{ minHeight: "100vh", background: "#0D0600", fontFamily: "'Source Sans 3',sans-serif", paddingTop: 88 }}>

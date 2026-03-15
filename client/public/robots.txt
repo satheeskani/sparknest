@@ -5,4 +5,4 @@ Disallow: /checkout
 Disallow: /cart
 
 # Sitemap location
-Sitemap: https://sparknest-one.vercel.app/sitemap.xml
+Sitemap: https://sparknest.co.in/sitemap.xml
