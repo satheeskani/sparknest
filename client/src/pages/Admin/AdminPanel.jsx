@@ -717,7 +717,6 @@ function OrdersTab({ token, data, loading, onRefresh }) {
         : o
       ));
       toast.success("Status updated!");
-      onRefresh(); // refresh so badge recalculates
     } catch(err){ toast.error(err.message); }
   };
 
@@ -1264,9 +1263,10 @@ const TAB_URLS = {
 };
 
 function useAdminData(token) {
-  const [cache, setCache]     = useState({});
-  const [loading, setLoading] = useState({});
-  const inFlight              = useRef({});
+  const [cache, setCache]         = useState({});
+  const [loading, setLoading]     = useState({});
+  const [pendingOrders, setPendingOrders] = useState(0);
+  const inFlight                  = useRef({});
 
   const fetchTab = useCallback(async (key, url) => {
     inFlight.current[key] = true;
@@ -1347,9 +1347,10 @@ function useAdminData(token) {
           const newCount = count - lastOrderCount.current;
           playSound();
           toast.success(`🛒 ${newCount} new order${newCount > 1 ? "s" : ""} received!`, { duration: 6000 });
-          // Update document title
           document.title = `(${newCount} New!) SparkNest Admin`;
           setTimeout(() => { document.title = "SparkNest Admin"; }, 8000);
+          // Fetch fresh orders to update badge immediately
+          fetchTab("orders", TAB_URLS.orders);
         }
         lastOrderCount.current = count;
       } catch {}
@@ -1373,7 +1374,7 @@ function useAdminData(token) {
     };
   }, [token]); // eslint-disable-line
 
-  return { cache, loading, reload, loadTab };
+  return { cache, loading, reload, loadTab, pendingOrders, setPendingOrders };
 }
 
 export default function AdminPanel() {
@@ -1400,18 +1401,14 @@ export default function AdminPanel() {
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
   const { cache, loading, reload, loadTab } = useAdminData(token);
-  const [pendingBadge, setPendingBadge] = useState(0);
 
   // Always fetch fresh data when tab is clicked
   useEffect(() => {
     loadTab(tab);
   }, [tab]); // eslint-disable-line
 
-  // Recalculate badge whenever orders cache changes
-  useEffect(() => {
-    const count = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
-    setPendingBadge(count);
-  }, [cache.orders]);
+  // Badge recalculates whenever orders cache changes
+  const pendingBadge = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
