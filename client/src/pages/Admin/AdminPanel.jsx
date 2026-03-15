@@ -787,10 +787,7 @@ function OrdersTab({ token, data, loading, onRefresh }) {
                       style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"linear-gradient(135deg,rgba(37,211,102,0.2),rgba(37,211,102,0.1))",border:"1.5px solid rgba(37,211,102,0.4)",borderRadius:8,padding:"0.5rem 1rem",color:"#25D366",fontSize:"0.82rem",fontWeight:800,textDecoration:"none" }}>
                       💳 Send Payment Request
                     </a>
-                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}`} target="_blank" rel="noreferrer"
-                      style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(37,211,102,0.12)",border:"1px solid rgba(37,211,102,0.3)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#25D366",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
-                      💬 WhatsApp {o.customer?.name}
-                    </a>
+
                     <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${encodeURIComponent(`Hi ${o.customer?.name}, your SparkNest order *#${o.orderId}* has been shipped! 🎆 We will deliver it soon. Thank you for ordering with us!`)}`}
                       target="_blank" rel="noreferrer"
                       style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"rgba(255,107,0,0.1)",border:"1px solid rgba(255,107,0,0.25)",borderRadius:8,padding:"0.4rem 0.85rem",color:"#FF6B00",fontSize:"0.78rem",fontWeight:700,textDecoration:"none" }}>
@@ -819,13 +816,72 @@ function OrdersTab({ token, data, loading, onRefresh }) {
 }
 
 
+
+// ── Customer Modal ─────────────────────────────────────────────────────────────
+function CustomerModal({ customer, onClose, onSaved, token }) {
+  const isEdit = !!customer?._id;
+  const [form, setForm] = useState({
+    name:  customer?.name  || "",
+    phone: customer?.phone || "",
+    email: customer?.email || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async () => {
+    if (!form.name.trim() || !form.phone.trim()) { toast.error("Name and phone are required"); return; }
+    setSaving(true);
+    try {
+      const url    = isEdit ? `/api/admin/customers/${customer._id}` : "/api/admin/customers";
+      const method = isEdit ? "PATCH" : "POST";
+      const res    = await authFetch(url, { method, headers:{"Content-Type":"application/json"}, body:JSON.stringify(form) }, token);
+      const data   = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast.success(isEdit ? "Customer updated!" : "Customer created!"); onSaved();
+    } catch(err) { toast.error(err.message); } finally { setSaving(false); }
+  };
+
+  return (
+    <div style={{ position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.82)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
+      <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,107,0,0.2)",borderRadius:20,width:"100%",maxWidth:440,padding:"1.8rem" }}>
+        <div style={{ display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1.3rem" }}>
+          <h2 style={{ color:"#FFF5E6",fontFamily:"'Libre Baskerville',serif",fontSize:"1.1rem",margin:0 }}>{isEdit?"Edit Customer":"Add Customer"}</h2>
+          <Btn variant="ghost" onClick={onClose} style={{ padding:"0.4rem" }}><X size={15} /></Btn>
+        </div>
+        <div style={{ display:"flex",flexDirection:"column",gap:"0.85rem" }}>
+          <div><label style={S.label}>Name *</label><Input name="name" value={form.name} onChange={onChange} placeholder="Customer name" /></div>
+          <div><label style={S.label}>Phone *</label><Input name="phone" value={form.phone} onChange={onChange} placeholder="10-digit phone" maxLength={10} /></div>
+          <div><label style={S.label}>Email</label><Input name="email" value={form.email} onChange={onChange} placeholder="email@example.com" /></div>
+        </div>
+        <div style={{ display:"flex",gap:"0.75rem",marginTop:"1.3rem" }}>
+          <Btn variant="ghost" onClick={onClose} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
+          <Btn onClick={handleSubmit} disabled={saving} style={{ flex:2,justifyContent:"center" }}>
+            {saving?<><Loader2 size={14} style={{ animation:"spin 1s linear infinite" }} />Saving…</>:isEdit?"Save Changes":"Add Customer"}
+          </Btn>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // CUSTOMERS TAB
 // ══════════════════════════════════════════════════════════════════════════════
 function CustomersTab({ token, data, loading, onRefresh }) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch]     = useState("");
   const [expanded, setExpanded] = useState(null);
+  const [modal, setModal]       = useState(null);
+  const [delTarget, setDelTarget] = useState(null);
   const customers = data?.customers || [];
+
+  const deleteCustomer = async (id) => {
+    try {
+      const res = await authFetch(`/api/admin/customers/${id}`, { method:"DELETE" }, token);
+      if (!res.ok) throw new Error();
+      toast.success("Customer deleted"); onRefresh();
+    } catch { toast.error("Failed to delete"); }
+    setDelTarget(null);
+  };
 
   const filtered = customers.filter(c =>
     !search ||
@@ -845,7 +901,8 @@ function CustomersTab({ token, data, loading, onRefresh }) {
       <div style={{ display:"flex", gap:"0.75rem", marginBottom:"1.2rem", flexWrap:"wrap", alignItems:"center" }}>
         <Input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, phone or email…" style={{ flex:1, minWidth:200 }} />
         <Btn variant="ghost" onClick={onRefresh}><RefreshCw size={14} /> Refresh</Btn>
-        <span style={{ color:"rgba(255,245,230,0.38)", fontSize:"0.78rem" }}>{customers.length} total customers</span>
+        <span style={{ color:"rgba(255,245,230,0.38)", fontSize:"0.78rem" }}>{customers.length} total</span>
+        <Btn onClick={()=>setModal("add")}><Plus size={15} /> Add Customer</Btn>
       </div>
 
       <>
@@ -883,6 +940,10 @@ function CustomersTab({ token, data, loading, onRefresh }) {
                   <p style={{ color:"#FFD700", fontWeight:700, fontSize:"0.82rem", margin:"0 0 0.12rem" }}>₹{c.totalSpent.toLocaleString("en-IN")}</p>
                   <p style={{ color:"rgba(255,245,230,0.38)", fontSize:"0.7rem", margin:0 }}>{c.totalOrders} order{c.totalOrders!==1?"s":""} · {fmtDate(c.lastOrderAt)}</p>
                 </div>
+                <div style={{ display:"flex",gap:"0.3rem",flexShrink:0 }} onClick={e=>e.stopPropagation()}>
+                  <button onClick={()=>setModal(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,107,0,0.18)",color:"rgba(255,245,230,0.6)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}><Pencil size={11} /></button>
+                  <button onClick={()=>setDelTarget(c)} style={{ width:28,height:28,borderRadius:7,background:"rgba(255,61,0,0.06)",border:"1px solid rgba(255,61,0,0.2)",color:"#FF3D00",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center" }}><Trash2 size={11} /></button>
+                </div>
                 <ChevronDown size={14} color="rgba(255,245,230,0.3)" style={{ transform:expanded===c._id?"rotate(180deg)":"none", transition:"transform .2s", flexShrink:0 }} />
               </div>
               {/* Expanded: addresses */}
@@ -910,6 +971,20 @@ function CustomersTab({ token, data, loading, onRefresh }) {
       </div>
       <Pagination page={page} totalPages={totalPages} setPage={setPage} total={filtered.length} />
       </>
+      {modal && <CustomerModal customer={modal==="add"?null:modal} onClose={()=>setModal(null)} onSaved={()=>{setModal(null);onRefresh();}} token={token} />}
+      {delTarget && (
+        <div style={{ position:"fixed",inset:0,zIndex:1001,background:"rgba(0,0,0,0.85)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem" }}>
+          <div style={{ background:"linear-gradient(160deg,#1A0800,#0D0500)",border:"1px solid rgba(255,61,0,0.3)",borderRadius:16,padding:"1.8rem",maxWidth:360,width:"100%",textAlign:"center" }}>
+            <AlertCircle size={38} color="#FF3D00" style={{ marginBottom:"0.7rem" }} />
+            <h3 style={{ color:"#FFF5E6",fontFamily:"'Libre Baskerville',serif",margin:"0 0 0.4rem" }}>Delete Customer?</h3>
+            <p style={{ color:"rgba(255,245,230,0.5)",fontSize:"0.86rem",margin:"0 0 1.4rem" }}><strong style={{ color:"#FFF5E6" }}>{delTarget.name}</strong> will be permanently removed.</p>
+            <div style={{ display:"flex",gap:"0.75rem" }}>
+              <Btn variant="ghost" onClick={()=>setDelTarget(null)} style={{ flex:1,justifyContent:"center" }}>Cancel</Btn>
+              <Btn variant="danger" onClick={()=>deleteCustomer(delTarget._id)} style={{ flex:1,justifyContent:"center" }}><Trash2 size={13} /> Delete</Btn>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

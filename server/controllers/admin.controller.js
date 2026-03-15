@@ -208,3 +208,33 @@ export const getCustomers = async (req, res) => {
     res.json({ success: true, customers, total });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
+
+// POST /api/admin/customers
+export const createCustomer = async (req, res) => {
+  try {
+    const { name, phone, email, addresses } = req.body;
+    if (!name || !phone) return res.status(400).json({ success: false, message: "Name and phone are required" });
+    const existing = await Customer.findOne({ phone });
+    if (existing) return res.status(409).json({ success: false, message: "Customer with this phone already exists" });
+    const customer = await Customer.create({ name, phone, email: email||"", addresses: addresses||[] });
+    res.status(201).json({ success: true, customer });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// PATCH /api/admin/customers/:id
+export const updateCustomer = async (req, res) => {
+  try {
+    const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!customer) return res.status(404).json({ success: false, message: "Customer not found" });
+    res.json({ success: true, customer });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
+
+// DELETE /api/admin/customers/:id
+export const deleteCustomer = async (req, res) => {
+  try {
+    const customer = await Customer.findByIdAndDelete(req.params.id);
+    if (!customer) return res.status(404).json({ success: false, message: "Customer not found" });
+    res.json({ success: true, message: "Customer deleted" });
+  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+};
