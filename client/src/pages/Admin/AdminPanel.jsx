@@ -44,28 +44,30 @@ const fmtDate  = d => new Date(d).toLocaleDateString("en-IN",{day:"2-digit",mont
 // ── Build WhatsApp payment request message ────────────────────────────────
 const buildPaymentMsg = (o, selectedUpi) => {
   const itemLines = (o.items || [])
-    .map(item => `▪️ ${item.name} × ${item.quantity} = ₹${(item.price * item.quantity).toLocaleString("en-IN")}`)
-    .join("");
+    .map(item => `- ${item.name} x ${item.quantity} = Rs.${(item.price * item.quantity).toLocaleString("en-IN")}`)
+    .join("\n");
 
-  return encodeURIComponent(
-`Hello ${o.customer?.name} 👋
+  const msg = [
+    `Hello ${o.customer?.name}!`,
+    "",
+    "Thank you for ordering from SparkNest.",
+    "",
+    `*Order ID:* #${o.orderId}`,
+    `*Total Amount:* Rs.${o.pricing?.grandTotal?.toLocaleString("en-IN")}`,
+    "",
+    "*Your Order:*",
+    itemLines,
+    "",
+    "Please complete the payment using the UPI details below:",
+    `*UPI ID:* ${selectedUpi}`,
+    "",
+    "After payment, kindly send the payment screenshot here.",
+    "Once verified, we will confirm and dispatch your order within 12 hours.",
+    "",
+    "Thank you for choosing SparkNest!",
+  ].join("\n");
 
-Thank you for ordering from SparkNest 🔥
-
-🧾 *Order ID:* #${o.orderId}
-💰 *Total Amount:* ₹${o.pricing?.grandTotal?.toLocaleString("en-IN")}
-
-📦 *Your Order:*
-${itemLines}
-
-Please complete the payment using the UPI details below:
-💳 *UPI ID:* ${selectedUpi}
-
-After payment, kindly send the payment screenshot here.
-Once verified, we will confirm and dispatch your order 🚚
-
-Thank you for choosing SparkNest! 🎆`
-  );
+  return encodeURIComponent(msg);
 };
 
 // Authenticated fetch — automatically attaches Bearer token
