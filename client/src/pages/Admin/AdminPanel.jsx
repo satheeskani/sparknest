@@ -13,7 +13,12 @@ const CATEGORIES    = ["Sparklers","Rockets","Bombs","Flower Pots","Sky Shots","
 const CAT_COLORS    = { "Sparklers":"#FFD700","Rockets":"#FF6B00","Bombs":"#FF3D00","Flower Pots":"#2ECC71","Sky Shots":"#00BFFF","Kids Special":"#FF69B4","Combo Packs":"#7B2FBE","Gift Boxes":"#F39C12" };
 const CAT_EMOJI     = { "Sparklers":"✨","Rockets":"🚀","Bombs":"💥","Flower Pots":"🌸","Sky Shots":"🎆","Kids Special":"🧒","Combo Packs":"📦","Gift Boxes":"🎁" };
 const ORDER_STATUS  = ["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
-const SPARKNEST_UPI = "satheeskani1995@okicici"; // Update this with your UPI ID
+// ── Add all your UPI IDs here ────────────────────────────────────────────────
+const UPI_OPTIONS = [
+  { label:"Satheeskumar M (ICICI)",   upi:"satheeskani1995@okicici" },
+  { label:"SparkNest (GPay)",         upi:"satheeskumar@gpay"       },
+  // Add more UPI IDs here as needed
+];
 const PAYMENT_STATUS= ["Pending","Screenshot Received","Confirmed","Failed"];
 
 const STATUS_COLORS = {
@@ -37,7 +42,7 @@ const fmtPrice = n => `₹${Number(n||0).toLocaleString("en-IN")}`;
 const fmtDate  = d => new Date(d).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
 
 // ── Build WhatsApp payment request message ────────────────────────────────
-const buildPaymentMsg = (o) => {
+const buildPaymentMsg = (o, selectedUpi) => {
   const itemLines = (o.items || [])
     .map(item => `▪️ ${item.name} × ${item.quantity} = ₹${(item.price * item.quantity).toLocaleString("en-IN")}`)
     .join("");
@@ -54,7 +59,7 @@ Thank you for ordering from SparkNest 🔥
 ${itemLines}
 
 Please complete the payment using the UPI details below:
-💳 *UPI ID:* ${SPARKNEST_UPI}
+💳 *UPI ID:* ${selectedUpi}
 
 After payment, kindly send the payment screenshot here.
 Once verified, we will confirm and dispatch your order 🚚
@@ -771,8 +776,14 @@ function OrdersTab({ token, data, loading, onRefresh }) {
                     </div>
                   )}
                   {/* WhatsApp quick actions */}
-                  <div style={{ display:"flex",gap:"0.6rem",flexWrap:"wrap" }}>
-                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${buildPaymentMsg(o)}`} target="_blank" rel="noreferrer"
+                  <div style={{ display:"flex",gap:"0.6rem",flexWrap:"wrap",alignItems:"center" }}>
+                    <select defaultValue={UPI_OPTIONS[0].upi} id={`upi-select-${o._id}`}
+                      style={{ background:"#1a0800",border:"1px solid rgba(255,107,0,0.25)",borderRadius:8,color:"#FFF5E6",padding:"0.4rem 0.65rem",fontSize:"0.75rem",cursor:"pointer",outline:"none",fontFamily:"'Source Sans 3',sans-serif" }}>
+                      {UPI_OPTIONS.map(u => <option key={u.upi} value={u.upi}>{u.label}</option>)}
+                    </select>
+                    <a href={`https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${buildPaymentMsg(o, document.getElementById("upi-select-" + o._id)?.value || UPI_OPTIONS[0].upi)}`}
+                      target="_blank" rel="noreferrer"
+                      onClick={e => { const sel = document.getElementById("upi-select-" + o._id); e.currentTarget.href = `https://wa.me/91${(o.customer?.phone||"").replace(/\D/g,"")}?text=${buildPaymentMsg(o, sel?.value || UPI_OPTIONS[0].upi)}`; }}
                       style={{ display:"inline-flex",alignItems:"center",gap:"0.35rem",background:"linear-gradient(135deg,rgba(37,211,102,0.2),rgba(37,211,102,0.1))",border:"1.5px solid rgba(37,211,102,0.4)",borderRadius:8,padding:"0.5rem 1rem",color:"#25D366",fontSize:"0.82rem",fontWeight:800,textDecoration:"none" }}>
                       💳 Send Payment Request
                     </a>
