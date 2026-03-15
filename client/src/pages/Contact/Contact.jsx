@@ -3,7 +3,7 @@ import { MapPin, Phone, Mail, MessageCircle, Clock, Send, CheckCircle2, Loader2 
 import toast from "react-hot-toast";
 
 const ADMIN_WHATSAPP = "6385812382";
-const ADMIN_EMAIL    = "sparknest.sivakasi@gmail.com";
+const ADMIN_EMAIL    = "sparknest.help@gmail.com";
 const ADMIN_PHONE    = "+91 63858 12382";
 const ADDRESS        = "Sivakasi, Tamil Nadu — 626 123, India";
 

@@ -277,8 +277,8 @@ export default function Footer() {
               ))}
               <div style={{ marginTop:"1.2rem", padding:"1rem", borderRadius:12,
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
-                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 support@sparknest.in</p>
-                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)" }}>📞 8015850365</p>
+                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 sparknest.help@gmail.com</p>
+                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)" }}>📞 6385812382</p>
               </div>
             </div>
           </div>
@@ -305,7 +305,7 @@ export default function Footer() {
               ))}
               <div style={{ marginTop:"0.8rem", padding:"0.9rem", borderRadius:12,
                 background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
-                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 support@sparknest.in</p>
+                <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)", marginBottom:"0.4rem" }}>📧 sparknest.help@gmail.com</p>
                 <p style={{ fontSize:"0.9rem", color:"rgba(255,245,230,.8)" }}>📞 8015850365</p>
               </div>
             </AccordionCol>
