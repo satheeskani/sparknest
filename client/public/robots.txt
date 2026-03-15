@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /sparknest-cp
+Disallow: /checkout
+Disallow: /cart
+
+# Sitemap location
+Sitemap: https://sparknest-one.vercel.app/sitemap.xml
