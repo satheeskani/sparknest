@@ -1,0 +1,13 @@
+{
+  "name": "SparkNest",
+  "short_name": "SparkNest",
+  "description": "Buy crackers online from Sivakasi - SparkNest",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0600",
+  "theme_color": "#FF6B00",
+  "icons": [
+    { "src": "/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/favicon-16.png", "sizes": "16x16", "type": "image/png" }
+  ]
+}

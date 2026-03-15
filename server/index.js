@@ -49,6 +49,7 @@ app.use(cors({
     if (!origin) return cb(null, true);
     if (origin.startsWith("http://localhost")) return cb(null, true);
     if (origin.endsWith(".vercel.app")) return cb(null, true);
+    if (origin.endsWith("sparknest.co.in")) return cb(null, true); // covers www + non-www
     if (process.env.CLIENT_URL && origin === process.env.CLIENT_URL) return cb(null, true);
     cb(new Error("Not allowed by CORS"));
   },
