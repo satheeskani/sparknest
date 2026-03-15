@@ -221,11 +221,30 @@ export const createCustomer = async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
 
-// PATCH /api/admin/customers/:id
+// PATCH /api/admin/customers/:id — also syncs name/phone/email in their orders
 export const updateCustomer = async (req, res) => {
   try {
+    // Get old phone BEFORE updating
+    const existing = await Customer.findById(req.params.id);
+    if (!existing) return res.status(404).json({ success: false, message: "Customer not found" });
+    const oldPhone = existing.phone;
+
     const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!customer) return res.status(404).json({ success: false, message: "Customer not found" });
+
+    // Sync name, phone, email in all matching orders
+    const { name, phone, email } = req.body;
+    const updateFields = {};
+    if (name)  updateFields["customer.name"]  = name;
+    if (phone) updateFields["customer.phone"] = phone;
+    if (email) updateFields["customer.email"] = email;
+
+    if (Object.keys(updateFields).length > 0) {
+      await Order.updateMany(
+        { "customer.phone": oldPhone },
+        { $set: updateFields }
+      );
+    }
+
     res.json({ success: true, customer });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 };
