@@ -305,77 +305,54 @@ Please verify payment screenshot from customer and confirm dispatch.`
     const snap         = orderSnapshot;
     const amountDue    = snap?.grandTotal || grandTotal;
     const customerName = snap?.form.name || form.name;
-    const gpayLink     = `upi://pay?pa=${UPI_IDS[0].upiId}&pn=${encodeURIComponent(UPI_IDS[0].name)}&am=${amountDue}&cu=INR&tn=${encodeURIComponent("SparkNest Order " + orderId)}`;
     const waMsg = buildOrderMessage("admin", snap);
     return (
       <div style={{ minHeight:"100vh", background:"#0D0600", fontFamily:"'Source Sans 3',sans-serif", paddingTop:80 }}>
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700;800&display=swap');`}</style>
 
         {/* ── Creamy Header ── */}
-        <div style={{ textAlign:"center", padding:"2.5rem 1.5rem 2rem", background:"linear-gradient(160deg,#FFF8F0 0%,#FFF3E0 40%,#FEF9F0 100%)", borderBottom:"1px solid rgba(255,107,0,0.15)" }}>
-          <div style={{ fontSize:"3rem", marginBottom:"0.5rem" }}>🎆</div>
-          <h1 style={{ color:"#B45000", fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.06em", fontSize:"clamp(1.3rem,4vw,2rem)", margin:"0 0 0.5rem" }}>Order Placed!</h1>
-          <div style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.25)", borderRadius:10, padding:"0.4rem 1.1rem", marginBottom:"1rem" }}>
+        <div style={{ textAlign:"center", padding:"3rem 1.5rem 2.5rem", background:"linear-gradient(160deg,#FFF8F0 0%,#FFF3E0 40%,#FEF9F0 100%)", borderBottom:"1px solid rgba(255,107,0,0.15)" }}>
+          <div style={{ fontSize:"3.5rem", marginBottom:"0.6rem" }}>🎆</div>
+          <h1 style={{ color:"#B45000", fontFamily:"'Libre Baskerville',serif", textTransform:"uppercase", letterSpacing:"0.06em", fontSize:"clamp(1.3rem,4vw,2rem)", margin:"0 0 0.6rem" }}>Order Placed!</h1>
+          <div style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", background:"rgba(255,107,0,0.1)", border:"1px solid rgba(255,107,0,0.25)", borderRadius:10, padding:"0.4rem 1.1rem", marginBottom:"1.2rem" }}>
             <span style={{ color:"rgba(150,70,0,0.6)", fontSize:"0.7rem", fontWeight:700, textTransform:"uppercase" }}>Order ID</span>
             <span style={{ color:"#C45000", fontWeight:900, fontSize:"1rem", fontFamily:"monospace" }}>#{orderId}</span>
           </div>
-          <p style={{ color:"rgba(80,35,0,0.72)", fontSize:"1rem", margin:"0 auto 1.2rem", lineHeight:1.7, maxWidth:500 }}>
+          <p style={{ color:"rgba(80,35,0,0.72)", fontSize:"1rem", margin:"0 auto 1.5rem", lineHeight:1.8, maxWidth:500 }}>
             Hi <strong style={{ color:"#3D1A00" }}>{customerName}</strong>! Your order is placed. Click the WhatsApp button below to complete your payment. We will dispatch the order within <strong style={{ color:"#C45000" }}>12 hours</strong>. 🚀
           </p>
 
           {/* Trust badges */}
-          <div style={{ display:"flex", gap:"0.6rem", justifyContent:"center", flexWrap:"wrap", marginBottom:"0.5rem" }}>
-            {[
-              { icon:"🛡️", text:"100% Secure" },
-              { icon:"✅", text:"PESO Certified" },
-              { icon:"🏭", text:"Direct from Sivakasi" },
-              { icon:"⚡", text:"Quick Dispatch" },
-            ].map(b => (
-              <span key={b.text} style={{ display:"inline-flex", alignItems:"center", gap:"0.3rem", background:"rgba(255,107,0,0.08)", border:"1px solid rgba(255,107,0,0.18)", borderRadius:100, padding:"0.25rem 0.75rem", fontSize:"0.75rem", color:"rgba(80,35,0,0.7)", fontWeight:700 }}>
-                {b.icon} {b.text}
-              </span>
+          <div style={{ display:"flex", gap:"0.6rem", justifyContent:"center", flexWrap:"wrap" }}>
+            {["🛡️ 100% Secure", "✅ PESO Certified", "🏭 Direct from Sivakasi", "⚡ Quick Dispatch"].map(b => (
+              <span key={b} style={{ background:"rgba(255,107,0,0.08)", border:"1px solid rgba(255,107,0,0.18)", borderRadius:100, padding:"0.25rem 0.75rem", fontSize:"0.75rem", color:"rgba(80,35,0,0.65)", fontWeight:700 }}>{b}</span>
             ))}
           </div>
         </div>
 
-        <div style={{ maxWidth:540, margin:"0 auto", padding:"1.5rem clamp(1rem,4vw,2rem) 4rem" }}>
+        {/* ── Actions ── */}
+        <div style={{ maxWidth:480, margin:"0 auto", padding:"2rem clamp(1rem,4vw,2rem) 4rem" }}>
 
           {/* Amount */}
-          <div style={{ background:"linear-gradient(135deg,rgba(255,107,0,0.15),rgba(255,61,0,0.08))", border:"1.5px solid rgba(255,107,0,0.3)", borderRadius:14, padding:"1rem 1.4rem", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem" }}>
-            <span style={{ color:"rgba(255,245,230,0.7)", fontWeight:700 }}>💰 Order Total</span>
+          <div style={{ background:"linear-gradient(135deg,rgba(255,107,0,0.12),rgba(255,61,0,0.06))", border:"1.5px solid rgba(255,107,0,0.25)", borderRadius:14, padding:"1rem 1.4rem", display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.2rem" }}>
+            <span style={{ color:"rgba(255,245,230,0.65)", fontWeight:700 }}>💰 Order Total</span>
             <span style={{ color:"#FFD700", fontWeight:900, fontSize:"1.6rem" }}>₹{amountDue.toLocaleString("en-IN")}</span>
           </div>
 
-          {/* QR Code */}
-          <div style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,107,0,0.12)", borderRadius:16, padding:"1.5rem", marginBottom:"1.2rem", textAlign:"center" }}>
-            <p style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.72rem", fontWeight:700, letterSpacing:"0.1em", textTransform:"uppercase", margin:"0 0 1rem" }}>Scan & Pay via Any UPI App</p>
-            <div style={{ display:"inline-block", background:"#fff", padding:"0.75rem", borderRadius:14, boxShadow:"0 4px 20px rgba(0,0,0,0.3)", marginBottom:"0.75rem" }}>
-              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(gpayLink)}`} alt="UPI QR" width={180} height={180} style={{ display:"block", borderRadius:6 }} />
-            </div>
-            <p style={{ color:"rgba(255,245,230,0.3)", fontSize:"0.72rem", margin:"0 0 0.75rem" }}>GPay · PhonePe · Paytm · BHIM · Any Bank App</p>
-            <div style={{ background:"rgba(37,211,102,0.06)", border:"1px solid rgba(37,211,102,0.18)", borderRadius:10, padding:"0.65rem 1rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"0.5rem" }}>
-              <div style={{ textAlign:"left" }}>
-                <p style={{ color:"rgba(255,245,230,0.35)", fontSize:"0.65rem", fontWeight:700, textTransform:"uppercase", margin:"0 0 0.15rem" }}>UPI ID</p>
-                <p style={{ color:"#7defa1", fontWeight:800, fontSize:"0.95rem", margin:0, fontFamily:"monospace" }}>{UPI_IDS[0].upiId}</p>
-              </div>
-              <CopyBtn text={UPI_IDS[0].upiId} />
-            </div>
-          </div>
-
-          {/* WhatsApp CTA */}
+          {/* WhatsApp button */}
           <a href={`https://wa.me/91${ADMIN_WHATSAPP}?text=${waMsg}`} target="_blank" rel="noreferrer"
-            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.65rem", width:"100%", padding:"1rem 1.5rem", background:"#25D366", border:"none", borderRadius:14, color:"#fff", fontWeight:800, fontSize:"1.05rem", textDecoration:"none", boxSizing:"border-box", boxShadow:"0 4px 20px rgba(37,211,102,0.4)", marginBottom:"0.75rem" }}>
+            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.65rem", width:"100%", padding:"1.1rem 1.5rem", background:"#25D366", borderRadius:14, color:"#fff", fontWeight:800, fontSize:"1.1rem", textDecoration:"none", boxSizing:"border-box", boxShadow:"0 4px 24px rgba(37,211,102,0.45)", marginBottom:"0.75rem" }}>
             <MessageCircle size={22} /> Confirm Order on WhatsApp
           </a>
-          <p style={{ color:"rgba(255,245,230,0.25)", fontSize:"0.75rem", textAlign:"center", margin:"0 0 1.5rem" }}>
-            Send your payment screenshot on WhatsApp to confirm your order
+          <p style={{ color:"rgba(255,245,230,0.25)", fontSize:"0.78rem", textAlign:"center", margin:"0 0 2rem" }}>
+            Tap the button → send the message → we'll share payment details 🙏
           </p>
 
           {/* Links */}
-          <div style={{ display:"flex", gap:"0.75rem", justifyContent:"center", flexWrap:"wrap" }}>
-            <Link to="/track-order" style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>📦 Track Order</Link>
+          <div style={{ display:"flex", gap:"0.75rem", justifyContent:"center" }}>
+            <Link to="/track-order" style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>📦 Track Order</Link>
             <span style={{ color:"rgba(255,245,230,0.15)" }}>·</span>
-            <Link to="/products" style={{ color:"rgba(255,245,230,0.45)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>🛒 Continue Shopping</Link>
+            <Link to="/products" style={{ color:"rgba(255,245,230,0.4)", fontSize:"0.82rem", textDecoration:"none", fontWeight:600 }}>🛒 Continue Shopping</Link>
           </div>
         </div>
       </div>
