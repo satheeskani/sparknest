@@ -717,6 +717,7 @@ function OrdersTab({ token, data, loading, onRefresh }) {
         : o
       ));
       toast.success("Status updated!");
+      onRefresh(); // refresh so badge recalculates
     } catch(err){ toast.error(err.message); }
   };
 
@@ -1399,13 +1400,18 @@ export default function AdminPanel() {
 // Separate shell so useAdminData only runs when logged in
 function AdminShell({ token, user, onLogout, tab, setTab }) {
   const { cache, loading, reload, loadTab } = useAdminData(token);
+  const [pendingBadge, setPendingBadge] = useState(0);
+
   // Always fetch fresh data when tab is clicked
   useEffect(() => {
     loadTab(tab);
   }, [tab]); // eslint-disable-line
 
-  // Badge: show pending count always, disappears when count reaches 0
-  const pendingBadge = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
+  // Recalculate badge whenever orders cache changes
+  useEffect(() => {
+    const count = (cache.orders?.orders || []).filter(o => o.orderStatus === "Pending").length;
+    setPendingBadge(count);
+  }, [cache.orders]);
 
   return (
     <div style={{ minHeight:"100vh",background:"#0D0600",fontFamily:"'Source Sans 3',sans-serif" }}>
