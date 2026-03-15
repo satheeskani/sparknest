@@ -42,7 +42,7 @@ export const validateOrder = async (req, res, next) => {
 };
 
 // ── Layer 3: Duplicate order guard ────────────────────────────────────────────
-// Same phone + same items within 10 minutes = likely duplicate/bot
+// Same phone + same items within 30 seconds = likely accidental double submit
 const recentOrders = new Map();
 
 export const duplicateOrderGuard = (req, res, next) => {
@@ -53,12 +53,12 @@ export const duplicateOrderGuard = (req, res, next) => {
   const key      = `${phone}-${items.map(i => `${i.name}:${i.quantity}`).join(",")}`;
   const now      = Date.now();
   const lastTime = recentOrders.get(key);
-  const TEN_MIN  = 10 * 60 * 1000;
+  const TEN_MIN  = 30 * 1000; // 30 seconds
 
   if (lastTime && now - lastTime < TEN_MIN) {
     return res.status(429).json({
       success: false,
-      message: "Duplicate order detected. If this is intentional, please wait 10 minutes.",
+      message: "Order already submitted. Please wait a moment before trying again.",
     });
   }
 
